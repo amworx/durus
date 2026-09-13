@@ -1,0 +1,115 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:durus/core/utils.dart';
+import 'package:durus/l10n/app_localizations.dart';
+import 'package:durus/models/models.dart';
+import 'package:durus/widgets/widgets.dart';
+
+void main() {
+  group('utils', () {
+    test('makeUuid returns a UUID v4', () {
+      final u = makeUuid();
+      expect(
+        u,
+        matches(RegExp(
+            r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$')),
+      );
+      expect(u == makeUuid(), isFalse);
+    });
+
+    test('monthKey zero-pads year and month', () {
+      expect(monthKey(DateTime(2026, 9, 13)), '2026-09');
+      expect(monthKey(DateTime(2026, 1, 1)), '2026-01');
+    });
+
+    test('minutesOfDay and timeFromMinutes', () {
+      expect(minutesOfDay(9, 5), 545);
+      expect(timeFromMinutes(90), '01:30');
+      expect(timeFromMinutes(1440), '24:00');
+    });
+
+    test('fmtDate is dd/MM/yyyy', () {
+      expect(fmtDate(DateTime(2026, 9, 5)), '05/09/2026');
+    });
+
+    test('fmtMonthKey renders Arabic month headers', () {
+      expect(fmtMonthKey('2026-09'), 'سبتمبر 2026');
+      expect(fmtMonthKey('bad-key'), 'bad-key');
+    });
+  });
+
+  group('models', () {
+    test('Profile.fromJson maps snake_case and defaults', () {
+      final p = Profile.fromJson({
+        'id': 'p1',
+        'email': 't@durus.app',
+        'full_name': 'أحمد',
+        'role': 'manager',
+        'is_manager': true,
+        'manager_id': 'm1',
+        'school_id': 's1',
+        'onboarded': true,
+      });
+      expect(p.id, 'p1');
+      expect(p.email, 't@durus.app');
+      expect(p.fullName, 'أحمد');
+      expect(p.isManager, isTrue);
+      expect(p.schoolId, 's1');
+      expect(p.onboarded, isTrue);
+    });
+
+    test('Profile.toJson only exposes editable fields', () {
+      const p = Profile(id: 'p1', email: 't@durus.app', fullName: 'أحمد');
+      expect(p.toJson(), {'full_name': 'أحمد'});
+    });
+
+    test('Student.fromJson/toJson round-trips', () {
+      final s = Student.fromJson({
+        'id': 'st1',
+        'school_id': 's1',
+        'name': 'سلمى',
+        'grade': '3',
+        'birth_year': 2018,
+        'default_location': 'teacher_home',
+        'assigned_teacher_id': 't1',
+        'parent_name': 'أب سلمى',
+        'created_at': '2026-09-01T10:00:00.000Z',
+      });
+      expect(s.name, 'سلمى');
+      expect(s.birthYear, 2018);
+      expect(s.defaultLocation, 'teacher_home');
+      expect(s.createdAt, isNotNull);
+      final json = s.toJson();
+      expect(json['name'], 'سلمى');
+      expect(json['school_id'], 's1');
+      expect(json['birth_year'], 2018);
+      expect(json['default_location'], 'teacher_home');
+    });
+  });
+
+  group('widgets', () {
+    Widget harness(Widget child) => MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ar'),
+          home: Scaffold(body: SingleChildScrollView(child: child)),
+        );
+
+    testWidgets('EmptyState renders its message and icon', (tester) async {
+      await tester.pumpWidget(harness(
+        const EmptyState(icon: Icons.inbox_outlined, message: 'لا يوجد شيء'),
+      ));
+      expect(find.text('لا يوجد شيء'), findsOneWidget);
+      expect(find.byIcon(Icons.inbox_outlined), findsOneWidget);
+    });
+
+    testWidgets('SectionCard renders title and child', (tester) async {
+      await tester.pumpWidget(harness(
+        const SectionCard(title: 'العنوان', child: Text('المحتوى')),
+      ));
+      expect(find.text('العنوان'), findsOneWidget);
+      expect(find.text('المحتوى'), findsOneWidget);
+    });
+  });
+}
