@@ -164,6 +164,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navHome => 'اليوم';
 
   @override
+  String get navSchedule => 'الجدول';
+
+  @override
   String get navStudents => 'الطلاب';
 
   @override
@@ -317,6 +320,30 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get scheduleSelectStudent => 'اختر الطالب';
+
+  @override
+  String get scheduleWeeklyTitle => 'جدول الأسبوع';
+
+  @override
+  String get schedulePrevWeek => 'الأسبوع السابق';
+
+  @override
+  String get scheduleNextWeek => 'الأسبوع التالي';
+
+  @override
+  String get scheduleThisWeek => 'هذا الأسبوع';
+
+  @override
+  String get scheduleNoSlots => 'لا توجد جلسات هذا اليوم';
+
+  @override
+  String get scheduleRecurringSlot => 'موعد متكرر';
+
+  @override
+  String get studentsDetailAttendance => 'سجل الحضور';
+
+  @override
+  String get studentsNoAttendance => 'لا توجد جلسات مسجّلة بعد';
 
   @override
   String get feesTitle => 'الأقساط';
@@ -552,6 +579,42 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notificationsLatest => 'آخر التحديثات';
+
+  @override
+  String get reportsTitle => 'تقرير شهري';
+
+  @override
+  String get reportsSubmit => 'عرض التقرير';
+
+  @override
+  String get reportsMonth => 'الشهر';
+
+  @override
+  String get reportsAttendance => 'الحضور';
+
+  @override
+  String get reportsNoAttendance => 'لا توجد جلسات مسجّلة في هذا الشهر';
+
+  @override
+  String get reportsFee => 'القسط';
+
+  @override
+  String get reportsNoFee => 'لا يوجد قسط مضاف لهذا الشهر';
+
+  @override
+  String get reportsTests => 'الاختبارات';
+
+  @override
+  String get reportsNoTests => 'لا توجد اختبارات في هذا الشهر';
+
+  @override
+  String get reportsNotes => 'الملاحظات';
+
+  @override
+  String get reportsNoNotes => 'لا توجد ملاحظات في هذا الشهر';
+
+  @override
+  String get reportsGeneratedAt => 'تاريخ التوليد';
 
   @override
   String get portalNotifications => 'تنبيهات ولي الأمر';

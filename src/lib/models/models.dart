@@ -11,6 +11,12 @@ library;
 
 DateTime? _parseTs(dynamic v) => v is String ? DateTime.tryParse(v) : null;
 
+List<T> _jsonList<T>(dynamic v, T Function(Map<String, dynamic>) fromJson) =>
+    (v as List<dynamic>?)
+            ?.map((e) => fromJson(e as Map<String, dynamic>))
+            .toList() ??
+    const [];
+
 class Profile {
   const Profile({
     required this.id,
@@ -628,4 +634,180 @@ class AppNotification {
       if (created != null) 'created_at': created.toIso8601String(),
     };
   }
+}
+
+/// Attendance totals inside a monthly report.
+class AttendanceSummary {
+  const AttendanceSummary({
+    this.total = 0,
+    this.present = 0,
+    this.absent = 0,
+    this.rescheduled = 0,
+  });
+
+  final int total;
+  final int present;
+  final int absent;
+  final int rescheduled;
+
+  double get presentPercent => total == 0 ? 0 : (present / total * 100);
+
+  factory AttendanceSummary.fromJson(Map<String, dynamic> json) =>
+      AttendanceSummary(
+        total: json['total'] as int? ?? 0,
+        present: json['present'] as int? ?? 0,
+        absent: json['absent'] as int? ?? 0,
+        rescheduled: json['rescheduled'] as int? ?? 0,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'total': total,
+        'present': present,
+        'absent': absent,
+        'rescheduled': rescheduled,
+      };
+}
+
+/// Fee summary inside a monthly report (no row id — computed by the RPC).
+class ReportFee {
+  const ReportFee({
+    this.month,
+    this.amount = 0,
+    this.paidAmount = 0,
+    this.status = 'unpaid',
+    this.dueDate,
+  });
+
+  final String? month;
+  final double amount;
+  final double paidAmount;
+  final String status; // 'unpaid' | 'partial' | 'paid'
+  final String? dueDate; // 'YYYY-MM-DD'
+
+  double get remaining => amount - paidAmount;
+
+  factory ReportFee.fromJson(Map<String, dynamic> json) => ReportFee(
+        month: json['month'] as String?,
+        amount: (json['amount'] as num?)?.toDouble() ?? 0,
+        paidAmount: (json['paid_amount'] as num?)?.toDouble() ?? 0,
+        status: json['status'] as String? ?? 'unpaid',
+        dueDate: json['due_date'] as String?,
+      );
+
+  Map<String, dynamic> toJson() => {
+        if (month != null) 'month': month,
+        'amount': amount,
+        'paid_amount': paidAmount,
+        'status': status,
+        if (dueDate != null) 'due_date': dueDate,
+      };
+}
+
+/// A test row enriched with the subject name (report payloads).
+class ReportTest {
+  const ReportTest({
+    this.subject = '',
+    this.type = 'monthly',
+    this.date,
+    this.score,
+    this.maxScore,
+    this.note,
+  });
+
+  final String subject;
+  final String type;
+  final String? date; // 'YYYY-MM-DD'
+  final double? score;
+  final double? maxScore;
+  final String? note;
+
+  factory ReportTest.fromJson(Map<String, dynamic> json) => ReportTest(
+        subject: json['subject'] as String? ?? '',
+        type: json['type'] as String? ?? 'monthly',
+        date: json['date'] as String?,
+        score: (json['score'] as num?)?.toDouble(),
+        maxScore: (json['max_score'] as num?)?.toDouble(),
+        note: json['note'] as String?,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'subject': subject,
+        'type': type,
+        if (date != null) 'date': date,
+        if (score != null) 'score': score,
+        if (maxScore != null) 'max_score': maxScore,
+        if (note != null) 'note': note,
+      };
+}
+
+/// A note row inside a monthly report (body + author date only).
+class ReportNote {
+  const ReportNote({required this.body, this.createdAt});
+
+  final String body;
+  final DateTime? createdAt;
+
+  factory ReportNote.fromJson(Map<String, dynamic> json) => ReportNote(
+        body: json['body'] as String? ?? '',
+        createdAt: _parseTs(json['created_at']),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'body': body,
+        if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
+      };
+}
+
+/// Monthly report generated server-side by the `generate_report` RPC.
+class MonthlyReport {
+  const MonthlyReport({
+    this.studentId = '',
+    this.studentName = '',
+    this.grade = '',
+    this.month = '',
+    this.generatedAt,
+    this.attendance = const AttendanceSummary(),
+    this.fee,
+    this.tests = const [],
+    this.notes = const [],
+  });
+
+  final String studentId;
+  final String studentName;
+  final String grade;
+  final String month; // 'YYYY-MM'
+  final DateTime? generatedAt;
+  final AttendanceSummary attendance;
+  final ReportFee? fee;
+  final List<ReportTest> tests;
+  final List<ReportNote> notes;
+
+  factory MonthlyReport.fromJson(Map<String, dynamic> json) => MonthlyReport(
+        studentId: json['student_id'] as String? ?? '',
+        studentName: json['student_name'] as String? ?? '',
+        grade: json['grade'] as String? ?? '',
+        month: json['month'] as String? ?? '',
+        generatedAt: _parseTs(json['generated_at']),
+        attendance: json['attendance'] is Map<String, dynamic>
+            ? AttendanceSummary.fromJson(json['attendance'] as Map<String, dynamic>)
+            : const AttendanceSummary(),
+        fee: (json['fee'] is Map<String, dynamic> &&
+                (json['fee'] as Map<String, dynamic>).isNotEmpty)
+            ? ReportFee.fromJson(json['fee'] as Map<String, dynamic>)
+            : null,
+        tests: _jsonList(json['tests'], ReportTest.fromJson),
+        notes: _jsonList(json['notes'], ReportNote.fromJson),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'student_id': studentId,
+        'student_name': studentName,
+        'grade': grade,
+        'month': month,
+        if (generatedAt != null) 'generated_at': generatedAt!.toIso8601String(),
+        'attendance': attendance.toJson(),
+        if (fee != null) 'fee': fee!.toJson(),
+        'tests': tests.map((t) => t.toJson()).toList(),
+        'notes': notes.map((n) => n.toJson()).toList(),
+      };
 }

@@ -6,6 +6,7 @@ import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/screens/fees_screens.dart';
 import 'package:durus/screens/home_screen.dart';
+import 'package:durus/screens/schedule_screen.dart';
 import 'package:durus/screens/settings_screen.dart';
 import 'package:durus/screens/students_screens.dart';
 import 'package:durus/screens/subjects_screens.dart';
@@ -62,6 +63,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
         index: _index,
         children: [
           HomeScreen(),
+          ScheduleScreen(),
           StudentsListScreen(),
           SubjectsScreen(),
           FeesScreen(),
@@ -76,6 +78,11 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             icon: const Icon(Icons.today_outlined),
             selectedIcon: const Icon(Icons.today),
             label: l10n.navHome,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.calendar_month_outlined),
+            selectedIcon: const Icon(Icons.calendar_month),
+            label: l10n.navSchedule,
           ),
           NavigationDestination(
             icon: const Icon(Icons.people_outline),

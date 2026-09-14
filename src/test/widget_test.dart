@@ -33,6 +33,11 @@ void main() {
       expect(fmtDate(DateTime(2026, 9, 5)), '05/09/2026');
     });
 
+    test('isoDate zero-pads to yyyy-MM-dd', () {
+      expect(isoDate(DateTime(2026, 9, 5)), '2026-09-05');
+      expect(isoDate(DateTime(2026, 11, 25)), '2026-11-25');
+    });
+
     test('fmtMonthKey renders Arabic month headers', () {
       expect(fmtMonthKey('2026-09'), 'سبتمبر 2026');
       expect(fmtMonthKey('bad-key'), 'bad-key');
@@ -85,6 +90,67 @@ void main() {
       expect(json['school_id'], 's1');
       expect(json['birth_year'], 2018);
       expect(json['default_location'], 'teacher_home');
+    });
+
+    test('MonthlyReport.fromJson parses a full RPC payload', () {
+      final report = MonthlyReport.fromJson({
+        'student_id': 'st1',
+        'student_name': 'أحمد',
+        'grade': 'التاسع',
+        'month': '2026-09',
+        'generated_at': '2026-09-13T12:00:00.000Z',
+        'attendance': {
+          'total': 12,
+          'present': 10,
+          'absent': 1,
+          'rescheduled': 1,
+        },
+        'fee': {
+          'month': '2026-09',
+          'amount': 50000,
+          'paid_amount': 20000,
+          'status': 'partial',
+          'due_date': '2026-09-05',
+        },
+        'tests': [
+          {
+            'subject': 'رياضيات',
+            'type': 'monthly',
+            'date': '2026-09-10',
+            'score': 18,
+            'max_score': 20,
+          },
+        ],
+        'notes': [
+          {'body': 'ممتاز', 'created_at': '2026-09-11T08:00:00.000Z'},
+        ],
+      });
+      expect(report.studentName, 'أحمد');
+      expect(report.grade, 'التاسع');
+      expect(report.month, '2026-09');
+      expect(report.attendance.total, 12);
+      expect(report.attendance.presentPercent, closeTo(83.33, 0.01));
+      expect(report.fee?.status, 'partial');
+      expect(report.fee?.remaining, 30000);
+      expect(report.tests, hasLength(1));
+      expect(report.tests.first.subject, 'رياضيات');
+      expect(report.tests.first.score, 18);
+      expect(report.notes.first.body, 'ممتاز');
+      expect(report.notes.first.createdAt, isNotNull);
+    });
+
+    test('MonthlyReport.fromJson tolerates empty sections', () {
+      final report = MonthlyReport.fromJson({
+        'student_id': 'st1',
+        'student_name': 'سلمى',
+        'month': '2026-08',
+        'attendance': {},
+      });
+      expect(report.attendance.total, 0);
+      expect(report.attendance.presentPercent, 0);
+      expect(report.fee, isNull);
+      expect(report.tests, isEmpty);
+      expect(report.notes, isEmpty);
     });
   });
 

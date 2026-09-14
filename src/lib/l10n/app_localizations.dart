@@ -400,6 +400,12 @@ abstract class AppLocalizations {
   /// **'اليوم'**
   String get navHome;
 
+  /// No description provided for @navSchedule.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجدول'**
+  String get navSchedule;
+
   /// No description provided for @navStudents.
   ///
   /// In ar, this message translates to:
@@ -705,6 +711,54 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'اختر الطالب'**
   String get scheduleSelectStudent;
+
+  /// No description provided for @scheduleWeeklyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'جدول الأسبوع'**
+  String get scheduleWeeklyTitle;
+
+  /// No description provided for @schedulePrevWeek.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأسبوع السابق'**
+  String get schedulePrevWeek;
+
+  /// No description provided for @scheduleNextWeek.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأسبوع التالي'**
+  String get scheduleNextWeek;
+
+  /// No description provided for @scheduleThisWeek.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الأسبوع'**
+  String get scheduleThisWeek;
+
+  /// No description provided for @scheduleNoSlots.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد جلسات هذا اليوم'**
+  String get scheduleNoSlots;
+
+  /// No description provided for @scheduleRecurringSlot.
+  ///
+  /// In ar, this message translates to:
+  /// **'موعد متكرر'**
+  String get scheduleRecurringSlot;
+
+  /// No description provided for @studentsDetailAttendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجل الحضور'**
+  String get studentsDetailAttendance;
+
+  /// No description provided for @studentsNoAttendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد جلسات مسجّلة بعد'**
+  String get studentsNoAttendance;
 
   /// No description provided for @feesTitle.
   ///
@@ -1173,6 +1227,78 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'آخر التحديثات'**
   String get notificationsLatest;
+
+  /// No description provided for @reportsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقرير شهري'**
+  String get reportsTitle;
+
+  /// No description provided for @reportsSubmit.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض التقرير'**
+  String get reportsSubmit;
+
+  /// No description provided for @reportsMonth.
+  ///
+  /// In ar, this message translates to:
+  /// **'الشهر'**
+  String get reportsMonth;
+
+  /// No description provided for @reportsAttendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحضور'**
+  String get reportsAttendance;
+
+  /// No description provided for @reportsNoAttendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد جلسات مسجّلة في هذا الشهر'**
+  String get reportsNoAttendance;
+
+  /// No description provided for @reportsFee.
+  ///
+  /// In ar, this message translates to:
+  /// **'القسط'**
+  String get reportsFee;
+
+  /// No description provided for @reportsNoFee.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد قسط مضاف لهذا الشهر'**
+  String get reportsNoFee;
+
+  /// No description provided for @reportsTests.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاختبارات'**
+  String get reportsTests;
+
+  /// No description provided for @reportsNoTests.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد اختبارات في هذا الشهر'**
+  String get reportsNoTests;
+
+  /// No description provided for @reportsNotes.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملاحظات'**
+  String get reportsNotes;
+
+  /// No description provided for @reportsNoNotes.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد ملاحظات في هذا الشهر'**
+  String get reportsNoNotes;
+
+  /// No description provided for @reportsGeneratedAt.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاريخ التوليد'**
+  String get reportsGeneratedAt;
 
   /// No description provided for @portalNotifications.
   ///

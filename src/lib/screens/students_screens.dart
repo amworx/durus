@@ -12,6 +12,7 @@ import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
+import 'package:durus/screens/reports_screen.dart';
 import 'package:durus/widgets/widgets.dart';
 
 // ---------------------------------------------------------------------------
@@ -633,6 +634,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
     final refsAsync = ref.watch(studentSubjectRefsProvider);
     final subjectsAsync = ref.watch(subjectsProvider);
     final slotsAsync = ref.watch(slotsProvider);
+    final lessonsAsync = ref.watch(lessonsProvider);
     final testsAsync = ref.watch(testsProvider);
     final notesAsync = ref.watch(notesProvider);
     final cachedStudent = _findStudent(
@@ -661,6 +663,19 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               _headerCard(context, l10n, student),
+              const SizedBox(height: 16),
+              FilledButton.tonalIcon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => MonthlyReportScreen(
+                      studentId: student.id,
+                      studentName: student.name,
+                    ),
+                  ),
+                ),
+                icon: const Icon(Icons.description_outlined),
+                label: Text('${l10n.reportsTitle} — ${student.name}'),
+              ),
               const SizedBox(height: 16),
               SectionCard(
                 title: l10n.studentsParentLink,
@@ -728,6 +743,28 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                     }),
                   ],
                 ),
+              ),
+              const SizedBox(height: 16),
+              SectionCard(
+                title: l10n.studentsDetailAttendance,
+                child: _sectionBody(lessonsAsync, (lessons) {
+                  final list = lessons
+                      .where((l) => l.studentId == student.id)
+                      .toList()
+                    ..sort((a, b) => b.date.compareTo(a.date));
+                  if (list.isEmpty) {
+                    return Text(
+                      l10n.studentsNoAttendance,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    );
+                  }
+                  return Column(
+                    children: [
+                      for (final lesson in list.take(10))
+                        _attendanceTile(context, l10n, subjects, lesson),
+                    ],
+                  );
+                }),
               ),
               const SizedBox(height: 16),
               SectionCard(
@@ -1043,6 +1080,38 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
       subtitle: Text(subtitleParts.join(' • ')),
       trailing: Text(test.date),
       onLongPress: () => _deleteTest(test),
+    );
+  }
+
+  Widget _attendanceTile(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<Subject> subjects,
+    LessonSession lesson,
+  ) {
+    final subjectName = _subjectName(subjects, lesson.subjectId);
+    final theme = Theme.of(context);
+    final (label, color) = _attendanceStyle(l10n, lesson.attendance);
+    final titleParts = <String>[
+      lesson.date,
+      if (subjectName.isNotEmpty) subjectName,
+    ];
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              titleParts.join(' • '),
+              style: theme.textTheme.bodyMedium,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          StatusChip(label: label, color: color),
+        ],
+      ),
     );
   }
 
@@ -1569,6 +1638,15 @@ String _dayLabel(int dayOfWeek) {
   final index = dayOfWeek - 1;
   if (index < 0 || index >= arabicWeekdays.length) return '';
   return arabicWeekdays[index];
+}
+
+(String, Color) _attendanceStyle(AppLocalizations l10n, String attendance) {
+  return switch (attendance) {
+    'present' => (l10n.homeMarkPresent, Colors.green),
+    'absent' => (l10n.homeMarkAbsent, Colors.red),
+    'rescheduled' => (l10n.homeMarkRescheduled, Colors.orange),
+    _ => (attendance, Colors.blueGrey),
+  };
 }
 
 String _testTypeLabel(AppLocalizations l10n, String? type) {

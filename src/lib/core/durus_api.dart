@@ -512,6 +512,21 @@ class DurusApi {
     );
   }
 
+  // ---------- Monthly reports ----------
+
+  /// Generates (and persists) a monthly report for a student via the
+  /// `generate_report` RPC. Idempotent — recomputes and upserts.
+  Future<MonthlyReport> generateReport({
+    required String studentId,
+    required String month,
+  }) async {
+    final res = await _c.rpc(
+      'generate_report',
+      params: {'p_student': studentId, 'p_month': month},
+    );
+    return MonthlyReport.fromJson(res as Map<String, dynamic>);
+  }
+
   // ---------- Internal helpers ----------
 
   List<T> _mapList<T>(dynamic data, T Function(Map<String, dynamic>) fromJson) =>

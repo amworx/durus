@@ -15,6 +15,12 @@ String makeUuid() {
 String monthKey(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}';
 
+/// 'yyyy-MM-dd' for a DateTime (PostgREST date column format).
+String isoDate(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
+
 int minutesOfDay(int hour, int minute) => hour * 60 + minute;
 
 /// 'HH:mm' from minutes since midnight (1440 -> '24:00').

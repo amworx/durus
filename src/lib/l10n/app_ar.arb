@@ -55,6 +55,7 @@
   "onboardingWelcomeMulti": "تم تجهيز حسابك كمدير — أضف المعلمين من الإعدادات",
 
   "navHome": "اليوم",
+  "navSchedule": "الجدول",
   "navStudents": "الطلاب",
   "navSubjects": "المواد",
   "navFees": "الأقساط",
@@ -110,6 +111,15 @@
   "scheduleActive": "مفعّل",
   "scheduleAllStudents": "كل الطلاب",
   "scheduleSelectStudent": "اختر الطالب",
+  "scheduleWeeklyTitle": "جدول الأسبوع",
+  "schedulePrevWeek": "الأسبوع السابق",
+  "scheduleNextWeek": "الأسبوع التالي",
+  "scheduleThisWeek": "هذا الأسبوع",
+  "scheduleNoSlots": "لا توجد جلسات هذا اليوم",
+  "scheduleRecurringSlot": "موعد متكرر",
+
+  "studentsDetailAttendance": "سجل الحضور",
+  "studentsNoAttendance": "لا توجد جلسات مسجّلة بعد",
 
   "feesTitle": "الأقساط",
   "feesMonth": "الشهر",
@@ -194,6 +204,19 @@
   "notificationsNotification": "إشعار",
   "notificationsUnreadCount": "غير مقروء",
   "notificationsLatest": "آخر التحديثات",
+
+  "reportsTitle": "تقرير شهري",
+  "reportsSubmit": "عرض التقرير",
+  "reportsMonth": "الشهر",
+  "reportsAttendance": "الحضور",
+  "reportsNoAttendance": "لا توجد جلسات مسجّلة في هذا الشهر",
+  "reportsFee": "القسط",
+  "reportsNoFee": "لا يوجد قسط مضاف لهذا الشهر",
+  "reportsTests": "الاختبارات",
+  "reportsNoTests": "لا توجد اختبارات في هذا الشهر",
+  "reportsNotes": "الملاحظات",
+  "reportsNoNotes": "لا توجد ملاحظات في هذا الشهر",
+  "reportsGeneratedAt": "تاريخ التوليد",
 
   "portalNotifications": "تنبيهات ولي الأمر",
   "portalNotificationsHint": "سيصلك تنبيه عند تحديث المعلّم لبيانات الطالب",
