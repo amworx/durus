@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/widgets/widgets.dart';
@@ -100,6 +101,27 @@ class _AuthLayout extends StatelessWidget {
   }
 }
 
+/// Maps GoTrue error messages to friendly Arabic copy.
+String _authErrorText(AuthException e, AppLocalizations l10n) {
+  final m = e.message;
+  if (m.contains('Invalid login credentials')) {
+    return l10n.authInvalidCredentials;
+  }
+  if (m.contains('Email not confirmed')) {
+    return l10n.authEmailNotConfirmed;
+  }
+  if (m.contains('email_address_invalid') || m.contains('invalid email')) {
+    return l10n.authInvalidEmail;
+  }
+  if (m.contains('rate_limit') || m.contains('rate limit')) {
+    return l10n.authRateLimited;
+  }
+  if (m.contains('already registered') || m.contains('already exists')) {
+    return l10n.authUserExists;
+  }
+  return l10n.commonError;
+}
+
 class _SignInBody extends ConsumerStatefulWidget {
   const _SignInBody({required this.onSwitch});
 
@@ -162,11 +184,10 @@ class _SignInBodyState extends ConsumerState<_SignInBody> {
           );
       // The AuthGate reacts to the auth state change automatically.
     } on AuthException catch (e) {
-      final message = e.message.contains('Invalid login credentials')
-          ? l10n.authInvalidCredentials
-          : l10n.authWrongFlow;
       if (mounted) {
-        messenger.showSnackBar(SnackBar(content: Text(message)));
+        messenger.showSnackBar(
+          SnackBar(content: Text(_authErrorText(e, l10n))),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -314,13 +335,17 @@ class _SignUpBodyState extends ConsumerState<_SignUpBody> {
         return;
       }
       if (Supabase.instance.client.auth.currentUser == null) {
-        // No auto session (e.g. email confirmation) — back to sign-in.
+        // No auto session (e.g. email confirmation) — tell the user to
+        // confirm the email, then go back to sign-in.
+        messenger.showSnackBar(SnackBar(content: Text(l10n.authCheckEmail)));
         widget.onSwitch();
       }
       // Otherwise the AuthGate transitions automatically.
-    } on AuthException {
+    } on AuthException catch (e) {
       if (mounted) {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.commonError)));
+        messenger.showSnackBar(
+          SnackBar(content: Text(_authErrorText(e, l10n))),
+        );
       }
     } catch (e) {
       if (mounted) {

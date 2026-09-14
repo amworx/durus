@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:durus/l10n/l10n_ext.dart';
+import 'package:durus/providers/providers.dart';
 import 'package:durus/screens/fees_screens.dart';
 import 'package:durus/screens/home_screen.dart';
 import 'package:durus/screens/settings_screen.dart';
@@ -10,6 +12,10 @@ import 'package:durus/screens/subjects_screens.dart';
 
 /// Main tab shell. Five destinations; the active tab is kept alive via
 /// [IndexedStack] so scrolling/state survives tab switches.
+///
+/// Also subscribes to Postgres realtime on the `notifications` table so the
+/// badge count and the notifications center stay fresh when DB triggers add
+/// rows (attendance, fees, payments, …).
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
 
@@ -19,6 +25,34 @@ class HomeShell extends ConsumerStatefulWidget {
 
 class _HomeShellState extends ConsumerState<HomeShell> {
   int _index = 0;
+  RealtimeChannel? _notificationsChannel;
+
+  @override
+  void initState() {
+    super.initState();
+    final client = Supabase.instance.client;
+    _notificationsChannel = client
+        .channel('durus-notifications')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'notifications',
+          callback: (payload) {
+            if (!mounted) return;
+            ref.invalidate(teacherNotificationsProvider);
+          },
+        )
+        .subscribe();
+  }
+
+  @override
+  void dispose() {
+    final channel = _notificationsChannel;
+    if (channel != null) {
+      Supabase.instance.client.removeChannel(channel);
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

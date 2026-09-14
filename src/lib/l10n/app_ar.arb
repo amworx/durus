@@ -37,6 +37,11 @@
   "authNoAccount": "ليس لديك حساب؟ أنشئ حساباً",
   "authInvalidCredentials": "بيانات الدخول غير صحيحة",
   "authWrongFlow": "يبدو أن هذا الحساب غير مكتمل — تحقق من الإعداد",
+  "authCheckEmail": "أرسلنا رابط التأكيد — تحقق من بريدك الإلكتروني",
+  "authInvalidEmail": "عنوان البريد الإلكتروني غير صحيح",
+  "authRateLimited": "طلبات كثيرة — حاول مجدداً بعد قليل",
+  "authUserExists": "هذا البريد مسجّل مسبقاً — سجّل الدخول",
+  "authEmailNotConfirmed": "يرجى تأكيد بريدك الإلكتروني أولاً",
 
   "onboardingTitle": "إعداد المركز",
   "onboardingSubtitle": "اختر طريقة العمل",
@@ -121,6 +126,7 @@
   "feesMethodTransfer": "تحويل",
   "feesMethodOther": "أخرى",
   "feesDueDate": "تاريخ الاستحقاق",
+  "feesMonthInvalid": "صيغة الشهر YYYY-MM",
   "feesEmpty": "لا توجد أقساط بعد",
   "feesSelectStudent": "اختر الطالب",
 

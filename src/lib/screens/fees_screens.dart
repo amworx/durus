@@ -404,11 +404,27 @@ class _FeeFormScreenState extends ConsumerState<FeeFormScreen> {
             TextFormField(
               controller: _monthController,
               readOnly: isEdit,
+              keyboardType: TextInputType.datetime,
+              onTap: () {
+                if (isEdit) return;
+                _monthController.selection = TextSelection(
+                  baseOffset: 0,
+                  extentOffset: _monthController.text.length,
+                );
+              },
               decoration: InputDecoration(
                 labelText: l10n.feesMonth,
                 helperText: 'YYYY-MM',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return l10n.commonRequired;
+                }
+                return RegExp(r'^\d{4}-(0[1-9]|1[0-2])$').hasMatch(value.trim())
+                    ? null
+                    : l10n.feesMonthInvalid;
+              },
             ),
             const SizedBox(height: 16),
             TextFormField(

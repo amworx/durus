@@ -114,6 +114,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authWrongFlow => 'يبدو أن هذا الحساب غير مكتمل — تحقق من الإعداد';
 
   @override
+  String get authCheckEmail => 'أرسلنا رابط التأكيد — تحقق من بريدك الإلكتروني';
+
+  @override
+  String get authInvalidEmail => 'عنوان البريد الإلكتروني غير صحيح';
+
+  @override
+  String get authRateLimited => 'طلبات كثيرة — حاول مجدداً بعد قليل';
+
+  @override
+  String get authUserExists => 'هذا البريد مسجّل مسبقاً — سجّل الدخول';
+
+  @override
+  String get authEmailNotConfirmed => 'يرجى تأكيد بريدك الإلكتروني أولاً';
+
+  @override
   String get onboardingTitle => 'إعداد المركز';
 
   @override
@@ -347,6 +362,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get feesDueDate => 'تاريخ الاستحقاق';
+
+  @override
+  String get feesMonthInvalid => 'صيغة الشهر YYYY-MM';
 
   @override
   String get feesEmpty => 'لا توجد أقساط بعد';

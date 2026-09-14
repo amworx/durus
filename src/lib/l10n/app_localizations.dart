@@ -304,6 +304,36 @@ abstract class AppLocalizations {
   /// **'يبدو أن هذا الحساب غير مكتمل — تحقق من الإعداد'**
   String get authWrongFlow;
 
+  /// No description provided for @authCheckEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرسلنا رابط التأكيد — تحقق من بريدك الإلكتروني'**
+  String get authCheckEmail;
+
+  /// No description provided for @authInvalidEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'عنوان البريد الإلكتروني غير صحيح'**
+  String get authInvalidEmail;
+
+  /// No description provided for @authRateLimited.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلبات كثيرة — حاول مجدداً بعد قليل'**
+  String get authRateLimited;
+
+  /// No description provided for @authUserExists.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا البريد مسجّل مسبقاً — سجّل الدخول'**
+  String get authUserExists;
+
+  /// No description provided for @authEmailNotConfirmed.
+  ///
+  /// In ar, this message translates to:
+  /// **'يرجى تأكيد بريدك الإلكتروني أولاً'**
+  String get authEmailNotConfirmed;
+
   /// No description provided for @onboardingTitle.
   ///
   /// In ar, this message translates to:
@@ -765,6 +795,12 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تاريخ الاستحقاق'**
   String get feesDueDate;
+
+  /// No description provided for @feesMonthInvalid.
+  ///
+  /// In ar, this message translates to:
+  /// **'صيغة الشهر YYYY-MM'**
+  String get feesMonthInvalid;
 
   /// No description provided for @feesEmpty.
   ///
