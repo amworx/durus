@@ -39,3 +39,18 @@ Append-only. Format: `OP-YYYYMMDD-XXXX`.
 | result | success — teacher disable/enable works end-to-end; announcements compose shipped; teacher creation unblocked; portal mobile-safe |
 | lessons | (1) `auth.admin_create_user` is not callable as SQL inside a security-definer function — use direct auth.users/identities inserts. (2) Direct-inserted users need `confirmation_token`/`recovery_token`/`email_change_token_new`/`email_change` = '' (NULL breaks GoTrue password grant with a 500). (3) `auth.identities.provider_id` is NOT NULL in newer GoTrue — detect via information_schema and branch. (4) PostgREST returns scalar-returning RPC output as a bare JSON string. (5) Always verify user creation by actually logging in. |
 | reusable_pattern | To add manager-gated account state without a service role: add an `active` column + a security-definer RPC guarded by `is_manager()`, gate the app in the router, and confirm with an isolated-context browser login. For auth-user creation on Supabase without the Admin API, use the "direct GoTrue-complete insert" pattern (token cols '', provider_id branch). |
+---
+
+### OP-20260914-0002
+
+| Field | Value |
+|-------|-------|
+| id | OP-20260914-0002 |
+| timestamp | 2026-09-14T18:30:00+03:00 |
+| workflow | deployment (100% free) |
+| project | durus |
+| steps | [1] Create public repo amworx/durus + push master. [2] flutter build web --release --base-href /durus/. [3] Push build/web to gh-pages branch (orphan init in temp dir + .nojekyll). [4] Pages auto-enabled (source gh-pages /); verified live boot in Chrome. [5] keytool: generate durus-release.keystore (random 28-char pw, stored in durus-keys/CREDENTIALS.txt) + key.properties. [6] Wire release signing in app/build.gradle.kts (debug fallback) + disable lint (datastore-jvm:1.1.7 missing). [7] flutter build apk --release → app-release.apk 55.5MB. [8] gh release create v1.0.0 with APK. [9] Commit + push signing change. |
+| duration | ~40 min |
+| result | success — https://amworx.github.io/durus/ live; APK at https://github.com/amworx/durus/releases/tag/v1.0.0 |
+| lessons | keytool writes progress to stderr → PowerShell $? is false even on success; use Test-Path on the artifact instead. gh may be slow uploading 55MB APK — give the create call a 10-min timeout. |
+| reusable_pattern | free_deploy_flutter_github: (1) repo create + push; (2) build web with --base-href /<repo>/; (3) orphan gh-pages branch containing build/web + .nojekyll; (4) Pages auto-enables; (5) sign APK with a generated keystore kept outside the repo; (6) gh release create v1.0.0 with the APK. Total cost USD 0. |

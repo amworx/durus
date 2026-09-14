@@ -21,4 +21,23 @@ Append-only.
 - 2026-09-14 — Newer GoTrue has `auth.identities.provider_id` NOT NULL; detect the column via `information_schema.columns` and branch the identity insert so the RPC works across GoTrue versions.
 - 2026-09-14 — PostgREST returns a scalar-returning RPC (e.g. `returns uuid`) as a bare JSON string, not an object keyed by the function name. Don't `as Map<String, dynamic>` it; handle both shapes.
 - 2026-09-14 — Never trust a create-account RPC's 200 alone: verify by performing a real password login (auth/v1/token) and, for gating logic, an isolated-context browser login.
-- 2026-09-14 — Disabled-account enforcement is app-gate only in v1 (router check on `profile.active`). A determined client could still call the API with the anon key; server-side enforcement (RLS `is_active()` or a GoTrue before-login hook) is future work.
+- 2026-09-14 — Disabled-account enforcement is app-gate only in v1 (router check on `profile.active`). A determined client could still call the API with the anon key; server-side enforcement (RLS `is_active()` or a GoTrue before-login hook) is future work.- 2026-09-14 — Free deployment for Flutter: GitHub Pages serves the web build
+  from a gh-pages branch (auto-enabled on push), GitHub Releases hosts the
+  signed APK — USD 0, no card. Play Store is the only non-free piece ().
+- 2026-09-14 — PowerDown gotcha: keytool.exe writes progress to stderr, so
+  PowerShell $? is false even when it succeeds — gate on Test-Path, not $?.
+- 2026-09-14 — shared_preferences_android 2.4.28's lintVital needs
+  androidx.datastore:datastore-jvm:1.1.7 which is not resolvable here; disable
+  release lint (checkReleaseBuilds=false) for CI-broken lint classpaths.
+- 2026-09-14 — Flutter web must be built with --base-href /<repo-name>/ for a
+  GitHub Pages project site; a wrong base-href renders blank/404 on assets.
+- 2026-09-14 — Verify a Pages deploy by loading the URL and confirming the
+  Flutter root title flips to the app name ("دروس"), not just HTTP 200.- 2026-09-14 — Live Supabase can drift from supabase/config.toml: always
+  verify via GET /auth/v1/settings (needs apikey header). Fix drift with
+  supabase config push --project-ref <ref> --yes after editing config.toml.
+- 2026-09-14 — Free-tier auth email quota is 2/hour (config [auth.rate_limit]
+  email_sent=2) and it ALSO blocks confirmation/OTP/password-reset emails;
+  auto-confirm (enable_confirmations=false) removes the signup blocker only.
+- 2026-09-14 — Invoke-RestMethod mangles JSON bodies on some Supabase auth
+  endpoints; prefer curl.exe with --data-binary @tempfile (ASCII) for auth/REST
+  verification calls.

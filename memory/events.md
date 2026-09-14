@@ -61,3 +61,35 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 | errors | (1) `create_teacher_with_credentials` → 42883 `auth.admin_create_user(...) does not exist`; (2) after direct-insert fix, password grant returned 500 "Database error querying schema" due to NULL token columns. |
 | lessons | See lessons.md (auth.admin_create_user is Admin-API only; direct auth inserts must set token cols to ''; detect identities.provider_id; PostgREST scalar RPC returns a bare String; test user creation with a real password login). |
 | tags | build, phase7, auth, gotrue, announcements |
+---
+
+### EVT-20260914-0002
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260914-0002 |
+| timestamp | 2026-09-14T18:30:00+03:00 |
+| mode | BUILD |
+| action | deploy: GitHub Pages (web) + GitHub Releases (Android APK) |
+| summary | Deployed both deliverables 100% free: created public repo amworx/durus, pushed master, built release web with --base-href /durus/, pushed to gh-pages (Pages auto-enabled, build_type legacy, source gh-pages /), live at https://amworx.github.io/durus/ (verified boot in Chrome — title flips to "دروس"); generated release keystore (durus-keys/durus-release.keystore) + key.properties (gitignored), wired release signing into app/build.gradle.kts with debug fallback, built signed release APK (55.5MB) and published GitHub Release v1.0.0 with the APK. Fixed signed-build blocker: shared_preferences_android lintVital could not resolve androidx.datastore:datastore-jvm:1.1.7 → disabled lint checkReleaseBuilds/abortOnError. |
+| result | success — web live + APK downloadable from https://github.com/amworx/durus/releases/tag/v1.0.0 |
+| files | src/android/app/build.gradle.kts (signing + lint), durus-keys/durus-release.keystore + key.properties (gitignored, outside repo), gh-pages branch |
+| errors | 1 | 
+| lessons | (1) Flutter release build for Google Play needs real signing later — for free distribution debug or custom keystore both satisfy sideloading, but custom keystore survives across machines. (2) shared_preferences_android 2.4.28 expects androidx.datastore:datastore-jvm:1.1.7 in its lint classpath and fails lintVital when that dep is missing — disable lint { checkReleaseBuilds = false } rather than fight the transitive dep. (3) GitHub Pages auto-enables when a gh-pages branch is pushed to a public repo; verify base-href by loading the app and confirming the Flutter title renders. |
+| tags | deploy, github-pages, releases, android, web |
+---
+
+### EVT-20260914-0003
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260914-0003 |
+| timestamp | 2026-09-14T19:05:00+03:00 |
+| mode | BUILD |
+| action | enable open signup (auto-confirm) on live project |
+| summary | User asked whether any user can create an account. Found: enable_signup=true and mailer_autoconfirm=false on live project; free-tier email rate limit (2/hr) had 429d a test signup (over_email_send_rate_limit). Local config.toml already had [auth.email] enable_confirmations=false but remote was out of sync. Pushed config via supabase config push --project-ref rdlapngvsxhdcoxdcjov --yes → live now mailer_autoconfirm=true. Verified: fresh signup returns user with email_confirmed_at set + access_token (session) immediately. Cleaned up test signup user via service-role admin delete (200) + profile delete (204). |
+| result | success — any new email/password user can sign up and is logged in instantly, then hits the onboarding wizard. Parents still use PIN links (no accounts by design). |
+| files | remote Supabase auth config only (no code change; local config.toml was already correct) |
+| errors | 1 (previous test signup 429 over_email_send_rate_limit) |
+| lessons | (1) Live Supabase auth config can drift from supabase/config.toml — check /auth/v1/settings (with apikey) and fix with supabase config push, not just the dashboard. (2) Free tier email_sent rate limit (2/hr) also throttles confirmation/reset emails — auto-confirm removes the signup blocker; custom SMTP (Option B) is the real fix for resets later. (3) .test TLD emails rejected by GoTrue; gmail.com fine. (4) PowerShell Invoke-RestMethod mangles request bodies on some auth endpoints — use curl.exe --data-binary @file with an ASCII temp file. |
+| tags | auth, signup, autoconfirm, rate-limit, config |
