@@ -45,4 +45,6 @@ Append-only.
   address, pass = App Password (requires 2-Step Verification ON).
 - 2026-09-14 — supabase/config.toml secrets: use pass = "env(VAR)" so the
   committed file is secret-free; the CLI resolves at supabase config push
-  and redacts the value (shows hash) in its diff output.
+  and redacts the value (shows hash) in its diff output.- 2026-09-14 — After publishing a Flutter web build, verify on a fresh tab
+  with cache-bypass reload (ignoreCache:true): the service worker keeps
+  serving the previous main.dart.js to returning tabs.

@@ -109,3 +109,19 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 | errors | 1 (SendGrid 451 geo-block) |
 | lessons | (1) Twilio/SendGrid refuses Syria signups (451) — don't attempt again; Gmail SMTP is the drop-in. (2) Gmail app password needs 2-Step Verification enabled; app passwords work for GoTrue SMTP AUTH on 587. (3) supabase config.toml supports pass = "env(VAR)" — CLI resolves at push and redacts as hash in diffs; never commit plaintext SMTP creds to a public repo. (4) Verify SMTP by triggering a real /auth/v1/recover and expecting 200. |
 | tags | smtp, gmail, auth, password-reset, deploy |
+---
+
+### EVT-20260914-0005
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260914-0005 |
+| timestamp | 2026-09-14T20:20:00+03:00 |
+| mode | BUILD |
+| action | forgot-password (نسيت كلمة المرور؟) in app |
+| summary | Added forgot-password flow using the Gmail SMTP backend from EVT-20260914-0004. API: DurusApi.resetPassword -> auth.resetPasswordForEmail. UI: "نسيت كلمة المرور؟" link under password on login (RTL-aligned end); if the form email is valid it sends directly, otherwise an AlertDialog collects it; always shows "إذا كان البريد مسجلاً…" snackbar (no user enumeration). 4 new ARB keys; gen-l10n; 15/15 tests (new l10n resolution test); analyze 0; redeployed web to gh-pages (service worker cached the old build — verified with cache-bypass reload); rebuilt signed release APK and updated Release v1.0.0 via gh release upload --clobber. Live Chrome verification: opened dialog, submitted, snackbar shown. |
+| result | success — live on web + APK v1.0.0; reset emails via Gmail SMTP |
+| files | src/lib/core/durus_api.dart, src/lib/screens/auth_screens.dart, src/lib/l10n/app_ar.arb, src/test/widget_test.dart, gh-pages branch, Release v1.0.0 asset |
+| errors | 1 (stale Flutter SW cache served old build on first check) |
+| lessons | Flutter web deploys must be verified with a cache-bypass reload (service worker serves stale builds to returning tabs); hard reload after every web publish. |
+| tags | auth, password-reset, forgot-password, deploy |
