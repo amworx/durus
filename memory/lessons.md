@@ -40,4 +40,9 @@ Append-only.
   auto-confirm (enable_confirmations=false) removes the signup blocker only.
 - 2026-09-14 — Invoke-RestMethod mangles JSON bodies on some Supabase auth
   endpoints; prefer curl.exe with --data-binary @tempfile (ASCII) for auth/REST
-  verification calls.
+  verification calls.- 2026-09-14 — Twilio/SendGrid blocks Syria (HTTP 451 geo-legal); use Gmail
+  SMTP instead for Supabase auth email: smtp.gmail.com:587, user = gmail
+  address, pass = App Password (requires 2-Step Verification ON).
+- 2026-09-14 — supabase/config.toml secrets: use pass = "env(VAR)" so the
+  committed file is secret-free; the CLI resolves at supabase config push
+  and redacts the value (shows hash) in its diff output.

@@ -93,3 +93,19 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 | errors | 1 (previous test signup 429 over_email_send_rate_limit) |
 | lessons | (1) Live Supabase auth config can drift from supabase/config.toml — check /auth/v1/settings (with apikey) and fix with supabase config push, not just the dashboard. (2) Free tier email_sent rate limit (2/hr) also throttles confirmation/reset emails — auto-confirm removes the signup blocker; custom SMTP (Option B) is the real fix for resets later. (3) .test TLD emails rejected by GoTrue; gmail.com fine. (4) PowerShell Invoke-RestMethod mangles request bodies on some auth endpoints — use curl.exe --data-binary @file with an ASCII temp file. |
 | tags | auth, signup, autoconfirm, rate-limit, config |
+---
+
+### EVT-20260914-0004
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260914-0004 |
+| timestamp | 2026-09-14T19:40:00+03:00 |
+| mode | BUILD |
+| action | Gmail SMTP for Supabase (Option B) |
+| summary | SendGrid signup blocked by geo/legal (451 Unavailable For Legal Reasons — Twilio blocks Syria). Pivoted to Gmail SMTP (500 emails/day, no signup). Added [auth.email.smtp] to supabase/config.toml: host smtp.gmail.com:587, user amworxx@gmail.com, pass = env(DURUS_SMTP_PASSWORD) (CLI resolves at push, file stays secret-free), admin_email/sender_name Durus. Stored Gmail app password in durus-keys/CREDENTIALS.txt (outside repo). Pushed config live (CLI displayed resolved pass as hash). Verified end-to-end: POST /auth/v1/recover for smoke teacher returned 200. Leak-check confirmed no plaintext in config.toml. Committed dfe034a. |
+| result | success — password-reset emails now go through Gmail SMTP; ~500 emails/day, no 2/hr cap |
+| files | supabase/config.toml, durus-keys/CREDENTIALS.txt (untracked) |
+| errors | 1 (SendGrid 451 geo-block) |
+| lessons | (1) Twilio/SendGrid refuses Syria signups (451) — don't attempt again; Gmail SMTP is the drop-in. (2) Gmail app password needs 2-Step Verification enabled; app passwords work for GoTrue SMTP AUTH on 587. (3) supabase config.toml supports pass = "env(VAR)" — CLI resolves at push and redacts as hash in diffs; never commit plaintext SMTP creds to a public repo. (4) Verify SMTP by triggering a real /auth/v1/recover and expecting 200. |
+| tags | smtp, gmail, auth, password-reset, deploy |
