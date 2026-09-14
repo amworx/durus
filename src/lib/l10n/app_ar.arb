@@ -42,6 +42,10 @@
   "authRateLimited": "طلبات كثيرة — حاول مجدداً بعد قليل",
   "authUserExists": "هذا البريد مسجّل مسبقاً — سجّل الدخول",
   "authEmailNotConfirmed": "يرجى تأكيد بريدك الإلكتروني أولاً",
+  "authForgotPassword": "نسيت كلمة المرور؟",
+  "authResetDialogTitle": "استعادة كلمة المرور",
+  "authResetSent": "إذا كان البريد مسجلاً، ستصلك رسالة بها رابط إعادة تعيين كلمة المرور",
+  "authResetButton": "إرسال الرابط",
 
   "onboardingTitle": "إعداد المركز",
   "onboardingSubtitle": "اختر طريقة العمل",

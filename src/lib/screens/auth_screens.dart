@@ -200,6 +200,75 @@ class _SignInBodyState extends ConsumerState<_SignInBody> {
     }
   }
 
+  /// Forgot-password flow: if the login form already holds a valid email,
+  /// send the reset directly; otherwise ask for the email in a dialog first.
+  Future<void> _forgotPassword() async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+
+    Future<void> send(String target) async {
+      try {
+        await ref.read(apiProvider).resetPassword(target);
+        if (mounted) {
+          messenger.showSnackBar(SnackBar(content: Text(l10n.authResetSent)));
+        }
+      } on AuthException {
+        if (mounted) {
+          messenger.showSnackBar(
+            SnackBar(content: Text(l10n.authRateLimited)),
+          );
+        }
+      } catch (_) {
+        if (mounted) {
+          messenger.showSnackBar(SnackBar(content: Text(l10n.commonError)));
+        }
+      }
+    }
+
+    final email = _emailController.text.trim();
+    if (_emailPattern.hasMatch(email)) {
+      await send(email);
+      return;
+    }
+
+    final controller = TextEditingController(text: email);
+    final target = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.authResetDialogTitle),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(
+            labelText: l10n.authEmail,
+            prefixIcon: const Icon(Icons.mail_outline),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              final v = controller.text.trim();
+              if (_emailPattern.hasMatch(v)) {
+                Navigator.pop(dialogContext, v);
+              }
+            },
+            child: Text(l10n.authResetButton),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (target != null) {
+      await send(target);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -239,6 +308,14 @@ class _SignInBodyState extends ConsumerState<_SignInBody> {
             validator: _validatePassword,
           ),
           const SizedBox(height: 24),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton(
+              onPressed: _submitting ? null : _forgotPassword,
+              child: Text(l10n.authForgotPassword),
+            ),
+          ),
+          const SizedBox(height: 4),
           FilledButton(
             onPressed: _submitting ? null : _submit,
             child: _submitting

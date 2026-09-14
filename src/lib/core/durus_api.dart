@@ -23,6 +23,11 @@ class DurusApi {
         data: {'full_name': fullName},
       );
 
+  /// Sends a password-reset email. GoTrue returns success regardless of
+  /// whether the account exists (no user enumeration).
+  Future<void> resetPassword(String email) =>
+      _c.auth.resetPasswordForEmail(email);
+
   Future<void> signOut() => _c.auth.signOut();
 
   // ---------- Profile / school ----------

@@ -191,5 +191,26 @@ void main() {
       expect(find.text('العنوان'), findsOneWidget);
       expect(find.text('المحتوى'), findsOneWidget);
     });
+
+    testWidgets('auth reset l10n keys resolve to non-empty Arabic text',
+        (tester) async {
+      late AppLocalizations l10n;
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ar'),
+        home: Builder(
+          builder: (context) {
+            l10n = AppLocalizations.of(context)!;
+            return const SizedBox();
+          },
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(l10n.authForgotPassword, isNotEmpty);
+      expect(l10n.authResetDialogTitle, isNotEmpty);
+      expect(l10n.authResetSent, isNotEmpty);
+      expect(l10n.authResetButton, isNotEmpty);
+    });
   });
 }
