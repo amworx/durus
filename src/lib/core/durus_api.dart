@@ -82,8 +82,15 @@ class DurusApi {
         'p_full_name': fullName,
       },
     );
-    final map = res as Map<String, dynamic>;
-    return map['create_teacher_with_credentials'] as String;
+    // A scalar-returning RPC comes back as the raw value; some PostgREST
+    // versions wrap it in an object keyed by the function name.
+    if (res is String) {
+      return res;
+    }
+    if (res is Map && res['create_teacher_with_credentials'] is String) {
+      return res['create_teacher_with_credentials'] as String;
+    }
+    throw StateError('unexpected_rpc_response');
   }
 
   Future<Invitation> createInvitation({String? email}) async {
@@ -110,6 +117,14 @@ class DurusApi {
 
   Future<void> revokeInvitation(String id) async {
     await _c.from('invitations').delete().eq('id', id);
+  }
+
+  /// Manager toggles a teacher's `active` flag via the security-definer RPC.
+  Future<void> setTeacherActive(String teacherId, bool active) async {
+    await _c.rpc(
+      'set_teacher_active',
+      params: {'p_teacher': teacherId, 'p_active': active},
+    );
   }
 
   // ---------- Subjects ----------

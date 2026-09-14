@@ -27,6 +27,7 @@ class Profile {
     this.managerId,
     this.schoolId,
     this.onboarded = false,
+    this.active = true,
   });
 
   final String id;
@@ -38,6 +39,9 @@ class Profile {
   final String? schoolId;
   final bool onboarded;
 
+  /// Whether a teacher account is enabled (manager can disable).
+  final bool active;
+
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
         id: json['id'] as String,
         email: json['email'] as String,
@@ -47,6 +51,7 @@ class Profile {
         managerId: json['manager_id'] as String?,
         schoolId: json['school_id'] as String?,
         onboarded: json['onboarded'] as bool? ?? false,
+        active: json['active'] as bool? ?? true,
       );
 
   /// Only the fields the user may update about themselves.

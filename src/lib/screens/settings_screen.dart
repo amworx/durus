@@ -209,39 +209,90 @@ class _TeachersSection extends ConsumerWidget {
         onRetry: () => ref.invalidate(teachersProvider),
       ),
       data: (teachers) {
+        final children = <Widget>[];
         if (teachers.isEmpty) {
-          return EmptyState(
-            icon: Icons.group_outlined,
-            message: l10n.settingsTeachersEmpty,
-            compact: true,
+          children.add(
+            EmptyState(
+              icon: Icons.group_outlined,
+              message: l10n.settingsTeachersEmpty,
+              compact: true,
+            ),
           );
-        }
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final Profile teacher in teachers)
+        } else {
+          for (final Profile teacher in teachers) {
+            children.add(
               ListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.person_outline),
                 title: Text(_teacherName(l10n, teacher)),
                 subtitle: Text(teacher.email),
-              ),
-            const SizedBox(height: 8),
-            FilledButton.tonalIcon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const TeacherManagementScreen(),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    StatusChip(
+                      label: teacher.active
+                          ? l10n.settingsTeacherActive
+                          : l10n.settingsTeacherDisabled,
+                      color: teacher.active ? Colors.green : Colors.red,
+                    ),
+                    const SizedBox(width: 4),
+                    Switch(
+                      value: teacher.active,
+                      onChanged: (value) =>
+                          _toggleTeacher(context, ref, l10n, teacher, value),
+                    ),
+                  ],
                 ),
               ),
-              icon: const Icon(Icons.person_add_alt),
-              label: Text(l10n.settingsAddTeacher),
+            );
+          }
+        }
+        children.add(const SizedBox(height: 8));
+        children.add(
+          FilledButton.tonalIcon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const TeacherManagementScreen(),
+              ),
             ),
-          ],
+            icon: const Icon(Icons.person_add_alt),
+            label: Text(l10n.settingsAddTeacher),
+          ),
+        );
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
         );
       },
     );
+  }
+
+  Future<void> _toggleTeacher(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    Profile teacher,
+    bool value,
+  ) async {
+    try {
+      await ref.read(apiProvider).setTeacherActive(teacher.id, value);
+      if (!context.mounted) {
+        return;
+      }
+      ref.invalidate(teachersProvider);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l10n.settingsTeacherStatusUpdated)));
+    } catch (e) {
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(friendlyError(e, l10n))));
+    }
   }
 }
 

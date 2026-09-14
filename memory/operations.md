@@ -23,3 +23,19 @@ Append-only. Format: `OP-YYYYMMDD-XXXX`.
 | result | success — migration pushed, features verified live in Chrome, committed as latest. |
 | lessons | (1) supabase db push --yes needs password from CREDENTIALS.txt (KEY: value format with colon). (2) Background lutter run dies; use lutter build web + python -m http.server for live verification — more reliable and production-like. (3) New screen files must import both pp_localizations.dart (type) and l10n_ext.dart (extension). (4) Nested .when() for multiple async providers is cleaner than record-pattern matching on sealed types. |
 | reusable_pattern | "Build → static-serve → Chrome MCP verify" for UI smoke tests: lutter build web, python -m http.server build/web, then chrome-devtools MCP to drive the app. Much faster than lutter run background. |
+
+---
+
+### OP-20260914-0001
+
+| Field | Value |
+|-------|-------|
+| id | OP-20260914-0001 |
+| timestamp | 2026-09-14T14:00:00+03:00 |
+| workflow | feature-implementation |
+| project | durus |
+| steps | [1] Migration 007 (profiles.active + set_teacher_active RPC + index) pushed. [2] Profile model gains `active` (default true) + test. [3] API setTeacherActive. [4] Settings teacher list: status chip + toggle + always-visible add button (was missing in empty state). [5] Router: DisabledAccountScreen gate for `!profile.active`. [6] Home: announcement compose bottom sheet → createAnnouncement → invalidate. [7] l10n keys added + gen-l10n. [8] analyze 0, tests 14/14, build web. [9] Smoke: compose announcement, create teacher2 with credentials, disable → blocked login, re-enable → access. [10] Migration 008 diagnostic + 009 fix: replace auth.admin_create_user with direct GoTrue-complete inserts (token cols '', provider_id detection) + NULL backfill. [11] Portal mobile pass: 390px + 320px overflow check on entry + home. [12] Tasks + memory + commit. |
+| duration | ~1 session |
+| result | success — teacher disable/enable works end-to-end; announcements compose shipped; teacher creation unblocked; portal mobile-safe |
+| lessons | (1) `auth.admin_create_user` is not callable as SQL inside a security-definer function — use direct auth.users/identities inserts. (2) Direct-inserted users need `confirmation_token`/`recovery_token`/`email_change_token_new`/`email_change` = '' (NULL breaks GoTrue password grant with a 500). (3) `auth.identities.provider_id` is NOT NULL in newer GoTrue — detect via information_schema and branch. (4) PostgREST returns scalar-returning RPC output as a bare JSON string. (5) Always verify user creation by actually logging in. |
+| reusable_pattern | To add manager-gated account state without a service role: add an `active` column + a security-definer RPC guarded by `is_manager()`, gate the app in the router, and confirm with an isolated-context browser login. For auth-user creation on Supabase without the Admin API, use the "direct GoTrue-complete insert" pattern (token cols '', provider_id branch). |

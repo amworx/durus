@@ -503,6 +503,31 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsTeachersEmpty => 'لا يوجد معلمون بعد — أضف معلمك الأول';
 
   @override
+  String get settingsTeacherActive => 'مفعّل';
+
+  @override
+  String get settingsTeacherDisabled => 'موقوف';
+
+  @override
+  String get settingsTeacherStatusUpdated => 'تم تحديث حالة المعلم';
+
+  @override
+  String get accountDisabledTitle => 'الحساب موقوف';
+
+  @override
+  String get accountDisabledMessage =>
+      'أوقف المدير هذا الحساب. تواصل مع مدير المركز لتفعيله.';
+
+  @override
+  String get homeAddAnnouncement => 'إضافة إعلان';
+
+  @override
+  String get homeAnnouncementHint => 'اكتب نص الإعلان...';
+
+  @override
+  String get homeAnnouncementAdded => 'تم نشر الإعلان';
+
+  @override
   String get portalTitle => 'بوابة ولي الأمر';
 
   @override

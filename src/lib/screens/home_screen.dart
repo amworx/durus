@@ -156,23 +156,25 @@ class _AnnouncementsCard extends ConsumerWidget {
           onRetry: () => ref.invalidate(announcementsProvider),
         ),
         data: (items) {
-          if (items.isEmpty) {
-            return EmptyState(
-              icon: Icons.campaign_outlined,
-              message: l10n.commonEmpty,
-            );
-          }
-          final sorted = [...items]..sort((a, b) {
-              final at = a.createdAt?.millisecondsSinceEpoch ?? 0;
-              final bt = b.createdAt?.millisecondsSinceEpoch ?? 0;
-              return bt.compareTo(at);
-            });
-          final recent = sorted.take(3).toList();
           final theme = Theme.of(context);
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final item in recent) ...[
+          final children = <Widget>[];
+          if (items.isEmpty) {
+            children.add(
+              EmptyState(
+                icon: Icons.campaign_outlined,
+                message: l10n.commonEmpty,
+                compact: true,
+              ),
+            );
+          } else {
+            final sorted = [...items]..sort((a, b) {
+                final at = a.createdAt?.millisecondsSinceEpoch ?? 0;
+                final bt = b.createdAt?.millisecondsSinceEpoch ?? 0;
+                return bt.compareTo(at);
+              });
+            final recent = sorted.take(3).toList();
+            for (final item in recent) {
+              children.add(
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -194,13 +196,58 @@ class _AnnouncementsCard extends ConsumerWidget {
                     ),
                   ],
                 ),
-                if (item != recent.last) const Divider(height: 20),
-              ],
-            ],
+              );
+              if (item != recent.last) {
+                children.add(const Divider(height: 20));
+              }
+            }
+          }
+          children.add(const SizedBox(height: 4));
+          children.add(
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: () => _compose(context, ref, l10n),
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(l10n.homeAddAnnouncement),
+              ),
+            ),
+          );
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: children,
           );
         },
       ),
     );
+  }
+
+  Future<void> _compose(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) async {
+    final body = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => const _AnnouncementSheet(),
+    );
+    final text = body?.trim() ?? '';
+    if (text.isEmpty || !context.mounted) {
+      return;
+    }
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(apiProvider).createAnnouncement(text);
+      ref.invalidate(announcementsProvider);
+      ref.invalidate(teacherNotificationsProvider);
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.homeAnnouncementAdded)),
+      );
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(friendlyError(e, l10n))));
+    }
   }
 
   String _announcementDate(AppLocalizations l10n, Announcement item) {
@@ -209,6 +256,64 @@ class _AnnouncementsCard extends ConsumerWidget {
       return l10n.commonNone;
     }
     return fmtDate(created);
+  }
+}
+
+/// Bottom sheet used to compose a new announcement.
+class _AnnouncementSheet extends ConsumerStatefulWidget {
+  const _AnnouncementSheet();
+
+  @override
+  ConsumerState<_AnnouncementSheet> createState() => _AnnouncementSheetState();
+}
+
+class _AnnouncementSheetState extends ConsumerState<_AnnouncementSheet> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.homeAddAnnouncement, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              minLines: 3,
+              maxLines: 6,
+              textInputAction: TextInputAction.newline,
+              decoration: InputDecoration(
+                hintText: l10n.homeAnnouncementHint,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(_controller.text),
+              child: Text(l10n.commonSave),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -176,6 +176,15 @@
   "settingsMultiMode": "عدة معلمين",
   "settingsShareCredentials": "شارك بيانات الدخول مع المعلم",
   "settingsTeachersEmpty": "لا يوجد معلمون بعد — أضف معلمك الأول",
+  "settingsTeacherActive": "مفعّل",
+  "settingsTeacherDisabled": "موقوف",
+  "settingsTeacherStatusUpdated": "تم تحديث حالة المعلم",
+  "accountDisabledTitle": "الحساب موقوف",
+  "accountDisabledMessage": "أوقف المدير هذا الحساب. تواصل مع مدير المركز لتفعيله.",
+
+  "homeAddAnnouncement": "إضافة إعلان",
+  "homeAnnouncementHint": "اكتب نص الإعلان...",
+  "homeAnnouncementAdded": "تم نشر الإعلان",
 
   "portalTitle": "بوابة ولي الأمر",
   "portalTokenLabel": "رمز الدخول",

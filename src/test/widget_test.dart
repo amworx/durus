@@ -69,6 +69,20 @@ void main() {
       expect(p.toJson(), {'full_name': 'أحمد'});
     });
 
+    test('Profile.active defaults to true and parses a disabled teacher', () {
+      final enabled = Profile.fromJson({
+        'id': 'p1',
+        'email': 't@durus.app',
+      });
+      expect(enabled.active, isTrue);
+      final disabled = Profile.fromJson({
+        'id': 'p2',
+        'email': 'x@durus.app',
+        'active': false,
+      });
+      expect(disabled.active, isFalse);
+    });
+
     test('Student.fromJson/toJson round-trips', () {
       final s = Student.fromJson({
         'id': 'st1',

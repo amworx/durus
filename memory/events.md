@@ -44,3 +44,20 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 | result | success |
 | lessons | (1) Migration push needs supabase db push --yes --password <pw> with correct CREDENTIALS.txt key format (KEY: value with colon, not =). (2) Background lutter run debug servers die; for live verification, a plain lutter build web + Python static server on uild/web/ is far more reliable and lighter. (3) New screen imports must include both pp_localizations.dart (for AppLocalizations type) and l10n_ext.dart (for the context.l10n extension). |
 | reusable_pattern | "Build → static-serve → Chrome MCP verify" for UI smoke tests. Instead of background lutter run, build once (lutter build web), serve with python -m http.server, and drive Chrome DevTools MCP. Faster startup, no hot-reload races, production-like environment. |
+
+---
+
+### EVT-20260914-0001
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260914-0001 |
+| timestamp | 2026-09-14T14:00:00+03:00 |
+| mode | BUILD |
+| action | loop: teacher status gate + announcements compose + portal pass + create-teacher fix |
+| summary | Migration 007 adds `profiles.active` + `set_teacher_active` RPC (security definer, manager-only, excludes self). Settings teacher list now shows a status chip (مفعّل/موقوف) + per-teacher toggle; AuthGate blocks inactive profiles with a new `DisabledAccountScreen` (logout only). Home announcements card gained a compose bottom sheet (createAnnouncement + invalidate announcements/notifications). Discovered + fixed `create_teacher_with_credentials`: it called `auth.admin_create_user` (not a SQL function on this project → 42883); migrations 008/009 replace it with GoTrue-complete direct `auth.users` + `auth.identities` inserts (token columns set to '', dynamic `provider_id` detection) plus a NULL backfill; fixed the Dart scalar-RPC cast. Also fixed: settings "add teacher" button was missing when the teacher list was empty. Parent portal verified overflow-free at 390px and 320px (entry + home). |
+| result | success — `flutter analyze` 0 issues, 14/14 tests, `flutter build web` ok. Live smoke (static server + Chrome MCP): composed announcement (REST 200 + rendered with date), created teacher2 (RPC 200 returns scalar uuid; profile scoped to manager's school), disabled teacher2 → its login shows "الحساب موقوف", re-enabled → HomeShell restored. |
+| files | supabase/migrations/20260913171000_teacher_status.sql, 20260913172000_fix_create_teacher.sql, 20260913173000_diag_auth.sql, 20260913174000_fix_gotrue_user.sql; src/lib/models/models.dart, src/lib/core/durus_api.dart, src/lib/screens/settings_screen.dart, src/lib/screens/home_screen.dart, src/lib/router.dart, src/lib/l10n/app_ar.arb, src/test/widget_test.dart, tasks/2026-09-13_tasks.md |
+| errors | (1) `create_teacher_with_credentials` → 42883 `auth.admin_create_user(...) does not exist`; (2) after direct-insert fix, password grant returned 500 "Database error querying schema" due to NULL token columns. |
+| lessons | See lessons.md (auth.admin_create_user is Admin-API only; direct auth inserts must set token cols to ''; detect identities.provider_id; PostgREST scalar RPC returns a bare String; test user creation with a real password login). |
+| tags | build, phase7, auth, gotrue, announcements |

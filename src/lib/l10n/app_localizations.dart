@@ -1072,6 +1072,54 @@ abstract class AppLocalizations {
   /// **'لا يوجد معلمون بعد — أضف معلمك الأول'**
   String get settingsTeachersEmpty;
 
+  /// No description provided for @settingsTeacherActive.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفعّل'**
+  String get settingsTeacherActive;
+
+  /// No description provided for @settingsTeacherDisabled.
+  ///
+  /// In ar, this message translates to:
+  /// **'موقوف'**
+  String get settingsTeacherDisabled;
+
+  /// No description provided for @settingsTeacherStatusUpdated.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحديث حالة المعلم'**
+  String get settingsTeacherStatusUpdated;
+
+  /// No description provided for @accountDisabledTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحساب موقوف'**
+  String get accountDisabledTitle;
+
+  /// No description provided for @accountDisabledMessage.
+  ///
+  /// In ar, this message translates to:
+  /// **'أوقف المدير هذا الحساب. تواصل مع مدير المركز لتفعيله.'**
+  String get accountDisabledMessage;
+
+  /// No description provided for @homeAddAnnouncement.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة إعلان'**
+  String get homeAddAnnouncement;
+
+  /// No description provided for @homeAnnouncementHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب نص الإعلان...'**
+  String get homeAnnouncementHint;
+
+  /// No description provided for @homeAnnouncementAdded.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم نشر الإعلان'**
+  String get homeAnnouncementAdded;
+
   /// No description provided for @portalTitle.
   ///
   /// In ar, this message translates to:
