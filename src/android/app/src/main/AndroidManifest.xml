@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for release builds: talks to Supabase over the network.
+         (Debug builds get this from src/debug/AndroidManifest.xml only.) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="durus"
+        android:label="دروس"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
