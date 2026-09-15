@@ -117,3 +117,26 @@ Append-only.
   (RLS access denied). Since the app now points users to GitHub Releases
   (app_meta.latest_release.url), the bucket is legacy — don't attempt bucket
   uploads without a service-role credential.
+- 2026-09-16 -- RefreshIndicator is a real gesture only on touch/trackpad
+  (mobile/web-touch). On desktop web the pull gesture does nothing; the
+  WidgetsBindingObserver resume path (invalidateAllSchoolData) is what keeps
+  web fresh on tab refocus (visibilitychange -> AppLifecycleState.resumed).
+- 2026-09-16 -- Always add AlwaysScrollableScrollPhysics when wrapping in
+  RefreshIndicator or short/empty lists aren't pullable. Empty states need a
+  scrollable too: reuse RefreshableEmpty (RefreshIndicator + CustomScrollView +
+  SliverFillRemaining) instead of a bare EmptyState.
+- 2026-09-16 -- The students-list location label had switch key 'teacher'
+  instead of the DB value 'teacher_home', so teacher-home students showed the
+  raw enum in the list. DB switch keys must match column values verbatim;
+  this bug sat unnoticed until a teacher_home student existed.
+- 2026-09-16 -- PostgREST returns HTTP 400 for `select=id` on tables with a
+  composite primary key (student_subjects). Use `select=*` for those tables.
+- 2026-09-16 -- PowerShell 5.1 Invoke-WebRequest fails in non-interactive
+  shells ("Read and Prompt functionality is not available") because it parses
+  responses with the IE engine. Use Invoke-RestMethod and derive counts from
+  the array Count (PostgREST caps at 1000 rows) instead of Content-Range.
+- 2026-09-16 -- Seed migrations are idempotent when every row carries a fixed
+  UUID and uses ON CONFLICT DO NOTHING. Let the DB triggers fan derived rows
+  out (notifications for sessions/tests/notes/fees/payments, fee status
+  updates) - seeding base tables only keeps the migration small and exercises
+  the real flows.

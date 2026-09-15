@@ -31,3 +31,17 @@ Append-only. Reusable patterns extracted from successes.
   (wa.me with normalized phone + prefilled localized message) directly on the
   main entity screen instead of building an in-app chat. Low cost, huge
   familiarity win.
+- **Pull-to-refresh on Riverpod FutureProvider screens (reusable):** a single
+  refreshSchoolData(WidgetRef) helper awaits Future.wait of ref.refresh(p.future)
+  across all data providers (errors swallowed - each provider renders its own
+  ErrorRetry); plus a fire-and-forget invalidateAllSchoolData(WidgetRef) for
+  lifecycle events. Screens wrap their scrollable in RefreshIndicator +
+  AlwaysScrollableScrollPhysics; empty branches use RefreshableEmpty
+  (CustomScrollView + SliverFillRemaining). The shell adds WidgetsBindingObserver
+  so returning to the foreground refetches everything without a restart. Keeps
+  Riverpod caches warm and avoids per-screen boilerplate.
+- **Idempotent SQL seed migration (reusable):** fixed UUID PKs for every row +
+  ON CONFLICT DO NOTHING so the file can be re-pushed safely; push with
+  `supabase db push --yes --password <db_pass>`. Derive-not-invent: insert base
+  tables only and let DB triggers create notifications / recompute fee status,
+  giving instant realistic test data that also validates the trigger paths.
