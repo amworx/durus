@@ -140,3 +140,18 @@ Append-only.
   out (notifications for sessions/tests/notes/fees/payments, fee status
   updates) - seeding base tables only keeps the migration small and exercises
   the real flows.
+- 2026-09-16 -- Version detection must not depend on a manually edited
+  metadata row alone: merge the GitHub Releases API (public, no auth,
+  GET /repos/:owner/:repo/releases/latest) so publishing a release
+  auto-surfaces the update. Keep app_meta for curated Arabic notes and a
+  guaranteed apk_url; newest version wins, ties prefer the entry with apkUrl.
+- 2026-09-16 -- Android in-app APK update needs three pieces: the
+  REQUEST_INSTALL_PACKAGES permission, a FileProvider that exposes the
+  download directory (Dart's Directory.systemTemp IS the app cache dir, so a
+  <cache-path> entry matches), and a MethodChannel that starts ACTION_VIEW
+  with FLAG_GRANT_READ_URI_PERMISSION | FLAG_ACTIVITY_NEW_TASK.
+- 2026-09-16 -- dart:io code breaks the web compile; gate native-only logic
+  behind conditional imports (updater_io.dart vs updater_web.dart with
+  `if (dart.library.html)`). Also keep release APKs signed with the same key
+  as the installed build (this project's gradle signs release with the debug
+  key) or the system installer rejects the update as a signature mismatch.

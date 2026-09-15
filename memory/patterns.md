@@ -45,3 +45,14 @@ Append-only. Reusable patterns extracted from successes.
   `supabase db push --yes --password <db_pass>`. Derive-not-invent: insert base
   tables only and let DB triggers create notifications / recompute fee status,
   giving instant realistic test data that also validates the trigger paths.
+- **GitHub-auto-detected in-app updater (reusable):** AppRelease carries the
+  version/url/notes/apkUrl. The API service merges curated app_meta with
+  GET /repos/<owner>/<repo>/releases/latest (Accept application/vnd.github+json,
+  User-Agent, 8s timeout, try/catch -> metadata fallback); newest wins, ties
+  prefer the entry with apkUrl. Parse assets: prefer arm64-v8a, then any .apk;
+  strip a leading v from tag_name; truncate long notes. On Android download
+  into Directory.systemTemp/updates (== cache dir; expose with a FileProvider
+  <cache-path>), report progress from contentLength, then a MethodChannel
+  launches ACTION_VIEW on the FileProvider URI. Keep the web build green with
+  a conditional-import stub (updater_web.dart) so dart:io never reaches the
+  web compiler.
