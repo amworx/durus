@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/models.dart';
 import 'db.dart';
+import 'updater.dart';
 import 'utils.dart';
 
 /// Typed service layer over the shared Supabase client (Auth + PostgREST +
@@ -549,9 +550,33 @@ class DurusApi {
 
   // ---------- App releases (in-app update check) ----------
 
-  /// Latest published release from the global `app_meta` table. Public app
-  /// metadata (not school-scoped); returns null when the row is absent.
+  /// Latest published release. Primary source is the curated global
+  /// `app_meta.latest_release` row; on native platforms it is merged with
+  /// the GitHub Releases API so tagging a release on GitHub is enough to
+  /// surface an update (no manual metadata bump required).
+  ///
+  /// Merging rule: the newest version wins; ties prefer the entry that
+  /// carries a direct APK url (so the in-app download works).
   Future<AppRelease?> latestRelease() async {
+    final meta = await _appMetaRelease();
+
+    AppRelease? gitHub;
+    try {
+      gitHub = await fetchLatestGitHubRelease();
+    } catch (_) {
+      // Network/parse failure — the curated metadata is still authoritative.
+    }
+
+    if (meta == null) return gitHub;
+    if (gitHub == null) return meta;
+    if (isNewerVersion(gitHub.version, meta.version)) return gitHub;
+    if (isNewerVersion(meta.version, gitHub.version)) return meta;
+    return meta.apkUrl != null ? meta : gitHub;
+  }
+
+  /// Curated release metadata from the global `app_meta` table. Public app
+  /// metadata (not school-scoped); returns null when the row is absent.
+  Future<AppRelease?> _appMetaRelease() async {
     final data = await _c
         .from('app_meta')
         .select('value')

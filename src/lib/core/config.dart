@@ -16,7 +16,7 @@ class AppConfig {
 
   /// Version shown in Settings and compared against the latest published
   /// release (app_meta.latest_release). Keep in sync with pubspec `version`.
-  static const String appVersion = '1.1.2';
+  static const String appVersion = '1.1.3';
 
   /// Primary channel users are directed to when an update is available.
   /// Releases are published at https://github.com/amworx/durus/releases.

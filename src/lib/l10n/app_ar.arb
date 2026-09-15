@@ -193,6 +193,8 @@
   "settingsUpToDate": "أنت على أحدث إصدار",
   "settingsUpdateAvailable": "يتوفر إصدار جديد",
   "settingsDownloadUpdate": "تحميل الإصدار الجديد",
+  "settingsDownloading": "جاري تنزيل التحديث",
+  "settingsOpenUpdateManually": "اكتمل التنزيل، لكن تعذّر فتح المثبّت. افتح الملف من مدير الملفات للتثبيت، أو اسمح للتثبيت من مصادر خارجية في إعدادات النظام.",
   "settingsUpdatesError": "تعذّر التحقق من التحديثات",
   "settingsProfile": "الحساب",
   "settingsLogout": "تسجيل الخروج",

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:durus/core/config.dart';
 import 'package:durus/core/links.dart';
+import 'package:durus/core/updater.dart';
 import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
@@ -309,6 +310,8 @@ class _UpdatesSection extends ConsumerStatefulWidget {
 
 class _UpdatesSectionState extends ConsumerState<_UpdatesSection> {
   bool _checking = false;
+  bool _downloading = false;
+  double _downloadProgress = 0;
   AppRelease? _latest;
   bool? _upToDate; // null = not checked yet
 
@@ -337,11 +340,48 @@ class _UpdatesSectionState extends ConsumerState<_UpdatesSection> {
     final latest = _latest;
     if (latest == null) return;
     final l10n = context.l10n;
-    final ok = await openExternal(latest.url);
-    if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.commonOpenFailed)),
+    final messenger = ScaffoldMessenger.of(context);
+    final apkUrl = latest.apkUrl;
+
+    // Web portal (or a release without a direct APK link): open the release
+    // page so the user can grab the APK from the browser.
+    if (!canDownloadInApp || apkUrl == null || apkUrl.isEmpty) {
+      final ok = await openExternal(latest.url);
+      if (!ok && mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.commonOpenFailed)));
+      }
+      return;
+    }
+
+    setState(() {
+      _downloading = true;
+      _downloadProgress = 0;
+    });
+    try {
+      final path = await downloadApk(
+        url: apkUrl,
+        fileName: 'durus-${latest.version}.apk',
+        onProgress: (p) {
+          if (mounted) setState(() => _downloadProgress = p);
+        },
       );
+      if (path == null) {
+        throw StateError('In-app download unsupported');
+      }
+      final launched = await triggerApkInstall(path);
+      if (!launched && mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.settingsOpenUpdateManually)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.settingsUpdatesError)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _downloading = false);
     }
   }
 
@@ -394,11 +434,19 @@ class _UpdatesSectionState extends ConsumerState<_UpdatesSection> {
             Text(latest.notes, style: theme.textTheme.bodySmall),
           ],
           const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: _download,
-            icon: const Icon(Icons.download),
-            label: Text(l10n.settingsDownloadUpdate),
-          ),
+          if (_downloading) ...[
+            LinearProgressIndicator(value: _downloadProgress.clamp(0, 1)),
+            const SizedBox(height: 6),
+            Text(
+              '${l10n.settingsDownloading} ${(_downloadProgress * 100).round()}%',
+              style: theme.textTheme.bodySmall,
+            ),
+          ] else
+            FilledButton.icon(
+              onPressed: _download,
+              icon: const Icon(Icons.download),
+              label: Text(l10n.settingsDownloadUpdate),
+            ),
         ],
       ],
     );

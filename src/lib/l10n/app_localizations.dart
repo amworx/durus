@@ -1078,6 +1078,18 @@ abstract class AppLocalizations {
   /// **'تحميل الإصدار الجديد'**
   String get settingsDownloadUpdate;
 
+  /// No description provided for @settingsDownloading.
+  ///
+  /// In ar, this message translates to:
+  /// **'جاري تنزيل التحديث'**
+  String get settingsDownloading;
+
+  /// No description provided for @settingsOpenUpdateManually.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتمل التنزيل، لكن تعذّر فتح المثبّت. افتح الملف من مدير الملفات للتثبيت، أو اسمح للتثبيت من مصادر خارجية في إعدادات النظام.'**
+  String get settingsOpenUpdateManually;
+
   /// No description provided for @settingsUpdatesError.
   ///
   /// In ar, this message translates to:

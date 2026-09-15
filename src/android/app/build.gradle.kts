@@ -45,6 +45,12 @@ kotlin {
     }
 }
 
+dependencies {
+    // FileProvider (in-app APK installer channel). Version cached locally —
+    // pinned to avoid fetching newer artifacts on this filtered network.
+    implementation("androidx.core:core:1.13.1")
+}
+
 flutter {
     source = "../.."
 }

@@ -411,24 +411,64 @@ class Payment {
   }
 }
 
-/// Latest published release served by the global `app_meta` table for the
-/// in-app update check (version compared against `AppConfig.appVersion`).
+/// Latest published release for the in-app update check (version compared
+/// against `AppConfig.appVersion`).
+///
+/// Sources: the global `app_meta.latest_release` row (curated, primary) and
+/// the GitHub Releases API (auto-detected). [apkUrl] points at a concrete APK
+/// asset when one is known; on Android it enables in-app download + install.
 class AppRelease {
   const AppRelease({
     required this.version,
     required this.url,
     this.notes = '',
+    this.apkUrl,
   });
 
   final String version;
   final String url;
   final String notes;
+  final String? apkUrl;
 
   factory AppRelease.fromJson(Map<String, dynamic> json) => AppRelease(
         version: json['version'] as String? ?? '',
         url: json['url'] as String? ?? '',
         notes: json['notes'] as String? ?? '',
+        apkUrl: json['apk_url'] as String?,
       );
+
+  /// Parses a GitHub Releases API object (`/releases/latest`). The tag becomes
+  /// the version (leading `v` stripped), the release page becomes [url], and
+  /// the APK asset (arm64 preferred, then any `.apk`) becomes [apkUrl].
+  /// Long release notes are truncated so they stay readable in Settings.
+  factory AppRelease.fromGitHubJson(Map<String, dynamic> json) {
+    final tag = json['tag_name'] as String? ?? '';
+    final version = tag.startsWith('v') ? tag.substring(1) : tag;
+    final url = json['html_url'] as String? ?? '';
+    final body = ((json['body'] as String?) ?? '').trim();
+    final notes = body.length <= 400 ? body : '${body.substring(0, 400)}…';
+
+    String? apkUrl;
+    final assets = json['assets'] as List<dynamic>? ?? const [];
+    for (final asset in assets) {
+      if (asset is! Map<String, dynamic>) continue;
+      final name = asset['name'] as String? ?? '';
+      final downloadUrl = asset['browser_download_url'] as String? ?? '';
+      if (!name.endsWith('.apk') || downloadUrl.isEmpty) continue;
+      if (name.contains('arm64')) {
+        apkUrl = downloadUrl;
+        break;
+      }
+      apkUrl ??= downloadUrl;
+    }
+
+    return AppRelease(
+      version: version,
+      url: url,
+      notes: notes,
+      apkUrl: apkUrl,
+    );
+  }
 }
 
 /// A test result. Named `TestResult` to avoid clashing with `flutter_test`.
