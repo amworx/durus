@@ -186,9 +186,13 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         ),
       );
     }
-    return ListView(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      children: items,
+    return RefreshIndicator(
+      onRefresh: () => refreshSchoolData(ref),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        children: items,
+      ),
     );
   }
 

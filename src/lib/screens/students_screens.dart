@@ -90,14 +90,24 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
                   ? students
                   : students.where((s) => s.name.contains(_query)).toList();
               if (visible.isEmpty) {
-                return EmptyState(
-                  icon: _query.isEmpty ? Icons.group_outlined : Icons.search_off,
-                  message: _query.isEmpty ? l10n.studentsEmpty : l10n.commonEmpty,
+                return RefreshableEmpty(
+                  onRefresh: () => refreshSchoolData(ref),
+                  empty: EmptyState(
+                    icon: _query.isEmpty
+                        ? Icons.group_outlined
+                        : Icons.search_off,
+                    message: _query.isEmpty
+                        ? l10n.studentsEmpty
+                        : l10n.commonEmpty,
+                  ),
                 );
               }
-              return ListView.separated(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
-                itemCount: visible.length,
+              return RefreshIndicator(
+                onRefresh: () => refreshSchoolData(ref),
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+                  itemCount: visible.length,
                 separatorBuilder: (context, index) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final student = visible[index];
@@ -117,12 +127,13 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
                     onTap: () => _openStudentDetail(context, student.id),
                   );
                 },
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
-      ],
-    );
+      ),
+    ],
+  );
   }
 }
 
@@ -1678,11 +1689,11 @@ String _studentSubtitle(AppLocalizations l10n, Student student) {
 }
 
 String _locationLabel(AppLocalizations l10n, String? location) {
-return switch (location) {
-      'student_home' => l10n.studentsLocationHome,
-      'teacher' => l10n.studentsLocationTeacher,
-      _ => location ?? '',
-    };
+  return switch (location) {
+    'student_home' => l10n.studentsLocationHome,
+    'teacher_home' => l10n.studentsLocationTeacher,
+    _ => location ?? '',
+  };
 }
 
 String _dayLabel(int dayOfWeek) {

@@ -103,3 +103,44 @@ final studentSubjectRefsProvider = FutureProvider<List<StudentSubjectRef>>((ref)
   ref.watch(authSessionProvider);
   return ref.read(apiProvider).studentSubjectRefs();
 });
+
+/// Fetches every school-data provider in parallel and awaits completion.
+/// Used by pull-to-refresh gestures on the main tabs. Individual failures are
+/// swallowed here on purpose — the failing provider renders its own
+/// [ErrorRetry] widget.
+Future<void> refreshSchoolData(WidgetRef ref) async {
+  try {
+    await Future.wait([
+      ref.refresh(studentsProvider.future),
+      ref.refresh(subjectsProvider.future),
+      ref.refresh(slotsProvider.future),
+      ref.refresh(lessonsProvider.future),
+      ref.refresh(feesProvider.future),
+      ref.refresh(paymentsProvider.future),
+      ref.refresh(testsProvider.future),
+      ref.refresh(notesProvider.future),
+      ref.refresh(announcementsProvider.future),
+      ref.refresh(studentSubjectRefsProvider.future),
+      ref.refresh(teacherNotificationsProvider.future),
+    ]);
+  } catch (_) {
+    // See doc comment above.
+  }
+}
+
+/// Invalidates every school-data provider without awaiting (fire-and-forget).
+/// Used when the app returns from background so the next build refetches
+/// instead of showing stale cached data — no app restart required.
+void invalidateAllSchoolData(WidgetRef ref) {
+  ref.invalidate(studentsProvider);
+  ref.invalidate(subjectsProvider);
+  ref.invalidate(slotsProvider);
+  ref.invalidate(lessonsProvider);
+  ref.invalidate(feesProvider);
+  ref.invalidate(paymentsProvider);
+  ref.invalidate(testsProvider);
+  ref.invalidate(notesProvider);
+  ref.invalidate(announcementsProvider);
+  ref.invalidate(studentSubjectRefsProvider);
+  ref.invalidate(teacherNotificationsProvider);
+}

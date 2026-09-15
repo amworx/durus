@@ -28,9 +28,12 @@ class SettingsScreen extends ConsumerWidget {
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
+          child: RefreshIndicator(
+            onRefresh: () => refreshSchoolData(ref),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              children: [
               SectionCard(
                 title: l10n.settingsProfile,
                 child: _ProfileSection(profileAsync: profileAsync),
@@ -55,6 +58,7 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               _LogoutButton(),
             ],
+            ),
           ),
         ),
       ),

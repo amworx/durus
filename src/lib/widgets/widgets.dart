@@ -190,3 +190,30 @@ String friendlyError(Object error, [AppLocalizations? l10n]) {
   }
   return 'حدث خطأ ما';
 }
+
+/// Empty state that still supports pull-to-refresh — keeps a scrollable (with
+/// fill-remaining layout) so `RefreshIndicator` can be triggered even when a
+/// list has no rows yet and the user needs to fetch newly added data.
+class RefreshableEmpty extends StatelessWidget {
+  const RefreshableEmpty({
+    super.key,
+    required this.onRefresh,
+    required this.empty,
+  });
+
+  final Future<void> Function() onRefresh;
+  final Widget empty;
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverFillRemaining(hasScrollBody: false, child: empty),
+        ],
+      ),
+    );
+  }
+}

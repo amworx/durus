@@ -43,14 +43,18 @@ class HomeScreen extends ConsumerWidget {
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: const [
-              _TodaySessionsCard(),
-              SizedBox(height: 16),
-              _AnnouncementsCard(),
-              SizedBox(height: 16),
-            ],
+          child: RefreshIndicator(
+            onRefresh: () => refreshSchoolData(ref),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              children: const [
+                _TodaySessionsCard(),
+                SizedBox(height: 16),
+                _AnnouncementsCard(),
+                SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),

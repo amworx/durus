@@ -24,13 +24,15 @@ class HomeShell extends ConsumerStatefulWidget {
   ConsumerState<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends ConsumerState<HomeShell> {
+class _HomeShellState extends ConsumerState<HomeShell>
+    with WidgetsBindingObserver {
   int _index = 0;
   RealtimeChannel? _notificationsChannel;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final client = Supabase.instance.client;
     _notificationsChannel = client
         .channel('durus-notifications')
@@ -47,7 +49,18 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Refetch school data when the app comes back to the foreground so
+    // changes made elsewhere (other teacher, portal, seed data) appear
+    // without closing and reopening the app.
+    if (state == AppLifecycleState.resumed) {
+      invalidateAllSchoolData(ref);
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     final channel = _notificationsChannel;
     if (channel != null) {
       Supabase.instance.client.removeChannel(channel);

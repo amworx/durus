@@ -170,14 +170,20 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
             ),
             data: (_) {
               if (filtered.isEmpty) {
-                return EmptyState(
-                  icon: Icons.receipt_long_outlined,
-                  message: fees.isEmpty ? l10n.feesEmpty : l10n.commonEmpty,
+                return RefreshableEmpty(
+                  onRefresh: () => refreshSchoolData(ref),
+                  empty: EmptyState(
+                    icon: Icons.receipt_long_outlined,
+                    message: fees.isEmpty ? l10n.feesEmpty : l10n.commonEmpty,
+                  ),
                 );
               }
-              return ListView.separated(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
-                itemCount: filtered.length,
+              return RefreshIndicator(
+                onRefresh: () => refreshSchoolData(ref),
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+                  itemCount: filtered.length,
                 separatorBuilder: (context, index) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final fee = filtered[index];
@@ -223,12 +229,13 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
                     ),
                   );
                 },
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
-      ],
-    );
+      ),
+    ],
+  );
   }
 
   Widget _summaryItem(

@@ -86,17 +86,27 @@ class _SubjectsBodyState extends ConsumerState<_SubjectsBody> {
                   ? subjects
                   : subjects.where((s) => s.name.contains(_query)).toList();
               if (visible.isEmpty) {
-                return EmptyState(
-                  icon: _query.isEmpty ? Icons.menu_book_outlined : Icons.search_off,
-                  message: _query.isEmpty ? l10n.subjectsEmpty : l10n.commonEmpty,
+                return RefreshableEmpty(
+                  onRefresh: () => refreshSchoolData(ref),
+                  empty: EmptyState(
+                    icon: _query.isEmpty
+                        ? Icons.menu_book_outlined
+                        : Icons.search_off,
+                    message: _query.isEmpty
+                        ? l10n.subjectsEmpty
+                        : l10n.commonEmpty,
+                  ),
                 );
               }
-              return ListView.separated(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
-                itemCount: visible.length,
-                separatorBuilder: (context, index) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final subject = visible[index];
+              return RefreshIndicator(
+                onRefresh: () => refreshSchoolData(ref),
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+                  itemCount: visible.length,
+                  separatorBuilder: (context, index) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final subject = visible[index];
                   final count =
                       refs.where((r) => r.subjectId == subject.id).length;
                   final grade = subject.grade;
@@ -117,12 +127,13 @@ class _SubjectsBodyState extends ConsumerState<_SubjectsBody> {
                     onTap: () => _openSubjectForm(context, subject),
                   );
                 },
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
-      ],
-    );
+      ),
+    ],
+  );
   }
 }
 
