@@ -15,3 +15,19 @@ Append-only. Reusable patterns extracted from successes.
   with a comparison table covering vibe/palette/typography/RTL/assets risk and
   let the user pick before implementing. (Used for Durus redesign; applicable
   to any app or web project.)
+- **In-app update check (reusable):** keep a single global `app_meta` table
+  (key text pk, value jsonb, updated_at) with an `latest_release` row
+  {version, url, notes}; RLS permits public select only (writes stay
+  service-role/SQL). App stores its version in one constant and semver-
+  compares against the row; on newer -> open the release page. This replaces
+  "re-send the APK" workflows for single-device and small-team apps.
+- **Branded native splash (reusable):** one vector drawable logo + a
+  `values/colors.xml` background color, referenced by launch_background
+  (drawable + drawable-v21) and a dedicated `values-v31/styles.xml` with
+  `windowSplashScreenBackground/AnimatedIcon` for Android 12+. No generated
+  images, no extra deps, works on the old splash path too.
+- **First-class chat affordance (reusable):** when a product is used by
+  non-technical users on thin networks, put the platform chat deep link
+  (wa.me with normalized phone + prefilled localized message) directly on the
+  main entity screen instead of building an in-app chat. Low cost, huge
+  familiarity win.

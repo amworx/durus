@@ -103,3 +103,17 @@ Append-only.
   content-mode switcher, click-to-select with a sticky chosen bar) is a fast,
   reliable way to let a user choose a typeface — adapted from the
   design-showcase pattern and preferred over asking for font names blindly.
+- 2026-09-16 -- A layer-list `<item android:drawable="...">` rejects a raw
+  hex color literal in AAPT ("'#FAF8F4' is incompatible with attribute
+  drawable"). Always define the color in `values/colors.xml` and reference
+  `@color/...`. Hex literals are fine for color-TYPED attributes
+  (`windowSplashScreenBackground`) but not drawable-typed ones.
+- 2026-09-16 -- Before adding a new package on this network-constrained
+  machine, check whether it is already a TRANSITIVE dependency: url_launcher
+  was already pulled in by supabase_flutter 2.17.1 (exact pin), so adding it
+  as a direct dep (`^6.3.2`) downloaded zero new packages. `flutter pub add`
+  still resolves to what the existing pins allow.
+- 2026-09-16 -- Supabase Storage bucket `durus-apk` rejects anon writes
+  (RLS access denied). Since the app now points users to GitHub Releases
+  (app_meta.latest_release.url), the bucket is legacy — don't attempt bucket
+  uploads without a service-role credential.
