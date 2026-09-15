@@ -214,6 +214,12 @@ abstract class AppLocalizations {
   /// **'اختياري'**
   String get commonOptional;
 
+  /// No description provided for @commonOpenFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر فتح الرابط'**
+  String get commonOpenFailed;
+
   /// No description provided for @commonBack.
   ///
   /// In ar, this message translates to:
@@ -615,6 +621,24 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تم نسخ الرابط'**
   String get studentsLinkCopied;
+
+  /// No description provided for @studentsWhatsappContact.
+  ///
+  /// In ar, this message translates to:
+  /// **'تواصل عبر واتساب'**
+  String get studentsWhatsappContact;
+
+  /// Prefilled WhatsApp greeting sent to a student's parent
+  ///
+  /// In ar, this message translates to:
+  /// **'السلام عليكم، معكم معلّم {student} من تطبيق دروس'**
+  String studentsWhatsappGreeting(String student);
+
+  /// No description provided for @studentsNoParentPhone.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد رقم هاتف لولي الأمر — أضفه من ملف الطالب'**
+  String get studentsNoParentPhone;
 
   /// No description provided for @studentsSubjectsAssigned.
   ///
@@ -1018,6 +1042,48 @@ abstract class AppLocalizations {
   /// **'داكن هادئ بأناقة بسيطة'**
   String get settingsThemeSukoonSub;
 
+  /// No description provided for @settingsUpdates.
+  ///
+  /// In ar, this message translates to:
+  /// **'التحديثات'**
+  String get settingsUpdates;
+
+  /// Current app version shown in the updates section
+  ///
+  /// In ar, this message translates to:
+  /// **'الإصدار الحالي: {version}'**
+  String settingsCurrentVersion(String version);
+
+  /// No description provided for @settingsCheckUpdates.
+  ///
+  /// In ar, this message translates to:
+  /// **'التحقق من التحديثات'**
+  String get settingsCheckUpdates;
+
+  /// No description provided for @settingsUpToDate.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنت على أحدث إصدار'**
+  String get settingsUpToDate;
+
+  /// No description provided for @settingsUpdateAvailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'يتوفر إصدار جديد'**
+  String get settingsUpdateAvailable;
+
+  /// No description provided for @settingsDownloadUpdate.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحميل الإصدار الجديد'**
+  String get settingsDownloadUpdate;
+
+  /// No description provided for @settingsUpdatesError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر التحقق من التحديثات'**
+  String get settingsUpdatesError;
+
   /// No description provided for @settingsProfile.
   ///
   /// In ar, this message translates to:
@@ -1383,6 +1449,18 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تاريخ التوليد'**
   String get reportsGeneratedAt;
+
+  /// No description provided for @reportsWhatsappSend.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال التقرير عبر واتساب'**
+  String get reportsWhatsappSend;
+
+  /// Intro line of the report message sent to the parent via WhatsApp
+  ///
+  /// In ar, this message translates to:
+  /// **'التقرير الشهري للطالب {student} لشهر {month}'**
+  String reportsWhatsappIntro(String student, String month);
 
   /// No description provided for @portalNotifications.
   ///

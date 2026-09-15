@@ -547,6 +547,22 @@ class DurusApi {
     return MonthlyReport.fromJson(res as Map<String, dynamic>);
   }
 
+  // ---------- App releases (in-app update check) ----------
+
+  /// Latest published release from the global `app_meta` table. Public app
+  /// metadata (not school-scoped); returns null when the row is absent.
+  Future<AppRelease?> latestRelease() async {
+    final data = await _c
+        .from('app_meta')
+        .select('value')
+        .eq('key', 'latest_release')
+        .maybeSingle();
+    if (data is Map<String, dynamic> && data['value'] is Map<String, dynamic>) {
+      return AppRelease.fromJson(data['value'] as Map<String, dynamic>);
+    }
+    return null;
+  }
+
   // ---------- Internal helpers ----------
 
   List<T> _mapList<T>(dynamic data, T Function(Map<String, dynamic>) fromJson) =>

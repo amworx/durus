@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:durus/core/durus_api.dart';
+import 'package:durus/core/links.dart';
 import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
@@ -141,6 +142,8 @@ class _MonthlyReportScreenState extends ConsumerState<MonthlyReportScreen> {
             _testsCard(context, l10n, report),
             const SizedBox(height: 16),
             _notesCard(context, l10n, report),
+            const SizedBox(height: 16),
+            _whatsappButton(context, l10n, report),
           ],
         ],
       ),
@@ -342,6 +345,67 @@ class _MonthlyReportScreenState extends ConsumerState<MonthlyReportScreen> {
               ],
             ),
     );
+  }
+
+  Widget _whatsappButton(
+    BuildContext context,
+    AppLocalizations l10n,
+    MonthlyReport report,
+  ) {
+    final students = ref.read(studentsProvider).value ?? const <Student>[];
+    Student? student;
+    for (final s in students) {
+      if (s.id == widget.studentId) {
+        student = s;
+        break;
+      }
+    }
+    return FilledButton.tonalIcon(
+      onPressed: () => _sendWhatsApp(l10n, report, student),
+      icon: const Icon(Icons.chat),
+      label: Text(l10n.reportsWhatsappSend),
+    );
+  }
+
+  /// Builds a plain-text summary of the report and opens WhatsApp with it
+  /// pre-filled to the parent (requires a parent phone on the student).
+  Future<void> _sendWhatsApp(
+    AppLocalizations l10n,
+    MonthlyReport report,
+    Student? student,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final phone = student?.parentPhone;
+    if (phone == null || phone.trim().isEmpty) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.studentsNoParentPhone)));
+      return;
+    }
+    final fee = report.fee;
+    final lines = <String>[
+      l10n.reportsWhatsappIntro(
+        student?.name ?? widget.studentName,
+        fmtMonthKey(report.month),
+      ),
+      '',
+      '${l10n.portalTotalSessions}: ${report.attendance.total}',
+      '${l10n.portalPresent}: ${report.attendance.present}',
+      '${l10n.portalAbsent}: ${report.attendance.absent}',
+      '${l10n.portalRescheduled}: ${report.attendance.rescheduled}',
+      if (fee != null)
+        '${l10n.feesAmount}: ${_numText(fee.amount)} • '
+            '${l10n.feesPaid}: ${_numText(fee.paidAmount)} • '
+            '${l10n.feesRemaining}: ${_numText(fee.remaining)}',
+      if (report.tests.isNotEmpty) ...['', l10n.reportsTests],
+      for (final test in report.tests)
+        '• ${test.subject} (${_testTypeLabel(l10n, test.type)}): '
+            '${_numText(test.score ?? 0)} / ${_numText(test.maxScore ?? 0)}',
+    ];
+    final ok = await openExternal(
+      waChatLink(phone, text: lines.join('\n')),
+    );
+    if (!ok && mounted) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.commonOpenFailed)));
+    }
   }
 
   // -------------------------------------------------------------------------

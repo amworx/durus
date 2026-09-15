@@ -128,7 +128,7 @@ class _TodaySessionsCard extends ConsumerWidget {
             slot: slot,
             studentName: studentsById[slot.studentId]?.name ?? l10n.commonNone,
             subjectName:
-                subjectsById[slot.subjectId]?.name ?? l10n.commonNone,
+                subjectsById[slot.subjectId]?.displayLabel ?? l10n.commonNone,
             lesson: _lessonFor(lessons, slot.id, todayIso),
             onMark: (attendance) =>
                 _markAttendance(context, ref, l10n, slot, todayIso, attendance),

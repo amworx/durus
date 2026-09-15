@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:durus/core/links.dart';
 import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/models/models.dart';
@@ -41,6 +42,34 @@ void main() {
     test('fmtMonthKey renders Arabic month headers', () {
       expect(fmtMonthKey('2026-09'), 'سبتمبر 2026');
       expect(fmtMonthKey('bad-key'), 'bad-key');
+    });
+
+    test('isNewerVersion compares x.y.z parts', () {
+      expect(isNewerVersion('1.1.2', '1.1.1'), isTrue);
+      expect(isNewerVersion('1.2.0', '1.1.9'), isTrue);
+      expect(isNewerVersion('1.1.1', '1.1.2'), isFalse);
+      expect(isNewerVersion('1.1.2', '1.1.2'), isFalse);
+      expect(isNewerVersion('1.1', '1.1.2'), isFalse);
+      expect(isNewerVersion('v2.0.0', '1.9.9'), isTrue);
+    });
+  });
+
+  group('links', () {
+    test('waNumber normalizes Syrian local formats to 963', () {
+      expect(waNumber('09 999 99 99'), '96399999999');
+      expect(waNumber('+963 999 999 999'), '963999999999');
+      expect(waNumber('00963 999 999 999'), '963999999999');
+      expect(waNumber(''), '');
+      expect(waNumber('abc'), '');
+    });
+
+    test('waChatLink builds a wa.me deep link with a prefilled message', () {
+      expect(waChatLink('0999999999'), 'https://wa.me/963999999999');
+      expect(
+        waChatLink('0999999999', text: 'مرحباً'),
+        'https://wa.me/963999999999?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B',
+      );
+      expect(waChatLink(''), '');
     });
   });
 
@@ -104,6 +133,22 @@ void main() {
       expect(json['school_id'], 's1');
       expect(json['birth_year'], 2018);
       expect(json['default_location'], 'teacher_home');
+    });
+
+    test('Subject.fromJson maps grade and displayLabel includes it', () {
+      final secondGrade = Subject.fromJson({
+        'id': 'sub1',
+        'school_id': 's1',
+        'name': 'اللغة العربية',
+        'grade': 'الصف الثاني',
+      });
+      expect(secondGrade.displayLabel, 'اللغة العربية — الصف الثاني');
+      final noGrade = Subject.fromJson({
+        'id': 'sub2',
+        'school_id': 's1',
+        'name': 'الرياضيات',
+      });
+      expect(noGrade.displayLabel, 'الرياضيات');
     });
 
     test('MonthlyReport.fromJson parses a full RPC payload', () {

@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:durus/core/durus_api.dart';
+import 'package:durus/core/links.dart';
 import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
@@ -400,7 +401,7 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                   children: [
                     for (final subject in subjects)
                       FilterChip(
-                        label: Text(subject.name),
+                        label: Text(subject.displayLabel),
                         selected: _selectedSubjectIds.contains(subject.id),
                         onSelected: (selected) => setState(() {
                           if (selected) {
@@ -540,6 +541,32 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.studentsLinkCopied)),
+      );
+    }
+  }
+
+  bool _hasParentPhone(Student student) {
+    final phone = student.parentPhone;
+    return phone != null && phone.trim().isNotEmpty;
+  }
+
+  /// Opens a WhatsApp chat with the student's parent, pre-filled with a
+  /// greeting (or a custom [text] when supplied, e.g. from reports).
+  Future<void> _openWhatsApp(Student student, {String? text}) async {
+    final l10n = context.l10n;
+    final phone = student.parentPhone;
+    if (!_hasParentPhone(student)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.studentsNoParentPhone)),
+      );
+      return;
+    }
+    final message = text ??
+        l10n.studentsWhatsappGreeting(student.name);
+    final ok = await openExternal(waChatLink(phone!, text: message));
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.commonOpenFailed)),
       );
     }
   }
@@ -700,7 +727,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      for (final subject in assigned) Chip(label: Text(subject.name)),
+                      for (final subject in assigned) Chip(label: Text(subject.displayLabel)),
                     ],
                   );
                 }),
@@ -944,6 +971,17 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                   ),
               ],
             ),
+            if (_hasParentPhone(student)) ...[
+              const SizedBox(height: 12),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: FilledButton.tonalIcon(
+                  onPressed: () => _openWhatsApp(student),
+                  icon: const Icon(Icons.chat),
+                  label: Text(l10n.studentsWhatsappContact),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -1013,10 +1051,23 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
         const SizedBox(height: 8),
         Align(
           alignment: AlignmentDirectional.centerEnd,
-          child: TextButton.icon(
-            onPressed: () => _copyParentLink(linkText),
-            icon: const Icon(Icons.copy),
-            label: Text(l10n.studentsCopyLink),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton.icon(
+                onPressed: () => _copyParentLink(linkText),
+                icon: const Icon(Icons.copy),
+                label: Text(l10n.studentsCopyLink),
+              ),
+              if (_hasParentPhone(student)) ...[
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: () => _openWhatsApp(student),
+                  icon: const Icon(Icons.chat),
+                  label: Text(l10n.studentsWhatsappContact),
+                ),
+              ],
+            ],
           ),
         ),
       ],
@@ -1238,7 +1289,7 @@ class _SlotFormSheetState extends ConsumerState<_SlotFormSheet> {
     ];
     final subjectItems = <DropdownMenuItem<String>>[
       for (final subject in subjects)
-        DropdownMenuItem(value: subject.id, child: Text(subject.name)),
+        DropdownMenuItem(value: subject.id, child: Text(subject.displayLabel)),
     ];
     final locationItems = <DropdownMenuItem<String>>[
       DropdownMenuItem(value: 'student_home', child: Text(l10n.studentsLocationHome)),
@@ -1432,7 +1483,7 @@ class _TestSheetState extends ConsumerState<_TestSheet> {
     final subjects = subjectsAsync.value ?? const <Subject>[];
     final subjectItems = <DropdownMenuItem<String>>[
       for (final subject in subjects)
-        DropdownMenuItem(value: subject.id, child: Text(subject.name)),
+        DropdownMenuItem(value: subject.id, child: Text(subject.displayLabel)),
     ];
     final typeItems = <DropdownMenuItem<String>>[
       DropdownMenuItem(value: 'monthly', child: Text(l10n.testsTypeMonthly)),
@@ -1663,7 +1714,7 @@ String _testTypeLabel(AppLocalizations l10n, String? type) {
 String _subjectName(List<Subject> subjects, String? subjectId) {
   if (subjectId == null) return '';
   for (final subject in subjects) {
-    if (subject.id == subjectId) return subject.name;
+    if (subject.id == subjectId) return subject.displayLabel;
   }
   return '';
 }

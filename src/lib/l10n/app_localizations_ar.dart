@@ -69,6 +69,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonOptional => 'اختياري';
 
   @override
+  String get commonOpenFailed => 'تعذّر فتح الرابط';
+
+  @override
   String get commonBack => 'رجوع';
 
   @override
@@ -274,6 +277,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get studentsLinkCopied => 'تم نسخ الرابط';
 
   @override
+  String get studentsWhatsappContact => 'تواصل عبر واتساب';
+
+  @override
+  String studentsWhatsappGreeting(String student) {
+    return 'السلام عليكم، معكم معلّم $student من تطبيق دروس';
+  }
+
+  @override
+  String get studentsNoParentPhone =>
+      'لا يوجد رقم هاتف لولي الأمر — أضفه من ملف الطالب';
+
+  @override
   String get studentsSubjectsAssigned => 'المواد المسجّلة';
 
   @override
@@ -476,6 +491,29 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsThemeSukoonSub => 'داكن هادئ بأناقة بسيطة';
 
   @override
+  String get settingsUpdates => 'التحديثات';
+
+  @override
+  String settingsCurrentVersion(String version) {
+    return 'الإصدار الحالي: $version';
+  }
+
+  @override
+  String get settingsCheckUpdates => 'التحقق من التحديثات';
+
+  @override
+  String get settingsUpToDate => 'أنت على أحدث إصدار';
+
+  @override
+  String get settingsUpdateAvailable => 'يتوفر إصدار جديد';
+
+  @override
+  String get settingsDownloadUpdate => 'تحميل الإصدار الجديد';
+
+  @override
+  String get settingsUpdatesError => 'تعذّر التحقق من التحديثات';
+
+  @override
   String get settingsProfile => 'الحساب';
 
   @override
@@ -659,6 +697,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reportsGeneratedAt => 'تاريخ التوليد';
+
+  @override
+  String get reportsWhatsappSend => 'إرسال التقرير عبر واتساب';
+
+  @override
+  String reportsWhatsappIntro(String student, String month) {
+    return 'التقرير الشهري للطالب $student لشهر $month';
+  }
 
   @override
   String get portalNotifications => 'تنبيهات ولي الأمر';

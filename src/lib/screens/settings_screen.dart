@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:durus/core/config.dart';
+import 'package:durus/core/links.dart';
+import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
@@ -36,6 +39,11 @@ class SettingsScreen extends ConsumerWidget {
               SectionCard(
                 title: l10n.settingsTheme,
                 child: const _AppearanceSection(),
+              ),
+              const SizedBox(height: 16),
+              SectionCard(
+                title: l10n.settingsUpdates,
+                child: const _UpdatesSection(),
               ),
               if (profile?.isManager ?? false) ...[
                 const SizedBox(height: 16),
@@ -282,6 +290,113 @@ class _DesignPreview extends StatelessWidget {
       width: 4,
       height: 4,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+}
+
+/// In-app update check: compares `AppConfig.appVersion` against the latest
+/// published release (app_meta.latest_release) and opens the download page.
+class _UpdatesSection extends ConsumerStatefulWidget {
+  const _UpdatesSection();
+
+  @override
+  ConsumerState<_UpdatesSection> createState() => _UpdatesSectionState();
+}
+
+class _UpdatesSectionState extends ConsumerState<_UpdatesSection> {
+  bool _checking = false;
+  AppRelease? _latest;
+  bool? _upToDate; // null = not checked yet
+
+  Future<void> _check() async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _checking = true);
+    try {
+      final latest = await ref.read(apiProvider).latestRelease();
+      if (!mounted) return;
+      setState(() {
+        _latest = latest;
+        _upToDate = latest == null ||
+            !isNewerVersion(latest.version, AppConfig.appVersion);
+      });
+    } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.settingsUpdatesError)));
+      }
+    } finally {
+      if (mounted) setState(() => _checking = false);
+    }
+  }
+
+  Future<void> _download() async {
+    final latest = _latest;
+    if (latest == null) return;
+    final l10n = context.l10n;
+    final ok = await openExternal(latest.url);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.commonOpenFailed)),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final latest = _latest;
+    final upToDate = _upToDate;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.settingsCurrentVersion(AppConfig.appVersion),
+          style: theme.textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: _checking ? null : _check,
+          icon: _checking
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.system_update_alt_outlined),
+          label: Text(l10n.settingsCheckUpdates),
+        ),
+        if (upToDate == true) ...[
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Icons.check_circle_outline,
+                  size: 18, color: Colors.green),
+              const SizedBox(width: 6),
+              Text(l10n.settingsUpToDate, style: theme.textTheme.bodySmall),
+            ],
+          ),
+        ],
+        if (upToDate == false && latest != null) ...[
+          const SizedBox(height: 12),
+          StatusChip(
+            label: '${l10n.settingsUpdateAvailable} ${latest.version}',
+            color: theme.colorScheme.primary,
+          ),
+          if (latest.notes.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(latest.notes, style: theme.textTheme.bodySmall),
+          ],
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: _download,
+            icon: const Icon(Icons.download),
+            label: Text(l10n.settingsDownloadUpdate),
+          ),
+        ],
+      ],
     );
   }
 }

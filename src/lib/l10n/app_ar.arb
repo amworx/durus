@@ -21,6 +21,7 @@
   "commonNo": "لا",
   "commonConfirmDelete": "هل أنت متأكد من الحذف؟",
   "commonOptional": "اختياري",
+  "commonOpenFailed": "تعذّر فتح الرابط",
   "commonBack": "رجوع",
   "commonEmpty": "لا توجد بيانات بعد",
 
@@ -93,6 +94,17 @@
   "studentsGenerateLink": "إنشاء رابط",
   "studentsCopyLink": "نسخ الرابط",
   "studentsLinkCopied": "تم نسخ الرابط",
+  "studentsWhatsappContact": "تواصل عبر واتساب",
+  "studentsWhatsappGreeting": "السلام عليكم، معكم معلّم {student} من تطبيق دروس",
+  "@studentsWhatsappGreeting": {
+    "description": "Prefilled WhatsApp greeting sent to a student's parent",
+    "placeholders": {
+      "student": {
+        "type": "String"
+      }
+    }
+  },
+  "studentsNoParentPhone": "لا يوجد رقم هاتف لولي الأمر — أضفه من ملف الطالب",
   "studentsSubjectsAssigned": "المواد المسجّلة",
   "studentsDetailTests": "الاختبارات",
   "studentsDetailNotes": "الملاحظات",
@@ -167,6 +179,21 @@
   "settingsThemeFusayfesaSub": "فاتح دافئ بلمسات ملوّنة",
   "settingsThemeSukoon": "سكون",
   "settingsThemeSukoonSub": "داكن هادئ بأناقة بسيطة",
+  "settingsUpdates": "التحديثات",
+  "settingsCurrentVersion": "الإصدار الحالي: {version}",
+  "@settingsCurrentVersion": {
+    "description": "Current app version shown in the updates section",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCheckUpdates": "التحقق من التحديثات",
+  "settingsUpToDate": "أنت على أحدث إصدار",
+  "settingsUpdateAvailable": "يتوفر إصدار جديد",
+  "settingsDownloadUpdate": "تحميل الإصدار الجديد",
+  "settingsUpdatesError": "تعذّر التحقق من التحديثات",
   "settingsProfile": "الحساب",
   "settingsLogout": "تسجيل الخروج",
   "settingsTeachers": "المعلمون",
@@ -232,6 +259,19 @@
   "reportsNotes": "الملاحظات",
   "reportsNoNotes": "لا توجد ملاحظات في هذا الشهر",
   "reportsGeneratedAt": "تاريخ التوليد",
+  "reportsWhatsappSend": "إرسال التقرير عبر واتساب",
+  "reportsWhatsappIntro": "التقرير الشهري للطالب {student} لشهر {month}",
+  "@reportsWhatsappIntro": {
+    "description": "Intro line of the report message sent to the parent via WhatsApp",
+    "placeholders": {
+      "student": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
 
   "portalNotifications": "تنبيهات ولي الأمر",
   "portalNotificationsHint": "سيصلك تنبيه عند تحديث المعلّم لبيانات الطالب",

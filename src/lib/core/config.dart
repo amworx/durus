@@ -13,4 +13,13 @@ class AppConfig {
     'SUPABASE_PUBLISHABLE_KEY',
     defaultValue: 'sb_publishable_Ll-2TjHLCQKmk7bdqz6tbw_JWtgnDkM',
   );
+
+  /// Version shown in Settings and compared against the latest published
+  /// release (app_meta.latest_release). Keep in sync with pubspec `version`.
+  static const String appVersion = '1.1.2';
+
+  /// Primary channel users are directed to when an update is available.
+  /// Releases are published at https://github.com/amworx/durus/releases.
+  static const String releasesPage =
+      'https://github.com/amworx/durus/releases';
 }

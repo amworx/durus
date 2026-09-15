@@ -73,3 +73,21 @@ String fmtMonthKey(String key) {
   }
   return '${arabicMonths[month - 1]} $year';
 }
+
+/// True when [latest] is a newer semantic version (x.y.z) than [current].
+/// Non-numeric segments are ignored; missing segments count as 0.
+bool isNewerVersion(String latest, String current) {
+  List<int> parts(String v) => v
+      .split('.')
+      .map((p) => int.tryParse(p.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0)
+      .toList();
+  final l = parts(latest);
+  final c = parts(current);
+  final maxLen = l.length > c.length ? l.length : c.length;
+  for (var i = 0; i < maxLen; i++) {
+    final a = i < l.length ? l[i] : 0;
+    final b = i < c.length ? c[i] : 0;
+    if (a != b) return a > b;
+  }
+  return false;
+}

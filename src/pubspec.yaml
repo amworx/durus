@@ -1,7 +1,7 @@
 name: durus
 description: "Durus (دروس) — private-lessons management: students, schedule, attendance, variable monthly fees, progress, parent portal."
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.1.2+1
 
 environment:
   sdk: ^3.12.2
@@ -16,6 +16,7 @@ dependencies:
   go_router: ^14.6.2
   supabase_flutter: 2.17.1   # exact pin — 2.17.2+ pulls jni → needs android-35 SDK (unavailable on this machine)
   shared_preferences: ^2.3.0
+  url_launcher: 6.3.2
 
 dev_dependencies:
   flutter_test:

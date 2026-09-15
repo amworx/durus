@@ -77,6 +77,14 @@ class Subject {
   final String? notes;
   final DateTime? createdAt;
 
+  /// Human label for pickers/lists: the name plus the grade when present.
+  /// Same names can exist for different grades (e.g. Arabic 1st vs 2nd), so
+  /// surfaces must never show the bare name alone.
+  String get displayLabel {
+    final g = grade;
+    return (g == null || g.isEmpty) ? name : '$name — $g';
+  }
+
   factory Subject.fromJson(Map<String, dynamic> json) => Subject(
         id: json['id'] as String,
         schoolId: json['school_id'] as String,
@@ -401,6 +409,26 @@ class Payment {
       if (created != null) 'created_at': created.toIso8601String(),
     };
   }
+}
+
+/// Latest published release served by the global `app_meta` table for the
+/// in-app update check (version compared against `AppConfig.appVersion`).
+class AppRelease {
+  const AppRelease({
+    required this.version,
+    required this.url,
+    this.notes = '',
+  });
+
+  final String version;
+  final String url;
+  final String notes;
+
+  factory AppRelease.fromJson(Map<String, dynamic> json) => AppRelease(
+        version: json['version'] as String? ?? '',
+        url: json['url'] as String? ?? '',
+        notes: json['notes'] as String? ?? '',
+      );
 }
 
 /// A test result. Named `TestResult` to avoid clashing with `flutter_test`.

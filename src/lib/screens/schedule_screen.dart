@@ -318,7 +318,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   String _subjectName(List<Subject> subjects, String? subjectId) {
     if (subjectId == null) return '';
     for (final subject in subjects) {
-      if (subject.id == subjectId) return subject.name;
+      if (subject.id == subjectId) return subject.displayLabel;
     }
     return '';
   }
