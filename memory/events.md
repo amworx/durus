@@ -125,3 +125,19 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 | errors | 1 (stale Flutter SW cache served old build on first check) |
 | lessons | Flutter web deploys must be verified with a cache-bypass reload (service worker serves stale builds to returning tabs); hard reload after every web publish. |
 | tags | auth, password-reset, forgot-password, deploy |
+---
+
+### EVT-20260915-0001
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260915-0001 |
+| timestamp | 2026-09-15T17:05:00+03:00 |
+| mode | BUILD |
+| action | fix release APK: missing INTERNET permission (signup/login dead in Android) |
+| summary | User reported the downloaded APK would not let them create an account. Investigation: REST signup via live project worked instantly (auto-confirm + session); web UI signup reproduced end-to-end (form → onboarding wizard). Root cause: android/app/src/main/AndroidManifest.xml had NO uses-permission INTERNET (only the debug manifest declares it), so the RELEASE APK had zero network — every Supabase call threw immediately. Fix: added INTERNET permission to main manifest + changed launcher label "durus" → "دروس". Rebuilt release APK, verified via aapt2 dump permissions (INTERNET present, package com.amworx.durus), re-uploaded to Release v1.0.0 (--clobber, updated 2026-09-15T17:00:37Z). Cleaned up 2 repro test users. Committed 88d4cea. |
+| result | success — release APK now has network; signup/login work on Android |
+| files | src/android/app/src/main/AndroidManifest.xml, Release v1.0.0 asset |
+| errors | 1 (this bug) |
+| lessons | ALWAYS add INTERNET to main/AndroidManifest.xml — Flutter templates only include it in debug/profile manifests; release builds silently ship network-dead. Verify merged permissions with aapt2 dump permissions after every release build. |
+| tags | android, release, manifest, network, bugfix |

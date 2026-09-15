@@ -47,4 +47,7 @@ Append-only.
   committed file is secret-free; the CLI resolves at supabase config push
   and redacts the value (shows hash) in its diff output.- 2026-09-14 — After publishing a Flutter web build, verify on a fresh tab
   with cache-bypass reload (ignoreCache:true): the service worker keeps
-  serving the previous main.dart.js to returning tabs.
+  serving the previous main.dart.js to returning tabs.- 2026-09-15 — Android release builds: Flutter's template puts INTERNET
+  permission only in src/debug/AndroidManifest.xml. Every release APK must
+  declare it in main/AndroidManifest.xml or ALL network calls fail silently.
+  Verify with: aapt2 dump permissions app-release.apk.
