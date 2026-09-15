@@ -33,34 +33,16 @@ flutter:
   generate: true
 
   fonts:
-    # Reem Kufi (variable font) — display numerals + headings (فسيفساء & سكون)
-    - family: ReemKufi
+    # Zain — the app's single type family (chosen for on-screen readability).
+    - family: Zain
       fonts:
-        - asset: assets/fonts/ReemKufi-Variable.ttf
+        - asset: assets/fonts/Zain-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Zain-Regular.ttf
           weight: 400
-        - asset: assets/fonts/ReemKufi-Variable.ttf
-          weight: 500
-        - asset: assets/fonts/ReemKufi-Variable.ttf
+        - asset: assets/fonts/Zain-Bold.ttf
           weight: 700
-        - asset: assets/fonts/ReemKufi-Variable.ttf
+        - asset: assets/fonts/Zain-ExtraBold.ttf
           weight: 800
-    # Tajawal — body text (فسيفساء)
-    - family: Tajawal
-      fonts:
-        - asset: assets/fonts/Tajawal-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Tajawal-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Tajawal-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Tajawal-ExtraBold.ttf
-          weight: 800
-    # IBM Plex Sans Arabic — data/leading figures (سكون)
-    - family: IBMPlexSansArabic
-      fonts:
-        - asset: assets/fonts/IBMPlexSansArabic-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/IBMPlexSansArabic-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/IBMPlexSansArabic-SemiBold.ttf
-          weight: 600
+        - asset: assets/fonts/Zain-Black.ttf
+          weight: 900

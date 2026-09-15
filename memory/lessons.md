@@ -91,3 +91,15 @@ Append-only.
   FIRST character of a text field value (password showed `stPass123!` for
   `TestPass123!`). Always confirm the submitted payload in the network request
   body before concluding auth failed, and re-fill using select-all + type_text.
+- 2026-09-15 -- Kufi-style display faces (Reem Kufi) are hard to read for
+  body text and numbers on a phone. For an app full of amounts/schedules,
+  prefer a screen-tuned UI sans (Zain / Almarai / Noto Sans Arabic) or a Naskh
+  face (Noto Naskh Arabic). User picked **Zain** for Durus — one family for
+  display + body + numerals in both designs.
+- 2026-09-15 -- Supabase Storage `x-upsert: true` keeps the same object `Id`
+  for a path even when content changes. Verify an upload really replaced the
+  file by comparing `Content-Length` (or Last-Modified), never the returned Id.
+- 2026-09-15 -- A font-picker webpage (identical sample text per card, one
+  content-mode switcher, click-to-select with a sticky chosen bar) is a fast,
+  reliable way to let a user choose a typeface — adapted from the
+  design-showcase pattern and preferred over asking for font names blindly.

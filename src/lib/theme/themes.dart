@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+/// The app's single type family — Zain, chosen for on-screen readability.
+/// See docs/font-picker.html for the comparison page used to pick it.
+const String kFontFamily = 'Zain';
+
 /// Persisted theme keys (stored in SharedPreferences under 'theme_key').
 const String kThemeFusayfesa = 'f4'; // فسيفساء — light warm-paper mosaic, default
 const String kThemeSukoon = 's5'; // سكون — near-black dark premium
@@ -83,9 +87,7 @@ ThemeData _buildFusayfesa() {
   return base.copyWith(
     textTheme: _arabicTextTheme(
       base.textTheme,
-      displayFamily: 'ReemKufi',
-      bodyFamily: 'Tajawal',
-      displayWeight: FontWeight.w700,
+      displayWeight: FontWeight.w800,
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: paper,
@@ -94,9 +96,9 @@ ThemeData _buildFusayfesa() {
       scrolledUnderElevation: 0,
       centerTitle: false,
       titleTextStyle: TextStyle(
-        fontFamily: 'ReemKufi',
+        fontFamily: kFontFamily,
         fontSize: 20,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w800,
         color: ink,
       ),
     ),
@@ -142,7 +144,7 @@ ThemeData _buildFusayfesa() {
       ),
       labelTextStyle: WidgetStateProperty.resolveWith(
         (states) => TextStyle(
-          fontFamily: 'Tajawal',
+          fontFamily: kFontFamily,
           fontSize: 11,
           fontWeight: states.contains(WidgetState.selected)
               ? FontWeight.w700
@@ -166,7 +168,7 @@ ThemeData _buildFusayfesa() {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       side: const BorderSide(color: Color(0xFFE7E2D6)),
       backgroundColor: Colors.white,
-      labelStyle: const TextStyle(fontFamily: 'Tajawal'),
+      labelStyle: const TextStyle(fontFamily: kFontFamily),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -174,7 +176,7 @@ ThemeData _buildFusayfesa() {
         foregroundColor: Colors.white,
         minimumSize: const Size(0, 46),
         textStyle: const TextStyle(
-          fontFamily: 'Tajawal',
+          fontFamily: kFontFamily,
           fontWeight: FontWeight.w700,
         ),
         shape: RoundedRectangleBorder(
@@ -191,7 +193,7 @@ ThemeData _buildFusayfesa() {
         side: const BorderSide(color: Color(0xFFE7E2D6)),
         minimumSize: const Size(0, 46),
         textStyle: const TextStyle(
-          fontFamily: 'Tajawal',
+          fontFamily: kFontFamily,
           fontWeight: FontWeight.w700,
         ),
         shape: RoundedRectangleBorder(
@@ -205,7 +207,7 @@ ThemeData _buildFusayfesa() {
         side: const BorderSide(color: Color(0xFFB7D8CE)),
         minimumSize: const Size(0, 46),
         textStyle: const TextStyle(
-          fontFamily: 'Tajawal',
+          fontFamily: kFontFamily,
           fontWeight: FontWeight.w700,
         ),
         shape: RoundedRectangleBorder(
@@ -217,7 +219,7 @@ ThemeData _buildFusayfesa() {
       behavior: SnackBarBehavior.floating,
       backgroundColor: ink,
       contentTextStyle: const TextStyle(
-        fontFamily: 'Tajawal',
+        fontFamily: kFontFamily,
         color: Colors.white,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -296,8 +298,6 @@ ThemeData _buildSukoon() {
   return base.copyWith(
     textTheme: _arabicTextTheme(
       base.textTheme,
-      displayFamily: 'ReemKufi',
-      bodyFamily: 'IBMPlexSansArabic',
       displayWeight: FontWeight.w700,
     ),
     appBarTheme: AppBarTheme(
@@ -307,7 +307,7 @@ ThemeData _buildSukoon() {
       scrolledUnderElevation: 0,
       centerTitle: false,
       titleTextStyle: TextStyle(
-        fontFamily: 'ReemKufi',
+        fontFamily: kFontFamily,
         fontSize: 20,
         fontWeight: FontWeight.w700,
         color: ink,
@@ -352,7 +352,7 @@ ThemeData _buildSukoon() {
       indicatorColor: Colors.transparent,
       labelTextStyle: WidgetStateProperty.resolveWith(
         (states) => TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
+          fontFamily: kFontFamily,
           fontSize: 10.5,
           fontWeight: states.contains(WidgetState.selected)
               ? FontWeight.w600
@@ -376,7 +376,7 @@ ThemeData _buildSukoon() {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       side: const BorderSide(color: hairline),
       backgroundColor: surface,
-      labelStyle: const TextStyle(fontFamily: 'IBMPlexSansArabic'),
+      labelStyle: const TextStyle(fontFamily: kFontFamily),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -384,7 +384,7 @@ ThemeData _buildSukoon() {
         foregroundColor: const Color(0xFF1A1208),
         minimumSize: const Size(0, 46),
         textStyle: const TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
+          fontFamily: kFontFamily,
           fontWeight: FontWeight.w600,
         ),
         shape: RoundedRectangleBorder(
@@ -401,7 +401,7 @@ ThemeData _buildSukoon() {
         side: const BorderSide(color: hairline),
         minimumSize: const Size(0, 46),
         textStyle: const TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
+          fontFamily: kFontFamily,
           fontWeight: FontWeight.w600,
         ),
         shape: RoundedRectangleBorder(
@@ -415,7 +415,7 @@ ThemeData _buildSukoon() {
         side: const BorderSide(color: hairline),
         minimumSize: const Size(0, 46),
         textStyle: const TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
+          fontFamily: kFontFamily,
           fontWeight: FontWeight.w600,
         ),
         shape: RoundedRectangleBorder(
@@ -427,7 +427,7 @@ ThemeData _buildSukoon() {
       behavior: SnackBarBehavior.floating,
       backgroundColor: surfaceHigh,
       contentTextStyle: const TextStyle(
-        fontFamily: 'IBMPlexSansArabic',
+        fontFamily: kFontFamily,
         color: ink,
       ),
       shape: RoundedRectangleBorder(
@@ -451,23 +451,20 @@ ThemeData _buildSukoon() {
   );
 }
 
-/// Applies the design-system fonts on top of the theme's text styles.
+/// Applies the app type family on top of the theme's text styles.
 ///
-/// Distinguishes display styles (used by [TextTheme.headline*] /
-/// [TextTheme.title*]) from body/data styles so each screen keeps a
-/// deliberate hierarchy without per-widget font overrides.
+/// Display styles ([TextTheme.headline*] / [TextTheme.title*]) get a heavier
+/// weight for hierarchy; body and data styles stay regular.
 TextTheme _arabicTextTheme(
   TextTheme base, {
-  required String displayFamily,
-  required String bodyFamily,
   required FontWeight displayWeight,
 }) {
   TextStyle display(TextStyle style) => style.copyWith(
-        fontFamily: displayFamily,
+        fontFamily: kFontFamily,
         fontWeight: displayWeight,
       );
   TextStyle body(TextStyle style) => style.copyWith(
-        fontFamily: bodyFamily,
+        fontFamily: kFontFamily,
       );
 
   return base.copyWith(

@@ -229,9 +229,9 @@ class _DesignPreview extends StatelessWidget {
               child: Text(
                 '٥٢',
                 style: TextStyle(
-                  fontFamily: 'ReemKufi',
+                  fontFamily: kFontFamily,
                   fontSize: 10,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                   height: 1.25,
                   color: accent,
                 ),

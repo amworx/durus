@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختيار الخط — دروس</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Alexandria:wght@400;500;700&family=Amiri:wght@400;700&family=Cairo:wght@400;500;700;900&family=Changa:wght@400;600;700&family=El+Messiri:wght@400;500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Katibeh&family=Lalezar&family=Mada:wght@400;500;700&family=Markazi+Text:wght@400;500;700&family=Noto+Naskh+Arabic:wght@400;500;700&family=Noto+Sans+Arabic:wght@400;500;700&family=Reem+Kufi:wght@400;500;700;800&family=Rubik:wght@400;500;700&family=Scheherazade+New:wght@500;700&family=Tajawal:wght@400;500;700;800&family=Vazirmatn:wght@400;500;700&family=Zain:wght@300;400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF8F4;
+    --surface: #FFFFFF;
+    --ink: #14213D;
+    --muted: #6F7A8C;
+    --teal: #0E7C66;
+    --ember: #E8622B;
+    --hairline: #E7E2D6;
+    --pill: #DFF3EC;
+    --radius: 22px;
+  }
+  [data-theme="dark"] {
+    --bg: #0A0A0C;
+    --surface: #121216;
+    --ink: #F2F0EB;
+    --muted: #8F8F86;
+    --teal: #E8AD65;
+    --ember: #E8AD65;
+    --hairline: #232329;
+    --pill: #2A2114;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Tajawal', sans-serif;
+    line-height: 1.7;
+    transition: background .25s, color .25s;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  header.site {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 8px;
+  }
+  h1 { font-size: 1.5rem; margin: 0; font-weight: 800; }
+  .sub { color: var(--muted); font-size: .95rem; margin: 6px 0 0; }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    margin: 20px 0 8px;
+  }
+  .mode-group {
+    display: flex; gap: 6px; background: var(--surface);
+    border: 1px solid var(--hairline); border-radius: 999px; padding: 4px;
+  }
+  .mode-btn {
+    border: 0; background: transparent; color: var(--muted);
+    font-family: inherit; font-size: .88rem; font-weight: 700;
+    padding: 7px 14px; border-radius: 999px; cursor: pointer; transition: .15s;
+  }
+  .mode-btn.active { background: var(--pill); color: var(--teal); }
+  .mode-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+  .dark-toggle {
+    margin-inline-start: auto; border: 1px solid var(--hairline);
+    background: var(--surface); color: var(--ink); border-radius: 999px;
+    padding: 7px 14px; font-family: inherit; font-weight: 700; cursor: pointer;
+  }
+
+  .section-title {
+    font-size: 1rem; font-weight: 800; margin: 28px 0 4px;
+    display: flex; align-items: center; gap: 8px; color: var(--muted);
+  }
+  .section-title::after { content: ""; flex: 1; height: 1px; background: var(--hairline); }
+  .note {
+    font-size: .82rem; color: var(--muted); margin: 2px 0 12px;
+  }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    --f: 'Tajawal', sans-serif;
+    font-family: var(--f);
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 18px;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+    position: relative;
+  }
+  .card:hover { border-color: var(--teal); }
+  .card.selected { border-color: var(--teal); box-shadow: 0 0 0 2px var(--teal) inset; }
+  .card:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+  .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  .card-name { font-size: 1.05rem; font-weight: bold; margin: 0; }
+  .card-en { font-size: .75rem; color: var(--muted); direction: ltr; display: block; }
+  .badges { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+  .badge {
+    font-size: .66rem; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+    background: var(--hairline); color: var(--muted);
+  }
+  .badge.current { background: var(--pill); color: var(--teal); }
+  .badge.hot { background: var(--ember); color: #fff; }
+
+  .stat-row {
+    display: flex; align-items: flex-end; gap: 10px; margin-bottom: 12px;
+  }
+  .stat-num {
+    font-size: 2.6rem; font-weight: 800; line-height: 1; color: var(--teal);
+    letter-spacing: -0.02em;
+  }
+  .stat-label { color: var(--muted); font-size: .8rem; line-height: 1.4; padding-bottom: 2px; }
+
+  .heading-sample { font-size: 1.15rem; font-weight: 700; margin: 0 0 10px; }
+  .name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%; flex: none;
+    background: var(--pill); color: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 700;
+  }
+  .name { font-weight: 700; line-height: 1.3; }
+  .name-sub { font-size: .78rem; color: var(--muted); }
+  .body-sample {
+    font-size: .9rem; color: var(--ink); margin: 0; opacity: .92;
+  }
+
+  .chosen-bar {
+    position: fixed; bottom: 16px; inset-inline: 16px; margin: 0 auto;
+    max-width: 600px; background: var(--ink); color: var(--bg);
+    border-radius: 999px; padding: 12px 20px; display: none;
+    align-items: center; justify-content: space-between; gap: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.25); z-index: 10; font-size: .9rem;
+  }
+  .chosen-bar.visible { display: flex; }
+  .chosen-bar .chosen-font { font-weight: 800; }
+  .chosen-bar button {
+    background: var(--teal); color: #fff; border: 0; border-radius: 999px;
+    padding: 7px 16px; font-family: inherit; font-weight: 800; cursor: pointer;
+  }
+  .chosen-bar button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .stat-num { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="site">
+    <div>
+      <h1>اختيار خط التطبيق</h1>
+      <p class="sub">اطّلع على نفس محتوى "دروس" بخطوط مختلفة واختر ما يناسبك. اضغط على البطاقة لاختيار الخط.</p>
+    </div>
+    <button class="dark-toggle" id="darkToggle" aria-pressed="false">🌙 الوضع الداكن</button>
+  </header>
+
+  <div class="toolbar">
+    <div class="mode-group" id="modeGroup" role="tablist" aria-label="مثال المحتوى">
+      <button class="mode-btn active" data-mode="home" role="tab" aria-selected="true">الرئيسية</button>
+      <button class="mode-btn" data-mode="schedule" role="tab" aria-selected="false">الجدول</button>
+      <button class="mode-btn" data-mode="fees" role="tab" aria-selected="false">الأقساط</button>
+    </div>
+    <span class="note" style="margin:0">نفس النص في كل البطاقات — لاحظ الفرق في الوضوح فقط.</span>
+  </div>
+
+  <div class="section-title">الخطوط الحالية في التطبيق</div>
+  <div class="grid" id="gridCurrent"></div>
+
+  <div class="section-title">بدائل واضحة مقترحة</div>
+  <div class="note">مرتّبة من الأوضح قراءة (خط النسخ) نحو الأكثر تزييناً. "الموصى به" = أنسب بديل للقراءة على الشاشة.</div>
+  <div class="grid" id="gridAlt"></div>
+
+  <div class="section-title">خيارات بصرية إضافية</div>
+  <div class="note">مناسبة للعناوين أو الأرقام الكبيرة في حالة أردت حفاظاً على الطابع الفني.</div>
+  <div class="grid" id="gridDeco"></div>
+
+</div>
+
+<div class="chosen-bar" id="chosenBar">
+  <span>الخط المختار: <span class="chosen-font" id="chosenFont">—</span></span>
+  <button id="pickBtn">اختيار</button>
+</div>
+
+<script>
+// Font catalog: each entry builds one identical sample card.
+// cat: current | alt | deco
+const FONTS = [
+  { name: 'ريم كوفي', en: 'Reem Kufi — الحالي', f: "'Reem Kufi', sans-serif", cat: 'current', current: true },
+  { name: 'تاجوال', en: 'Tajawal — الحالي', f: "'Tajawal', sans-serif", cat: 'current', current: true },
+  { name: 'IBM Plex Sans Arabic', en: 'IBM Plex Sans Arabic — الحالي', f: "'IBM Plex Sans Arabic', sans-serif", cat: 'current', current: true },
+
+  { name: 'نوتو نسخ عربي', en: 'Noto Naskh Arabic', f: "'Noto Naskh Arabic', serif", cat: 'alt', recommended: true },
+  { name: 'المراعي', en: 'Almarai', f: "'Almarai', sans-serif", cat: 'alt', recommended: true },
+  { name: 'زين', en: 'Zain', f: "'Zain', sans-serif", cat: 'alt', recommended: true },
+  { name: 'وزيرمتن', en: 'Vazirmatn', f: "'Vazirmatn', sans-serif", cat: 'alt', recommended: true },
+  { name: 'نوتو سنس عربي', en: 'Noto Sans Arabic', f: "'Noto Sans Arabic', sans-serif", cat: 'alt' },
+  { name: 'القاهرة', en: 'Cairo', f: "'Cairo', sans-serif", cat: 'alt' },
+  { name: 'مدى', en: 'Mada', f: "'Mada', sans-serif", cat: 'alt' },
+  { name: 'الإسكندرية', en: 'Alexandria', f: "'Alexandria', sans-serif", cat: 'alt' },
+  { name: 'روبيك', en: 'Rubik', f: "'Rubik', sans-serif", cat: 'alt' },
+  { name: 'ماركزي', en: 'Markazi Text', f: "'Markazi Text', serif", cat: 'alt' },
+  { name: 'المسيري', en: 'El Messiri', f: "'El Messiri', sans-serif", cat: 'alt' },
+  { name: 'أميري', en: 'Amiri', f: "'Amiri', serif", cat: 'alt' },
+  { name: 'شهرزاد', en: 'Scheherazade New', f: "'Scheherazade New', serif", cat: 'alt' },
+  { name: 'تشانغا', en: 'Changa', f: "'Changa', sans-serif", cat: 'alt' },
+
+  { name: 'كطيبة', en: 'Katibeh (عنوان)', f: "'Katibeh', serif", cat: 'deco' },
+  { name: 'لالزار', en: 'Lalezar (عنوان)', f: "'Lalezar', serif", cat: 'deco' },
+];
+
+// Sample content per mode — identical text for every font card.
+const MODES = {
+  home: {
+    stat: '٥٢', statLabel: 'جلسةً\nهذا الأسبوع',
+    heading: 'جلسات اليوم',
+    name: 'أحمد الهاشمي', sub: 'الرياضيات · الصف الثالث',
+    body: 'لا توجد جلسات اليوم. سجّل حضور الطلاب بسهولة، ويظهر التقرير الشهري تلقائياً لولي الأمر.',
+  },
+  schedule: {
+    stat: '٥:٠٠', statLabel: 'مساءً\nالثلاثاء',
+    heading: 'جدول اليوم',
+    name: 'درس الرياضيات', sub: 'أحمد الهاشمي · منزل المعلّم',
+    body: 'مدة الدرس ساعة ونصف. يُرسل تذكير بالحضور إلى ولي الأمر قبل الدرس بوقت كافٍ.',
+  },
+  fees: {
+    stat: '١٢٠٬٠٠٠', statLabel: 'ل.س\nقسط أيلول',
+    heading: 'الأقساط',
+    name: 'قسط تشرين الأول', sub: 'المتبقي: ٤٠٬٠٠٠ ل.س',
+    body: 'قسط شهر أيلول مُسجَّل ومؤكَّد. يظهر الدفع في تقرير ولي الأمر فور تسجيله.',
+  },
+};
+
+let currentMode = 'home';
+let selectedFont = null;
+
+function initials(name) {
+  const parts = name.split(' ');
+  return (parts[0]?.[0] ?? '؟') + (parts.length > 1 ? parts[1][0] : '');
+}
+
+function cardHTML(font, mode) {
+  const m = MODES[mode];
+  const badges = [];
+  if (font.current) badges.push('<span class="badge current">الحالي</span>');
+  if (font.recommended) badges.push('<span class="badge hot">موصى به</span>');
+  const aria = font.selected ? 'true' : 'false';
+  const sel = font.selected ? ' selected' : '';
+  return `
+  <div class="card${sel}" data-font="${font.en}" style="--f:${font.f}" tabindex="0" role="button" aria-pressed="${aria}" aria-label="اختيار خط ${font.name}">
+    <div class="card-head">
+      <div><div class="card-name">${font.name}</div><span class="card-en">${font.en}</span></div>
+      <div class="badges">${badges.join('')}</div>
+    </div>
+    <div class="stat-row">
+      <span class="stat-num">${m.stat}</span>
+      <span class="stat-label">${m.statLabel.replace('\n', '<br>')}</span>
+    </div>
+    <h3 class="heading-sample">${m.heading}</h3>
+    <div class="name-row">
+      <span class="avatar">${initials(m.name)}</span>
+      <span>
+        <span class="name">${m.name}</span><br>
+        <span class="name-sub">${m.sub}</span>
+      </span>
+    </div>
+    <p class="body-sample">${m.body}</p>
+  </div>`;
+}
+
+function render() {
+  const current = FONTS.filter(f => f.cat === 'current');
+  const alts = FONTS.filter(f => f.cat === 'alt');
+  const deco = FONTS.filter(f => f.cat === 'deco');
+  document.getElementById('gridCurrent').innerHTML = current.map(f => cardHTML(f, currentMode)).join('');
+  document.getElementById('gridAlt').innerHTML = alts.map(f => cardHTML(f, currentMode)).join('');
+  document.getElementById('gridDeco').innerHTML = deco.map(f => cardHTML(f, currentMode)).join('');
+
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => selectFont(card));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectFont(card); }
+    });
+  });
+
+  const bar = document.getElementById('chosenBar');
+  if (selectedFont) {
+    bar.classList.add('visible');
+    document.getElementById('chosenFont').textContent = selectedFont.name;
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+function selectFont(card) {
+  const en = card.dataset.font;
+  const font = FONTS.find(f => f.en === en);
+  if (!font) return;
+  FONTS.forEach(f => delete f.selected);
+  font.selected = true;
+  selectedFont = font;
+  render();
+}
+
+document.getElementById('modeGroup').addEventListener('click', (e) => {
+  const btn = e.target.closest('.mode-btn');
+  if (!btn) return;
+  currentMode = btn.dataset.mode;
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    const on = b === btn;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', on);
+  });
+  render();
+});
+
+document.getElementById('darkToggle').addEventListener('click', (e) => {
+  const dark = document.documentElement.dataset.theme !== 'dark';
+  document.documentElement.dataset.theme = dark ? 'dark' : '';
+  e.currentTarget.setAttribute('aria-pressed', dark);
+  e.currentTarget.textContent = dark ? '☀️ الوضع الفاتح' : '🌙 الوضع الداكن';
+});
+
+document.getElementById('pickBtn').addEventListener('click', () => {
+  if (!selectedFont) return;
+  const msg = `اخترت الخط: ${selectedFont.name} (${selectedFont.en})`;
+  alert(msg);
+  // Persist the pick locally so it survives refresh.
+  try { localStorage.setItem('durus-font-pick', JSON.stringify({ name: selectedFont.name, en: selectedFont.en, f: selectedFont.f })); } catch (_) {}
+  document.getElementById('chosenFont').textContent = `${selectedFont.name} ✓`;
+});
+
+render();
+</script>
+</body>
+</html>
