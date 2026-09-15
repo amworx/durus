@@ -56,4 +56,14 @@ Append-only.
   (POST /storage/v1/object/<bucket>/<name>?upsert=true, bearer service key).
 - 2026-09-15 — Keep the URL literal or build it in a variable before the
   upload call; string interpolation with query params inside a curl call in a
-  PowerShell loop created an object literally named "=true".
+  PowerShell loop created an object literally named "=true".- 2026-09-15 -- Silent anonymous upload: catbox.moe wins. API:
+  curl -F reqtype=fileupload -F fileToUpload=@file https://catbox.moe/user/api.php
+  Returns: direct URL (files.catbox.moe/xxx). Permanent until deleted. Up to 200MB.
+  Use share-apk.ps1 in project root for one-command uploads.
+- 2026-09-15 -- file.io's curl API is dead (redirects to www.file.io, then
+  LimeWire's undocumented claim-token+CSRF flow). The Developers page on
+  file.io is stale. Do not use for programmatic uploads.
+- 2026-09-15 -- 0x0.st is disabled (botnet spam). litterbox rejects anonymous.
+  tmpfiles.org works but returns an HTML wrapper page (not a direct URL).
+- 2026-09-15 -- PowerShell 5.1 parser chokes on non-ASCII chars (em-dash,
+  curly quotes) in script files. Use only ASCII in .ps1 files.

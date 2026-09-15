@@ -157,3 +157,19 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 | errors | 1 (upload name artifact "=true"); bucket create 413 on 70MB file_size_limit (free cap 50MB) |
 | lessons | (1) Supabase free Storage max object size = 50MB → ship split-per-abi APKs, not universal. (2) Build URL strings outside the upload loop or use literal URLs — PowerShell+curl URL interpolation with query params can mangle object names. (3) Free tier egress ~2GB/mo: 19MB APK ≈ 100 downloads/mo — fine for a teacher's families. |
 | tags | storage, apk, hosting, download-speed |
+---
+
+### EVT-20260915-0003
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260915-0003 |
+| timestamp | 2026-09-15T20:45:00+03:00 |
+| mode | RESEARCH |
+| action | find silent (no-browser) file sharing API for APK distribution |
+| summary | Tested 4 anonymous file-sharing services to replace file.io (whose curl API is dead -- file.io now redirects through LimeWire with a complex S3+claimToken+CSRF flow requiring browser JS). Results: (1) 0x0.st -- DISABLED (botnet spam). (2) litterbox.catbox.moe -- rejects anonymous with 'No file!' (blocked or policy change). (3) tmpfiles.org -- upload works, returns share URL, but the share page is an HTML wrapper (extra click on phone). (4) catbox.moe -- WORKS PERFECTLY: curl -F reqtype=fileupload -F fileToUpload=@file https://catbox.moe/user/api.php returns direct URL (https://files.catbox.moe/xxx.apk). No HTML wrapper. No account. Permanent until deleted. Files up to 200MB. Speed: ~260KB/s from our datacenter. |
+| result | success -- catbox.moe for silent anonymous uploads |
+| files | share-apk.ps1 (new) |
+| errors | litterbox anonymous rejection; 0x0.st disabled; tmpfiles HTML wrapper |
+| lessons | (1) file.io API is dead -- now routes through LimeWire with undocumented multipart+CSRF flow. (2) catbox.moe is the simplest working anonymous upload API in 2026: one curl call, direct URL response. (3) Non-ASCII characters (em-dash, curly quotes) in PowerShell scripts cause parser failures on PS 5.1 -- use ASCII only. |
+| tags | file-sharing, catbox, anonymous, silent-upload, file-io-dead |
