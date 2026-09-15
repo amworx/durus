@@ -134,17 +134,21 @@ class _AppearanceSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final themeKey = ref.watch(themeKeyProvider);
-    final darkMode = ref.watch(darkModeProvider);
     final prefs = ref.watch(sharedPrefsProvider);
-    final selected = const [kThemeDaftar, kThemeLawh, kThemeMaktab]
-            .contains(themeKey)
-        ? themeKey
-        : kThemeDaftar;
+    final selected = normalizeThemeKey(themeKey);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          l10n.settingsThemePick,
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: 12),
         RadioGroup<String>(
           groupValue: selected,
           onChanged: (value) {
@@ -158,38 +162,126 @@ class _AppearanceSection extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               RadioListTile<String>(
-                title: Text(l10n.settingsThemeDaftar),
-                value: kThemeDaftar,
+                title: Text(l10n.settingsThemeFusayfesa),
+                subtitle: Text(l10n.settingsThemeFusayfesaSub),
+                secondary: const _DesignPreview(design: kThemeFusayfesa),
+                value: kThemeFusayfesa,
                 dense: true,
                 contentPadding: EdgeInsets.zero,
               ),
               RadioListTile<String>(
-                title: Text(l10n.settingsThemeLawh),
-                value: kThemeLawh,
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-              ),
-              RadioListTile<String>(
-                title: Text(l10n.settingsThemeMaktab),
-                value: kThemeMaktab,
+                title: Text(l10n.settingsThemeSukoon),
+                subtitle: Text(l10n.settingsThemeSukoonSub),
+                secondary: const _DesignPreview(design: kThemeSukoon),
+                value: kThemeSukoon,
                 dense: true,
                 contentPadding: EdgeInsets.zero,
               ),
             ],
           ),
         ),
-        const SizedBox(height: 4),
-        SwitchListTile(
-          title: Text(l10n.settingsTheme),
-          secondary: const Icon(Icons.dark_mode_outlined),
-          value: darkMode,
-          contentPadding: EdgeInsets.zero,
-          onChanged: (value) {
-            ref.read(darkModeProvider.notifier).state = value;
-            prefs.setBool('dark_mode', value);
-          },
-        ),
       ],
+    );
+  }
+}
+
+/// Small static mock of a design system used as the radio thumbnail in the
+/// settings picker. Uses the design's own tokens, not the active theme, so
+/// the preview always represents what the user is choosing.
+class _DesignPreview extends StatelessWidget {
+  const _DesignPreview({required this.design});
+
+  final String design;
+
+  @override
+  Widget build(BuildContext context) {
+    final isSukoon = design == kThemeSukoon;
+    final bg = isSukoon ? const Color(0xFF0A0A0C) : const Color(0xFFFAF8F4);
+    final fg = isSukoon ? const Color(0xFFF2F0EB) : const Color(0xFF14213D);
+    final mutedC = isSukoon ? const Color(0xFF8F8F86) : const Color(0xFF6F7A8C);
+    final accent = isSukoon ? const Color(0xFFE8AD65) : const Color(0xFF0E7C66);
+
+    return Container(
+      width: 44,
+      height: 56,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(isSukoon ? 8 : 10),
+        border: isSukoon
+            ? Border.all(color: const Color(0xFF232329))
+            : Border.all(color: const Color(0xFFECEAE3)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Accent "stat" bar.
+            Container(
+              height: 15,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              alignment: AlignmentDirectional.centerEnd,
+              decoration: BoxDecoration(
+                color: isSukoon ? const Color(0xFF1A1A20) : const Color(0xFFDFF3EC),
+                borderRadius: BorderRadius.circular(isSukoon ? 4 : 6),
+              ),
+              child: Text(
+                '٥٢',
+                style: TextStyle(
+                  fontFamily: 'ReemKufi',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  height: 1.25,
+                  color: accent,
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            _line(widthFactor: 0.9, color: fg),
+            const SizedBox(height: 2),
+            _line(widthFactor: 0.6, color: mutedC),
+            const Spacer(),
+            Row(
+              children: [
+                Expanded(
+                  child: _line(widthFactor: 1, color: accent, height: 3),
+                ),
+                const SizedBox(width: 3),
+                _dot(isSukoon ? const Color(0xFFE8AD65) : const Color(0xFFE8622B)),
+                const SizedBox(width: 2),
+                _dot(isSukoon ? const Color(0xFF8F8F86) : const Color(0xFF3B4A8C)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _line({
+    required double widthFactor,
+    required Color color,
+    double height = 2,
+  }) {
+    return FractionallySizedBox(
+      alignment: AlignmentDirectional.centerStart,
+      widthFactor: widthFactor,
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.45),
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    );
+  }
+
+  Widget _dot(Color color) {
+    return Container(
+      width: 4,
+      height: 4,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }

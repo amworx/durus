@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/durus_api.dart';
 import '../models/models.dart';
+import '../theme/themes.dart';
 
 /// SharedPreferences is initialized once at app startup by the bootstrap
 /// worker; this provider is overridden with the real instance during setup.
@@ -13,8 +14,9 @@ final sharedPrefsProvider = Provider<SharedPreferences>(
 
 final apiProvider = Provider<DurusApi>((ref) => DurusApi());
 
-final themeKeyProvider = StateProvider<String>((ref) => 'd1');
-final darkModeProvider = StateProvider<bool>((ref) => false);
+/// Selected design system. The design IS the brightness (فسيفساء = light,
+/// سكون = dark), so there is no separate dark-mode toggle.
+final themeKeyProvider = StateProvider<String>((ref) => kThemeFusayfesa);
 
 /// Emits on every auth state change (sign-in, sign-out, token refresh).
 final authSessionProvider =

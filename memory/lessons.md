@@ -67,3 +67,27 @@ Append-only.
   tmpfiles.org works but returns an HTML wrapper page (not a direct URL).
 - 2026-09-15 -- PowerShell 5.1 parser chokes on non-ASCII chars (em-dash,
   curly quotes) in script files. Use only ASCII in .ps1 files.
+- 2026-09-15 -- To redesign UI "too classic" apps: run 5 parallel design
+  sub-agents (design-an-interface + ui-ux-pro-max skills), each with a
+  radically different direction (neo-brutalist / glassmorphism / editorial-
+  print / bento / dark-minimal), then present all 5 with a comparison table
+  (vibe, palette, type, RTL strength, low-end phone risk) and let the user
+  pick. Implement only after selection.
+- 2026-09-15 -- Chosen design will likely need bundled Google Fonts (Reem
+  Kufi, Changa, Cairo, Amiri, Tajawal, Noto Sans Arabic, IBM Plex Sans
+  Arabic). On this network-constrained machine, download font files once from
+  the google/fonts GitHub repo, commit them, and register in pubspec.yaml —
+  do NOT use google_fonts runtime fetch.
+- 2026-09-15 -- A user may pick TWO sibling designs (here فسيفساء light +
+  سكون dark) instead of one. Implement both as full ThemeData design systems
+  and let the end user choose in Settings; when the two designs are literally
+  the light/dark split, the design IS the brightness — drop the separate
+  dark-mode toggle (fewer settings, no conflicting state).
+- 2026-09-15 -- Variable fonts (ReemKufi[wght].ttf, Cairo[slnt,wght].ttf) can
+  be bundled as ONE downloaded file registered once per declared weight in
+  pubspec.yaml (each weight entry points at the same file), saving 4 downloads
+  per family.
+- 2026-09-15 -- Chrome MCP form fill (Flutter web, CanvasKit) can drop the
+  FIRST character of a text field value (password showed `stPass123!` for
+  `TestPass123!`). Always confirm the submitted payload in the network request
+  body before concluding auth failed, and re-fill using select-all + type_text.

@@ -14,7 +14,6 @@ class DurusApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeKey = ref.watch(themeKeyProvider);
-    final darkMode = ref.watch(darkModeProvider);
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
@@ -22,9 +21,7 @@ class DurusApp extends ConsumerWidget {
       locale: const Locale('ar'),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      theme: buildTheme(themeKey, dark: false),
-      darkTheme: buildTheme(themeKey, dark: true),
-      themeMode: darkMode ? ThemeMode.dark : ThemeMode.light,
+      theme: buildTheme(themeKey),
       routerConfig: appRouter,
     );
   }

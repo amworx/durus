@@ -23,10 +23,7 @@ Future<void> main() async {
       overrides: [
         sharedPrefsProvider.overrideWithValue(prefs),
         themeKeyProvider.overrideWith(
-          (ref) => prefs.getString('theme_key') ?? kThemeDaftar,
-        ),
-        darkModeProvider.overrideWith(
-          (ref) => prefs.getBool('dark_mode') ?? false,
+          (ref) => normalizeThemeKey(prefs.getString('theme_key')),
         ),
       ],
       child: const DurusApp(),

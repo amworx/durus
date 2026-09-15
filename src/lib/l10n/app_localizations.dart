@@ -334,6 +334,30 @@ abstract class AppLocalizations {
   /// **'يرجى تأكيد بريدك الإلكتروني أولاً'**
   String get authEmailNotConfirmed;
 
+  /// No description provided for @authForgotPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسيت كلمة المرور؟'**
+  String get authForgotPassword;
+
+  /// No description provided for @authResetDialogTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة كلمة المرور'**
+  String get authResetDialogTitle;
+
+  /// No description provided for @authResetSent.
+  ///
+  /// In ar, this message translates to:
+  /// **'إذا كان البريد مسجلاً، ستصلك رسالة بها رابط إعادة تعيين كلمة المرور'**
+  String get authResetSent;
+
+  /// No description provided for @authResetButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال الرابط'**
+  String get authResetButton;
+
   /// No description provided for @onboardingTitle.
   ///
   /// In ar, this message translates to:
@@ -964,23 +988,35 @@ abstract class AppLocalizations {
   /// **'المظهر'**
   String get settingsTheme;
 
-  /// No description provided for @settingsThemeDaftar.
+  /// No description provided for @settingsThemePick.
   ///
   /// In ar, this message translates to:
-  /// **'دفتر (افتراضي)'**
-  String get settingsThemeDaftar;
+  /// **'اختر تصميم التطبيق'**
+  String get settingsThemePick;
 
-  /// No description provided for @settingsThemeLawh.
+  /// No description provided for @settingsThemeFusayfesa.
   ///
   /// In ar, this message translates to:
-  /// **'لوح'**
-  String get settingsThemeLawh;
+  /// **'فسيفساء'**
+  String get settingsThemeFusayfesa;
 
-  /// No description provided for @settingsThemeMaktab.
+  /// No description provided for @settingsThemeFusayfesaSub.
   ///
   /// In ar, this message translates to:
-  /// **'مكتب'**
-  String get settingsThemeMaktab;
+  /// **'فاتح دافئ بلمسات ملوّنة'**
+  String get settingsThemeFusayfesaSub;
+
+  /// No description provided for @settingsThemeSukoon.
+  ///
+  /// In ar, this message translates to:
+  /// **'سكون'**
+  String get settingsThemeSukoon;
+
+  /// No description provided for @settingsThemeSukoonSub.
+  ///
+  /// In ar, this message translates to:
+  /// **'داكن هادئ بأناقة بسيطة'**
+  String get settingsThemeSukoonSub;
 
   /// No description provided for @settingsProfile.
   ///

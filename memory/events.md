@@ -173,3 +173,38 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 | errors | litterbox anonymous rejection; 0x0.st disabled; tmpfiles HTML wrapper |
 | lessons | (1) file.io API is dead -- now routes through LimeWire with undocumented multipart+CSRF flow. (2) catbox.moe is the simplest working anonymous upload API in 2026: one curl call, direct URL response. (3) Non-ASCII characters (em-dash, curly quotes) in PowerShell scripts cause parser failures on PS 5.1 -- use ASCII only. |
 | tags | file-sharing, catbox, anonymous, silent-upload, file-io-dead |
+
+---
+
+### EVT-20260915-0004
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260915-0004 |
+| timestamp | 2026-09-15T21:45:00+03:00 |
+| mode | PLAN |
+| action | UI redesign: generate 5 radically different design proposals |
+| summary | User: app UI is repetitive/classic, wants a modern unique design. Scanned current UI (standard Material 3 ColorScheme.fromSeed defaults + AppBar/Card/NavigationBar/ListView; 3 seed themes d1 دفتر / d2 لوح / d3 مكتب in src/lib/theme/themes.dart). Loaded design-an-interface + ui-ux-pro-max skills and launched 5 parallel design sub-agents. Proposals: (1) كُرّاسة Neo-Brutalist ruled-paper ledger — paper #F6EEDB, ink #1D1308, 3px borders, hard offset shadows, rubber stamps, Changa; (2) ضياء Glassmorphism — dark indigo/violet gradient + frosted BackdropFilter panels + gold #FFC24A glow; (3) الكتاب Editorial Arabic — Reem Kufi masthead, folio numbers ٠٧, double hairline rules, Eastern-Arabic digits, jewel accent; (4) فسيفساء Bento mosaic — tinted tiles, giant Reem Kufi numerals 34-56px, radius 28-32; (5) سكون Dark neo-minimal — near-black #0A0A0C/#121216/#1A1A20, NO shadows, 1px hairlines, single amber #E8AD65 accent. All 5 presented to user with a comparison table (vibe, palette, type, RTL strength, low-end phone risk). Awaiting user selection before theme implementation. |
+| result | pending user choice — proposals presented; next step is implementation of the chosen direction in themes.dart |
+| files | src/lib/theme/themes.dart (implementation target), docs/ui-designs.md (existing 3-themes doc) |
+| errors | None |
+| lessons | (1) 5 parallel design sub-agents + a comparison table is a fast way to get a real design decision from a non-designer. (2) Every proposal must state low-end phone risk + RTL strength so a design can't be picked that is unimplementable for the target devices. |
+| tags | design, ui, proposals, plan |
+
+---
+
+### EVT-20260915-0005
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260915-0005 |
+| timestamp | 2026-09-15T22:30:00+03:00 |
+| mode | BUILD |
+| action | build live design-showcase webpage for the 5 proposals |
+| summary | User asked to SEE the 5 design proposals in action before choosing. Built a single self-contained RTL Arabic page docs/design-showcase.html: 5 phone mockups side by side (كرّاسة / ضياء / الكتاب / فسيفساء / سكون), each rendering real Durus screens (الرئيسية، الطلاب، الجدول، الرسوم، التقرير) with its own complete design language via CSS custom properties per `.design[data-design=N]`, plus palette swatches, type specimens, signature bullets, and a comparison table. One global screen switcher drives all 5 phones simultaneously (vanilla JS). Fonts: Google Fonts CDN (Changa, Cairo, Reem Kufi, Amiri, Tajawal, Noto Sans Arabic, IBM Plex Sans Arabic). Served locally on :8123 and verified via Chrome MCP — snapshot shows all content, switcher confirmed (all 5 phones switch together, fees=20 rows across phones), only console error is missing favicon (404, harmless). |
+| result | success — showcase live at http://localhost:8123/design-showcase.html awaiting user's design pick |
+| files | docs/design-showcase.html |
+| errors | 1 (favicon 404 — harmless) |
+| lessons | (1) For design-decision UI, one global screen switcher + N phone frames renders "same app, N personalities" far more convincingly than static screenshots. (2) CSS custom properties per design wrapper keeps 5 design systems in one small HTML file with zero duplication of screen markup. (3) This model can't read screenshots — verify rendered pages via DOM snapshot + JS evaluation instead. |
+| tags | design, showcase, html, decision-tool |
+| EVT-20260915-0006 | 2026-09-15T23:10:00+03:00 | BUILD | implement dual design systems (فسيفساء + سكون) | User decided after the showcase: keep BOTH design 4 (فسيفساء, light bento) and design 5 (سكون, dark premium), let the end user choose in Settings. Replaced the 3 classic seed-color themes in themes.dart with two complete design systems — kThemeFusayfesa='f4' (light warm paper, teal/ember accents, Reem Kufi + Tajawal, radius 26-28, pill buttons) and kThemeSukoon='s5' (near-black, hairline borders, single amber accent, Reem Kufi + IBM Plex Sans Arabic, radius 14-16, no shadows). Dropped the separate dark-mode toggle (design IS brightness). Bundled 11 font files (ReemKufi variable 400-800, Tajawal 400/500/700/800, IBMPlexSansArabic 400/500/600 + OFL licenses) into src/assets/fonts, registered in pubspec.yaml. Wired providers.dart/main.dart/app.dart (remove darkModeProvider, default f4, normalizeThemeKey migrates legacy d1/d2/d3→f4). Rebuilt Settings _AppearanceSection as a visual design picker with per-design mini preview thumbnails (_DesignPreview). Updated ARB keys (settingsThemeFusayfesa/Sukoon/Pick + subs), regenerated l10n. flutter analyze 0 issues; 15/15 tests pass; web + APK (split-per-ABI) builds succeed; verified in Chrome MCP: login → settings picker selects سكون, persists to localStorage (theme_key=s5), survives reload, refresh restores session + dark theme. | success — dual theme live; APKs re-uploaded to storage (arm64 19.8MB / v7a 17.6MB / x86_64 21.2MB), existing fast links updated in place | src/lib/theme/themes.dart, src/lib/providers/providers.dart, src/lib/main.dart, src/lib/app.dart, src/lib/screens/settings_screen.dart, src/lib/l10n/app_ar.arb, src/pubspec.yaml, src/assets/fonts/*, test/widget_test.dart | none | (1) After a design decision, implement BOTH chosen systems as first-class ThemeData with distinct fonts/radii/color roles — the picker must preview the design, not a color swatch. (2) Variable fonts (ReemKufi[wght].ttf, Cairo[slnt,wght].ttf) bundle fine as a single file registered per declared weight in pubspec. (3) PS 5.1 curl.exe download loop is reliable for pulling google/fonts raw TTFs. (4) Chrome MCP form fill can drop the first character of a password field — always verify via the network request body / re-fill before judging login failures. | design, theme, fonts, settings, build |

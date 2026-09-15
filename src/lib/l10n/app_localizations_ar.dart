@@ -129,6 +129,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authEmailNotConfirmed => 'يرجى تأكيد بريدك الإلكتروني أولاً';
 
   @override
+  String get authForgotPassword => 'نسيت كلمة المرور؟';
+
+  @override
+  String get authResetDialogTitle => 'استعادة كلمة المرور';
+
+  @override
+  String get authResetSent =>
+      'إذا كان البريد مسجلاً، ستصلك رسالة بها رابط إعادة تعيين كلمة المرور';
+
+  @override
+  String get authResetButton => 'إرسال الرابط';
+
+  @override
   String get onboardingTitle => 'إعداد المركز';
 
   @override
@@ -448,13 +461,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsTheme => 'المظهر';
 
   @override
-  String get settingsThemeDaftar => 'دفتر (افتراضي)';
+  String get settingsThemePick => 'اختر تصميم التطبيق';
 
   @override
-  String get settingsThemeLawh => 'لوح';
+  String get settingsThemeFusayfesa => 'فسيفساء';
 
   @override
-  String get settingsThemeMaktab => 'مكتب';
+  String get settingsThemeFusayfesaSub => 'فاتح دافئ بلمسات ملوّنة';
+
+  @override
+  String get settingsThemeSukoon => 'سكون';
+
+  @override
+  String get settingsThemeSukoonSub => 'داكن هادئ بأناقة بسيطة';
 
   @override
   String get settingsProfile => 'الحساب';
