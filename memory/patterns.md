@@ -56,3 +56,5 @@ Append-only. Reusable patterns extracted from successes.
   launches ACTION_VIEW on the FileProvider URI. Keep the web build green with
   a conditional-import stub (updater_web.dart) so dart:io never reaches the
   web compiler.
+
+- **Seed real-account demo data (reusable):** when the user tests on their own phones, seed INTO their actual school (not the smoke school) and attach dummy students to the teacher they log in as (assigned_teacher_id = that teacher's profile id) so both the teacher phone (RLS: own students) and the manager phone (RLS: whole school) show it. Reference the school's existing subjects rather than creating duplicate dummy subjects named like the real ones. Keep fixed-UUID + ON CONFLICT DO NOTHING, let DB triggers fan out notifications/fee status, and verify with service-role REST counts (in PS 5.1 assign the response to a variable before .Count).

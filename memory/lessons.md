@@ -155,3 +155,6 @@ Append-only.
   `if (dart.library.html)`). Also keep release APKs signed with the same key
   as the installed build (this project's gradle signs release with the debug
   key) or the system installer rejects the update as a signature mismatch.
+
+- 2026-09-16 -- Demo/seed data is SCHOOL-scoped (RLS). The smoke-school seed was invisible to the user's real accounts; seed INTO the school the user actually opens. In multi-teacher schools the teacher phone only sees students with assigned_teacher_id = their own profile id (manager sees the whole school). If the school already has subjects, reference them in the seed instead of inserting duplicate dummy subjects.
+- 2026-09-16 -- PowerShell 5.1: @(Invoke-RestMethod ...).Count inside $"..." string interpolation can mis-parse and report 1; assign the response to a variable first ($r = Invoke-RestMethod ...) then use $r.Count.
