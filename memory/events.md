@@ -141,3 +141,19 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 | errors | 1 (this bug) |
 | lessons | ALWAYS add INTERNET to main/AndroidManifest.xml — Flutter templates only include it in debug/profile manifests; release builds silently ship network-dead. Verify merged permissions with aapt2 dump permissions after every release build. |
 | tags | android, release, manifest, network, bugfix |
+---
+
+### EVT-20260915-0002
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260915-0002 |
+| timestamp | 2026-09-15T17:25:00+03:00 |
+| mode | BUILD |
+| action | host APKs on Supabase Storage (GitHub download too slow on phone) |
+| summary | User reported GitHub APK downloads are slow on their phone. Created public Supabase Storage bucket durus-apk (free tier 1GB, max object 50MB), built split-per-abi APKs (arm64 19.3MB, armeabi-v7a 17.1MB, x86_64 20.7MB — universal 55.6MB exceeds the 50MB free cap), uploaded via Storage REST API with service role, verified public HEADs (200, application/vnd.android.package-archive). Updated Release v1.0.0 notes with the three fast links. One upload artifact: first loop's URL interpolation stored x86_64 as an object literally named "=true" (mangled ?upsert=true) — deleted and re-uploaded clean. |
+| result | success — fast APK links: https://rdlapngvsxhdcoxdcjov.supabase.co/storage/v1/object/public/durus-apk/durus-arm64-v8a.apk (+ v7a/x86_64) |
+| files | null (cloud only) |
+| errors | 1 (upload name artifact "=true"); bucket create 413 on 70MB file_size_limit (free cap 50MB) |
+| lessons | (1) Supabase free Storage max object size = 50MB → ship split-per-abi APKs, not universal. (2) Build URL strings outside the upload loop or use literal URLs — PowerShell+curl URL interpolation with query params can mangle object names. (3) Free tier egress ~2GB/mo: 19MB APK ≈ 100 downloads/mo — fine for a teacher's families. |
+| tags | storage, apk, hosting, download-speed |

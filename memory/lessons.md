@@ -50,4 +50,10 @@ Append-only.
   serving the previous main.dart.js to returning tabs.- 2026-09-15 — Android release builds: Flutter's template puts INTERNET
   permission only in src/debug/AndroidManifest.xml. Every release APK must
   declare it in main/AndroidManifest.xml or ALL network calls fail silently.
-  Verify with: aapt2 dump permissions app-release.apk.
+  Verify with: aapt2 dump permissions app-release.apk.- 2026-09-15 — Supabase free Storage: max 50MB per object; use
+  flutter build apk --release --split-per-abi (arm64 ~19MB) instead of the
+  universal APK for free hosting. Upload with the Storage REST API
+  (POST /storage/v1/object/<bucket>/<name>?upsert=true, bearer service key).
+- 2026-09-15 — Keep the URL literal or build it in a variable before the
+  upload call; string interpolation with query params inside a curl call in a
+  PowerShell loop created an object literally named "=true".
