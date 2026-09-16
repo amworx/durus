@@ -863,6 +863,9 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(cachedStudent?.name ?? l10n.studentsTitle)),
+      bottomNavigationBar: cachedStudent == null
+          ? null
+          : _studentBottomBar(context, l10n, cachedStudent),
       body: studentsAsync.when(
         loading: () => const LoadingView(),
         error: (error, stackTrace) => ErrorRetry(
@@ -881,45 +884,6 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               _headerCard(context, l10n, student),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _openStudentForm(context, student),
-                      icon: const Icon(Icons.edit_outlined),
-                      label: Text(l10n.commonEdit),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: FilledButton.tonalIcon(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => MonthlyReportScreen(
-                            studentId: student.id,
-                            studentName: student.name,
-                          ),
-                        ),
-                      ),
-                      icon: const Icon(Icons.description_outlined),
-                      label: Text(l10n.reportsTitle),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _showStudentActions(
-                        context,
-                        l10n,
-                        student,
-                      ),
-                      icon: const Icon(Icons.more_horiz),
-                      label: Text(l10n.studentsActions),
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 16),
               SectionCard(
                 title: l10n.studentsParentLink,
@@ -1146,18 +1110,90 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                ),
-                onPressed: () => _deleteStudent(student),
-                icon: const Icon(Icons.delete_outline),
-                label: Text('${l10n.studentsTitle} ${l10n.commonDelete}'),
-              ),
-              const SizedBox(height: 16),
             ],
           );
         },
+      ),
+    );
+  }
+
+  /// Bottom bar holding the major student actions: edit / reports / more
+  /// options / delete. Stays fixed at the bottom of the student window.
+  Widget _studentBottomBar(
+    BuildContext context,
+    AppLocalizations l10n,
+    Student student,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    return BottomAppBar(
+      height: 72,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _bottomBarAction(
+            icon: Icons.edit_outlined,
+            label: l10n.commonEdit,
+            onTap: () => _openStudentForm(context, student),
+          ),
+          _bottomBarAction(
+            icon: Icons.description_outlined,
+            label: l10n.reportsTitle,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => MonthlyReportScreen(
+                  studentId: student.id,
+                  studentName: student.name,
+                ),
+              ),
+            ),
+          ),
+          _bottomBarAction(
+            icon: Icons.more_horiz,
+            label: l10n.studentsActions,
+            onTap: () => _showStudentActions(context, l10n, student),
+          ),
+          _bottomBarAction(
+            icon: Icons.delete_outline,
+            label: l10n.commonDelete,
+            color: scheme.error,
+            onTap: () => _deleteStudent(student),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// A single tappable icon+label action used in the fixed bottom bar.
+  Widget _bottomBarAction({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    final fg = color ?? scheme.onSurface;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: fg),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: Theme.of(context)
+                  .textTheme
+                  .labelSmall
+                  ?.copyWith(color: fg),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }

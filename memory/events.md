@@ -336,3 +336,15 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - errors: 1 (transient build break from _slotTile declaration consumed by an edit - restored; analyze/tests green after)
 - lessons: (1) When mechanically inserting large blocks (e.g. _statsSection/_metricRow before _slotTile) verify the surrounding declarations survive; flutter analyze is the safety net before any build. (2) Keep exports/shares on Clipboard + waChatLink to avoid share_plus dependency and network risk. (3) Web smoke: Flutter web needs Enable accessibility clicked before the a11y tree is readable, and the MCP click on that placeholder can fail - dispatch synthetic events or read page via flt-semantics-host after enabling.
 - tags: students, stats, exports, share, tests-crud, release, v1.1.6, smoke
+
+## EVT-20260916-0007
+- id: EVT-20260916-0007
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: student window bottom action bar (all major actions in one fixed navbar)
+- summary: Per user request, StudentDetailScreen now shows a fixed BottomAppBar (height 72) holding ALL major student actions directly: Edit (commonEdit), Reports (reportsTitle -> MonthlyReportScreen), More/Options (studentsActions -> existing _showStudentActions sheet with WhatsApp/share link/export attendance/export tests), and Delete (commonDelete, error color, direct _deleteStudent with confirm). Removed the old inline 3-button row (Edit/Report/More) from the ListView top and the bottom-of-scroll Delete button. Scaffold bottomNavigationBar only rendered when cachedStudent != null; helper _studentBottomBar + _bottomBarAction (icon+label InkWell column). flutter analyze 0 errors / 0 warnings (8 pre-existing infos); flutter test 25/25.
+- result: success - bottom navbar with all major student actions in place
+- files: src/lib/screens/students_screens.dart, memory/events.md
+- errors: 1 transient unused-local warning from leftover l10n in _bottomBarAction - removed
+- lessons: (1) When consolidating scattered actions into a bottom bar, verify every inline duplicate is removed to avoid redundant paths (old row + bottom delete removed). (2) BottomAppBar height + spaceAround keeps 4 actions readable in RTL Arabic.
+- tags: students, ui, bottom-bar, navigation, actions
