@@ -763,6 +763,119 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileSaved => 'تم تحديث الحساب';
 
   @override
+  String get profileTitle => 'الملف الشخصي';
+
+  @override
+  String get profileTabData => 'البيانات';
+
+  @override
+  String get profileTabAuth => 'الدخول';
+
+  @override
+  String get profileTabAvatar => 'الصورة';
+
+  @override
+  String get profileNameRequired => 'الاسم مطلوب';
+
+  @override
+  String get profileBio => 'نبذة';
+
+  @override
+  String get profilePhone => 'رقم الهاتف';
+
+  @override
+  String get profileGender => 'جنس الشخصية';
+
+  @override
+  String get profileGenderMale => 'ذكر';
+
+  @override
+  String get profileGenderFemale => 'أنثى';
+
+  @override
+  String get profileAvatarStyle => 'ستايل الصورة';
+
+  @override
+  String get profileThemeFatin => 'فاتن';
+
+  @override
+  String get profileThemeYanliu => 'يانليو';
+
+  @override
+  String get profileThemeMicah => 'مايكا';
+
+  @override
+  String get profileAvatarShuffle => 'صورة جديدة عشوائية';
+
+  @override
+  String get profileAvatarAuto =>
+      'تُولَّد تلقائيًا من معرّف حسابك — نفس الصورة على كل أجهزتك';
+
+  @override
+  String get profileEmailCurrent => 'البريد الحالي';
+
+  @override
+  String get profileEmailNew => 'البريد الجديد';
+
+  @override
+  String get profileEmailInvalid => 'بريد غير صالح';
+
+  @override
+  String get profileEmailSend => 'إرسال رابط التأكيد';
+
+  @override
+  String get profileEmailSentNotice =>
+      'أُرسل رابط التأكيد إلى بريدك الجديد — لن يتبدل الدخول حتى التأكيد';
+
+  @override
+  String get profilePasswordCurrent => 'كلمة المرور الحالية';
+
+  @override
+  String get profilePasswordNew => 'كلمة المرور الجديدة';
+
+  @override
+  String get profilePasswordConfirm => 'تأكيد الجديدة';
+
+  @override
+  String get profilePasswordMismatch => 'كلمتا المرور غير متطابقتين';
+
+  @override
+  String get profilePasswordShort => 'كلمة المرور 6 أحرف على الأقل';
+
+  @override
+  String get profileChangePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get profilePasswordChanged => 'تم تغيير كلمة المرور';
+
+  @override
+  String get profileInfo => 'معلومات الحساب';
+
+  @override
+  String get profileRole => 'الدور';
+
+  @override
+  String get commonStatus => 'الحالة';
+
+  @override
+  String get profileRoleTeacher => 'مدرّس';
+
+  @override
+  String get profileRoleManager => 'مدير';
+
+  @override
+  String get profileSchool => 'المدرسة';
+
+  @override
+  String get profileStatStudents => 'طالب';
+
+  @override
+  String get profileStatSessions => 'جلسة هذا الشهر';
+
+  @override
+  String get profileStatSubjects => 'مواد';
+
+  @override
   String get settingsLogout => 'تسجيل الخروج';
 
   @override

@@ -28,6 +28,11 @@ class Profile {
     this.schoolId,
     this.onboarded = false,
     this.active = true,
+    this.bio,
+    this.phone,
+    this.avatarTheme = 'fatin-verse',
+    this.avatarGender,
+    this.avatarSeed,
   });
 
   final String id;
@@ -42,6 +47,19 @@ class Profile {
   /// Whether a teacher account is enabled (manager can disable).
   final bool active;
 
+  /// Free-text teacher details, editable by the teacher.
+  final String? bio;
+  final String? phone;
+
+  /// Avatune style key ('fatin-verse' | 'yanliu' | 'micah').
+  final String avatarTheme;
+
+  /// 'm' | 'f' | null (null = neutral style, uses [avatarTheme]).
+  final String? avatarGender;
+
+  /// Custom shuffle seed; null falls back to the profile id.
+  final String? avatarSeed;
+
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
         id: json['id'] as String,
         email: json['email'] as String,
@@ -52,6 +70,11 @@ class Profile {
         schoolId: json['school_id'] as String?,
         onboarded: json['onboarded'] as bool? ?? false,
         active: json['active'] as bool? ?? true,
+        bio: json['bio'] as String?,
+        phone: json['phone'] as String?,
+        avatarTheme: json['avatar_theme'] as String? ?? 'fatin-verse',
+        avatarGender: json['avatar_gender'] as String?,
+        avatarSeed: json['avatar_seed'] as String?,
       );
 
   /// Only the fields the user may update about themselves.

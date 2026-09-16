@@ -5,7 +5,8 @@ import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/screens/notifications_screen.dart';
 import 'package:durus/theme/themes.dart';
-import 'package:durus/widgets/profile_edit_sheet.dart';
+import 'package:durus/screens/profile_screen.dart';
+import 'package:durus/widgets/teacher_avatar.dart';
 
 /// Top bar cloned from the cloudmate-classroom design and adapted for Durus:
 /// profile avatar on the start side, a centered two-tone brand title, and a
@@ -62,34 +63,22 @@ class _ProfileAvatarButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final scheme = Theme.of(context).colorScheme;
     final profile = ref.watch(currentProfileProvider).valueOrNull;
     final fullName = profile?.fullName?.trim() ?? '';
-    final initial = fullName.isEmpty ? '?' : fullName.characters.first;
 
     return IconButton(
       tooltip: l10n.settingsProfile,
-      onPressed: () => showProfileEditSheet(context),
-      icon: Container(
-        width: 32,
-        height: 32,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: scheme.primary, width: 1.5),
+      onPressed: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const ProfileScreen(),
         ),
-        child: CircleAvatar(
-          radius: 14,
-          backgroundColor: scheme.primary.withValues(alpha: 0.15),
-          child: Text(
-            initial,
-            style: TextStyle(
-              color: scheme.primary,
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
-            ),
-          ),
-        ),
+      ),
+      icon: TeacherAvatar(
+        seed: profile?.id ?? '',
+        theme: profile?.avatarTheme,
+        gender: profile?.avatarGender,
+        fallbackLabel: fullName,
+        size: 28,
       ),
     );
   }

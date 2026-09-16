@@ -46,15 +46,65 @@ class DurusApi {
     return null;
   }
 
-  /// Updates the current user's own profile. Only writable fields the user
-  /// is allowed to change are sent (full_name); RLS guards `is_manager`.
-  Future<void> updateProfile({required String fullName}) async {
-    final name = fullName.trim();
-    if (name.isEmpty) return;
-    await _c
-        .from('profiles')
-        .update({'full_name': name})
-        .eq('id', _uidOrThrow());
+  /// Updates the current user's own profile. Only the fields passed as
+  /// non-null are sent (empty bio/phone clear the column); RLS guards
+  /// everything else (`is_manager`, role, school). `avatarGender` accepts
+  /// 'm'/'f'; pass [clearAvatarGender] to reset it to null (neutral style).
+  Future<void> updateProfile({
+    String? fullName,
+    String? bio,
+    String? phone,
+    String? avatarTheme,
+    String? avatarGender,
+    bool clearAvatarGender = false,
+    String? avatarSeed,
+  }) async {
+    final patch = <String, dynamic>{};
+    if (fullName != null) {
+      final name = fullName.trim();
+      if (name.isNotEmpty) patch['full_name'] = name;
+    }
+    if (bio != null) {
+      final v = bio.trim();
+      patch['bio'] = v.isEmpty ? null : v;
+    }
+    if (phone != null) {
+      final v = phone.trim();
+      patch['phone'] = v.isEmpty ? null : v;
+    }
+    if (avatarTheme != null && avatarTheme.isNotEmpty) {
+      patch['avatar_theme'] = avatarTheme;
+    }
+    if (clearAvatarGender) {
+      patch['avatar_gender'] = null;
+    } else if (avatarGender == 'm' || avatarGender == 'f') {
+      patch['avatar_gender'] = avatarGender;
+    }
+    if (avatarSeed != null && avatarSeed.isNotEmpty) {
+      patch['avatar_seed'] = avatarSeed;
+    }
+    if (patch.isEmpty) return;
+    await _c.from('profiles').update(patch).eq('id', _uidOrThrow());
+  }
+
+  /// Requests an email change. GoTrue sends the confirmation link to the
+  /// NEW address; the session keeps working with the old email until the
+  /// user confirms (no user enumeration either way).
+  Future<void> updateEmail(String email) =>
+      _c.auth.updateUser(UserAttributes(email: email.trim()));
+
+  /// Changes the password after verifying the current one by re-signing in.
+  /// Throws when the current password is wrong or the session is gone.
+  Future<void> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final email = _c.auth.currentUser?.email;
+    if (email == null) {
+      throw StateError('no session');
+    }
+    await _c.auth.signInWithPassword(email: email, password: currentPassword);
+    await _c.auth.updateUser(UserAttributes(password: newPassword));
   }
 
   Future<String?> mySchoolId() async {

@@ -112,6 +112,29 @@ void main() {
       expect(disabled.active, isFalse);
     });
 
+    test('Profile.fromJson maps bio/phone/avatar fields with defaults', () {
+      final p = Profile.fromJson({
+        'id': 'p1',
+        'email': 't@durus.app',
+        'bio': 'خبرة',
+        'phone': '+963',
+        'avatar_theme': 'yanliu',
+        'avatar_gender': 'f',
+        'avatar_seed': 's9',
+      });
+      expect(p.bio, 'خبرة');
+      expect(p.phone, '+963');
+      expect(p.avatarTheme, 'yanliu');
+      expect(p.avatarGender, 'f');
+      expect(p.avatarSeed, 's9');
+      final d = Profile.fromJson({'id': 'p2', 'email': 'x@durus.app'});
+      expect(d.bio, isNull);
+      expect(d.phone, isNull);
+      expect(d.avatarTheme, 'fatin-verse');
+      expect(d.avatarGender, isNull);
+      expect(d.avatarSeed, isNull);
+    });
+
     test('Student.fromJson/toJson round-trips', () {
       final s = Student.fromJson({
         'id': 'st1',

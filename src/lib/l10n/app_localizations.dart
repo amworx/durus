@@ -1546,6 +1546,228 @@ abstract class AppLocalizations {
   /// **'تم تحديث الحساب'**
   String get profileSaved;
 
+  /// No description provided for @profileTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الملف الشخصي'**
+  String get profileTitle;
+
+  /// No description provided for @profileTabData.
+  ///
+  /// In ar, this message translates to:
+  /// **'البيانات'**
+  String get profileTabData;
+
+  /// No description provided for @profileTabAuth.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدخول'**
+  String get profileTabAuth;
+
+  /// No description provided for @profileTabAvatar.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصورة'**
+  String get profileTabAvatar;
+
+  /// No description provided for @profileNameRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم مطلوب'**
+  String get profileNameRequired;
+
+  /// No description provided for @profileBio.
+  ///
+  /// In ar, this message translates to:
+  /// **'نبذة'**
+  String get profileBio;
+
+  /// No description provided for @profilePhone.
+  ///
+  /// In ar, this message translates to:
+  /// **'رقم الهاتف'**
+  String get profilePhone;
+
+  /// No description provided for @profileGender.
+  ///
+  /// In ar, this message translates to:
+  /// **'جنس الشخصية'**
+  String get profileGender;
+
+  /// No description provided for @profileGenderMale.
+  ///
+  /// In ar, this message translates to:
+  /// **'ذكر'**
+  String get profileGenderMale;
+
+  /// No description provided for @profileGenderFemale.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنثى'**
+  String get profileGenderFemale;
+
+  /// No description provided for @profileAvatarStyle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ستايل الصورة'**
+  String get profileAvatarStyle;
+
+  /// No description provided for @profileThemeFatin.
+  ///
+  /// In ar, this message translates to:
+  /// **'فاتن'**
+  String get profileThemeFatin;
+
+  /// No description provided for @profileThemeYanliu.
+  ///
+  /// In ar, this message translates to:
+  /// **'يانليو'**
+  String get profileThemeYanliu;
+
+  /// No description provided for @profileThemeMicah.
+  ///
+  /// In ar, this message translates to:
+  /// **'مايكا'**
+  String get profileThemeMicah;
+
+  /// No description provided for @profileAvatarShuffle.
+  ///
+  /// In ar, this message translates to:
+  /// **'صورة جديدة عشوائية'**
+  String get profileAvatarShuffle;
+
+  /// No description provided for @profileAvatarAuto.
+  ///
+  /// In ar, this message translates to:
+  /// **'تُولَّد تلقائيًا من معرّف حسابك — نفس الصورة على كل أجهزتك'**
+  String get profileAvatarAuto;
+
+  /// No description provided for @profileEmailCurrent.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الحالي'**
+  String get profileEmailCurrent;
+
+  /// No description provided for @profileEmailNew.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الجديد'**
+  String get profileEmailNew;
+
+  /// No description provided for @profileEmailInvalid.
+  ///
+  /// In ar, this message translates to:
+  /// **'بريد غير صالح'**
+  String get profileEmailInvalid;
+
+  /// No description provided for @profileEmailSend.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال رابط التأكيد'**
+  String get profileEmailSend;
+
+  /// No description provided for @profileEmailSentNotice.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُرسل رابط التأكيد إلى بريدك الجديد — لن يتبدل الدخول حتى التأكيد'**
+  String get profileEmailSentNotice;
+
+  /// No description provided for @profilePasswordCurrent.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور الحالية'**
+  String get profilePasswordCurrent;
+
+  /// No description provided for @profilePasswordNew.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور الجديدة'**
+  String get profilePasswordNew;
+
+  /// No description provided for @profilePasswordConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد الجديدة'**
+  String get profilePasswordConfirm;
+
+  /// No description provided for @profilePasswordMismatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمتا المرور غير متطابقتين'**
+  String get profilePasswordMismatch;
+
+  /// No description provided for @profilePasswordShort.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور 6 أحرف على الأقل'**
+  String get profilePasswordShort;
+
+  /// No description provided for @profileChangePassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير كلمة المرور'**
+  String get profileChangePassword;
+
+  /// No description provided for @profilePasswordChanged.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تغيير كلمة المرور'**
+  String get profilePasswordChanged;
+
+  /// No description provided for @profileInfo.
+  ///
+  /// In ar, this message translates to:
+  /// **'معلومات الحساب'**
+  String get profileInfo;
+
+  /// No description provided for @profileRole.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدور'**
+  String get profileRole;
+
+  /// No description provided for @commonStatus.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحالة'**
+  String get commonStatus;
+
+  /// No description provided for @profileRoleTeacher.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدرّس'**
+  String get profileRoleTeacher;
+
+  /// No description provided for @profileRoleManager.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدير'**
+  String get profileRoleManager;
+
+  /// No description provided for @profileSchool.
+  ///
+  /// In ar, this message translates to:
+  /// **'المدرسة'**
+  String get profileSchool;
+
+  /// No description provided for @profileStatStudents.
+  ///
+  /// In ar, this message translates to:
+  /// **'طالب'**
+  String get profileStatStudents;
+
+  /// No description provided for @profileStatSessions.
+  ///
+  /// In ar, this message translates to:
+  /// **'جلسة هذا الشهر'**
+  String get profileStatSessions;
+
+  /// No description provided for @profileStatSubjects.
+  ///
+  /// In ar, this message translates to:
+  /// **'مواد'**
+  String get profileStatSubjects;
+
   /// No description provided for @settingsLogout.
   ///
   /// In ar, this message translates to:
