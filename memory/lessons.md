@@ -163,3 +163,33 @@ Append-only.
 - 2026-09-16 -- `flutter run -d web-server` (DWDS/devtools injected client) can throw `_JsonMap is not a subtype of List<Object?>` and never render the app. Reuse the proven "flutter build web + python -m http.server" static-serve flow for verification.
 - 2026-09-16 -- gh release create can time out mid-asset-upload and leave the release as a DRAFT with zero assets. After creating, check `gh release view <tag> --json isDraft,assets`; if incomplete, `gh release upload <tag> <files> --clobber`, then `gh release edit <tag> --draft=false`.
 - 2026-09-16 -- New Flutter 3.44 screens that use AppLocalizations need BOTH generated imports: app_localizations.dart (type) and the project l10n_ext.dart (context.l10n); `static const` lists must become `static final` when they embed values like AppLocalizations lookups.
+
+- 2026-09-16 -- Directory.systemTemp on Android is NOT reliably the app cache
+  dir. OEMs may set TMPDIR to /data/local/tmp or leave it unset. For
+  FileProvider-backed intents (APK install), ALWAYS resolve the target from
+  the actual cacheDir (e.g., via a Kotlin channel method returning
+  File(cacheDir, "updates").absolutePath). The earlier assumption that
+  systemTemp == cacheDir was wrong on the user's device and caused the
+  v1.1.4 "cannot update / cannot find the APK" bug.
+- 2026-09-16 -- Always bump AppConfig.appVersion alongside pubspec `version`.
+  The two values are compared against the latest GitHub release to decide
+  whether an update is available; leaving them out of sync causes a false
+  "update available" loop on every resume.
+- 2026-09-16 -- `gh release create` creates the release as a DRAFT and only
+  publishes after all asset uploads complete. If the command is killed
+  (timeout / manual) mid-upload, the release remains a draft with zero assets.
+  Safe pattern: `gh release create <tag> --title ... --notes ...` (no assets)
+  first, then `gh release upload <tag> <files> --clobber` separately.
+- 2026-09-16 -- To generate legacy Android launcher icons without external
+  asset tools: use Python + Pillow to draw the brand mark as filled polygons
+  (the Material "school" icon path is all line segments) with 4× supersample
+  + LANCZOS downsample for smooth edges, then write mipmap-{mdpi..xxxhdpi}/
+  ic_launcher.png directly into the res/ tree. Teal (#0E7C66) square +
+  white polygons = consistent with splash and adaptive foreground vector.
+- 2026-09-16 -- Android 10+ public Downloads visibility requires
+  MediaStore.Downloads insert (IS_PENDING flag while writing, then clear it);
+  on API < 29 the file goes to getExternalFilesDir(DIRECTORY_DOWNLOADS)
+  which is browsable by file managers on those versions without runtime
+  permissions. Pair this with a DocumentsUI intent
+  (content://com.android.externalstorage.documents/root/downloads) to let
+  the user open the Downloads folder directly from the app.

@@ -270,3 +270,20 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 | errors | 1 (gh release create timeout -> draft; recovered with upload --clobber + edit --draft=false) |
 | lessons | (1) After gh release create, always verify isDraft+assets before assuming the release is live; re-upload with --clobber and publish with --draft=false. (2) Keep the SAME debug signing key across releases so the in-app installer can update over the installed build. |
 | tags | release, github, app_meta, publish, updater |
+
+---
+
+### EVT-20260916-0003
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260916-0003 |
+| timestamp | 2026-09-16T16:30:00+03:00 |
+| mode | BUILD |
+| action | fix: in-app update install failure + brand launcher icon + appVersion stale |
+| summary | Two user-reported fixes + one latent bug. (1) In-app update: root cause was updater_io.dart writing to Directory.systemTemp which on Android resolves outside both the FileProvider <cache-path> root and user-visible storage — FileProvider.getUriForFile threw (install_failed), and the fallback "open from file manager" pointed nowhere the user could reach. Fix: Kotlin MainActivity now exposes getDownloadDir() returning File(cacheDir, "updates") (absolute path inside <cache-path>); Dart calls this before downloading. If installApk still fails (very old device, blocked installer), the native side exports the APK to user-visible Downloads via MediaStore.Downloads (API 29+) or getExternalFilesDir (21-28) and reports a status="exported" with the file location; settings_screen.dart shows a SnackBar with the path and an "open folder" action button (native channel opens DocumentsUI Downloads root). New ARB keys: settingsUpdateReadyToInstall, settingsUpdateSavedTo (placeholder), settingsUpdateOpenFolder; settingsOpenUpdateManually removed. (2) App icon: brand adaptive launcher icon (XML anydpi-v26/v33) using the existing graduation-cap vector path (#0E7C66 teal background, white foreground), monochrome layer for themed icons (API 33), round variants; legacy PNGs for pre-26 generated via Pillow (supersample 4× downsample for smooth edges); roundIcon declared in manifest. (3) AppConfig.appVersion was still '1.1.3' (missed in v1.1.4 bump) — would have falsely re-offered 1.1.4 on every check; fixed to '1.1.5'. Version bumped to 1.1.5+1; aapt2 dump badging confirms versionName 1.1.5 + adaptive icon reference. flutter analyze 7 infos; flutter test 25/25; APK split-per-ABI + web built; migrated migration 015_app_meta_v115 pushed; GitHub Release v1.1.5 published with 3 assets; APK URL verified 200. |
+| result | success — two reported bugs fixed, latent version bug caught and fixed |
+| files | src/android/.../MainActivity.kt, src/lib/core/updater.dart, updater_io.dart, updater_web.dart, src/lib/screens/settings_screen.dart, src/lib/l10n/app_ar.arb (+generated), src/lib/core/config.dart, src/pubspec.yaml, src/android/.../AndroidManifest.xml, src/android/.../res/drawable/ic_launcher_foreground.xml, ic_launcher_monochrome.xml, mipmap-anydpi-v26/ v33/ (ic_launcher.xml, ic_launcher_round.xml), mipmap-*/ic_launcher*.png, supabase/migrations/20260916130000_app_meta_v115.sql |
+| errors | 1 (v1.1.4 release left AppConfig.appVersion at 1.1.3 — fixed now) |
+| lessons | (1) Directory.systemTemp on Android is NOT reliably the app cache dir (OEMs set TMPDIR to /data/local/tmp or leave it unset); for FileProvider-backed intents, ALWAYS use the app's actual cacheDir (get it from the native side or path_provider) — the 2026-09-16 lesson claiming "systemTemp IS the cache dir" was wrong on the user's device. (2) `gh release create` with asset args creates the release as a DRAFT and only publishes after all uploads finish; if the command times out mid-upload, it stays a draft with zero assets — create the release WITHOUT assets first, then upload separately with `gh release upload --clobber`. (3) Always bump AppConfig.appVersion alongside pubspec `version`; leaving them out of sync causes a false "update available" loop every time the device checks GitHub Releases. |
+| tags | bugfix, updater, icon, version, release, v1.1.5 |
