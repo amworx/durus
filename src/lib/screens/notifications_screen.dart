@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,6 +26,19 @@ class NotificationsScreen extends ConsumerStatefulWidget {
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   String _selectedType = 'all';
+
+  /// Pending delayed deletes keyed by notification id. The row is removed
+  /// from the server only when its timer fires, so the undo snackbar can
+  /// still rescue it — client-side rows can't be re-created (server-owned).
+  final Map<String, Timer> _pendingDeletes = {};
+
+  @override
+  void dispose() {
+    for (final timer in _pendingDeletes.values) {
+      timer.cancel();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,8 +182,33 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     DurusApi api,
     AppNotification item,
   ) async {
-    await api.deleteTeacherNotification(item.id);
-    ref.invalidate(teacherNotificationsProvider);
+    final l10n = context.l10n;
+    _pendingDeletes[item.id]?.cancel();
+    _pendingDeletes[item.id] = Timer(const Duration(seconds: 4), () async {
+      _pendingDeletes.remove(item.id);
+      try {
+        await api.deleteTeacherNotification(item.id);
+        ref.invalidate(teacherNotificationsProvider);
+      } catch (_) {
+        // Delete failed: the row stays, next refresh restores it.
+      }
+    });
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.notificationsDeleted),
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: l10n.commonUndo,
+          onPressed: () {
+            _pendingDeletes.remove(item.id)?.cancel();
+            if (mounted) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            }
+          },
+        ),
+      ),
+    );
   }
 }
 

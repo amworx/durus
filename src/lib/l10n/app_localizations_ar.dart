@@ -928,6 +928,23 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsTeacherStatusUpdated => 'تم تحديث حالة المعلم';
 
   @override
+  String get settingsTeacherDisableTitle => 'إيقاف المعلم؟';
+
+  @override
+  String get settingsTeacherDisableMessage =>
+      'سيتم تسجيل خروج المعلم فورًا ولن يتمكن من الدخول حتى إعادة تفعيله.';
+
+  @override
+  String get settingsTeacherEnableTitle => 'تفعيل المعلم؟';
+
+  @override
+  String get settingsTeacherEnableMessage =>
+      'سيتمكن المعلم من استخدام التطبيق مجددًا.';
+
+  @override
+  String get notificationsDeleted => 'تم حذف الإشعار';
+
+  @override
   String get accountDisabledTitle => 'الحساب موقوف';
 
   @override

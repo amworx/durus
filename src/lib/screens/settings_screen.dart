@@ -643,6 +643,18 @@ class _TeachersSection extends ConsumerWidget {
     Profile teacher,
     bool value,
   ) async {
+    // Lockout-grade action: disabling signs the teacher out everywhere
+    // immediately, so both directions get an explicit confirmation gate.
+    final confirmed = await confirmDialog(
+      context,
+      title: value
+          ? l10n.settingsTeacherEnableTitle
+          : l10n.settingsTeacherDisableTitle,
+      message: value
+          ? l10n.settingsTeacherEnableMessage
+          : l10n.settingsTeacherDisableMessage,
+    );
+    if (!confirmed || !context.mounted) return;
     try {
       await ref.read(apiProvider).setTeacherActive(teacher.id, value);
       if (!context.mounted) {

@@ -568,19 +568,30 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         '${timeFromMinutes(entry.startMinutes)} – ${timeFromMinutes(entry.endMinutes)}';
 
     if (entry.isRec) {
-      return _DashBorder(
-        color: scheme.primary,
-        child: _blockShell(
-          scheme: scheme,
-          bg: scheme.primaryContainer,
-          textColor: scheme.onPrimaryContainer,
-          startBorderColor: null,
-          nm: l10n.scheduleRecurringSlot,
-          sb: '$timeRange • ${student?.name ?? ''}',
-          chip: _blockChip(
-            l10n.scheduleRecurringChip,
-            scheme.primary,
-            scheme.primary.withValues(alpha: 0.15),
+      final slot = entry.slot!;
+      return InkWell(
+        onTap: () => _recordSlot(
+          context,
+          l10n,
+          slot,
+          student?.name ?? '',
+          subjectName,
+        ),
+        borderRadius: BorderRadius.circular(10),
+        child: _DashBorder(
+          color: scheme.primary,
+          child: _blockShell(
+            scheme: scheme,
+            bg: scheme.primaryContainer,
+            textColor: scheme.onPrimaryContainer,
+            startBorderColor: null,
+            nm: l10n.scheduleRecurringSlot,
+            sb: '$timeRange • ${student?.name ?? ''}',
+            chip: _blockChip(
+              l10n.scheduleRecurringChip,
+              scheme.primary,
+              scheme.primary.withValues(alpha: 0.15),
+            ),
           ),
         ),
       );
@@ -773,6 +784,41 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         ),
       ),
     );
+  }
+
+  /// Records attendance for a recurring slot that has no recorded lesson
+  /// yet: opens the shared session sheet in create mode for the selected
+  /// day (same flow as Home's tap-anywhere tile). Re-checks for an
+  /// existing lesson first so a tap can never create a duplicate.
+  Future<void> _recordSlot(
+    BuildContext context,
+    AppLocalizations l10n,
+    RecurringSlot slot,
+    String studentName,
+    String subjectName,
+  ) async {
+    final day = _weekStart.add(Duration(days: _selectedIndex));
+    final date = isoDate(day);
+    final lessons = ref.read(lessonsProvider).valueOrNull ?? const <LessonSession>[];
+    LessonSession? lesson;
+    for (final l in lessons) {
+      if (l.slotId == slot.id && l.date == date) {
+        lesson = l;
+        break;
+      }
+    }
+    final result = await showSessionDetailSheet(
+      context,
+      slot: slot,
+      lesson: lesson,
+      studentName: studentName,
+      subjectName: subjectName,
+      date: date,
+    );
+    if (result != null) {
+      ref.invalidate(lessonsProvider);
+      ref.invalidate(teacherNotificationsProvider);
+    }
   }
 
   Future<void> _openLesson(

@@ -1870,6 +1870,36 @@ abstract class AppLocalizations {
   /// **'تم تحديث حالة المعلم'**
   String get settingsTeacherStatusUpdated;
 
+  /// No description provided for @settingsTeacherDisableTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إيقاف المعلم؟'**
+  String get settingsTeacherDisableTitle;
+
+  /// No description provided for @settingsTeacherDisableMessage.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيتم تسجيل خروج المعلم فورًا ولن يتمكن من الدخول حتى إعادة تفعيله.'**
+  String get settingsTeacherDisableMessage;
+
+  /// No description provided for @settingsTeacherEnableTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفعيل المعلم؟'**
+  String get settingsTeacherEnableTitle;
+
+  /// No description provided for @settingsTeacherEnableMessage.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيتمكن المعلم من استخدام التطبيق مجددًا.'**
+  String get settingsTeacherEnableMessage;
+
+  /// No description provided for @notificationsDeleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حذف الإشعار'**
+  String get notificationsDeleted;
+
   /// No description provided for @accountDisabledTitle.
   ///
   /// In ar, this message translates to:

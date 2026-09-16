@@ -390,6 +390,11 @@
   "settingsTeacherActive": "مفعّل",
   "settingsTeacherDisabled": "موقوف",
   "settingsTeacherStatusUpdated": "تم تحديث حالة المعلم",
+  "settingsTeacherDisableTitle": "إيقاف المعلم؟",
+  "settingsTeacherDisableMessage": "سيتم تسجيل خروج المعلم فورًا ولن يتمكن من الدخول حتى إعادة تفعيله.",
+  "settingsTeacherEnableTitle": "تفعيل المعلم؟",
+  "settingsTeacherEnableMessage": "سيتمكن المعلم من استخدام التطبيق مجددًا.",
+  "notificationsDeleted": "تم حذف الإشعار",
   "accountDisabledTitle": "الحساب موقوف",
   "accountDisabledMessage": "أوقف المدير هذا الحساب. تواصل مع مدير المركز لتفعيله.",
 
