@@ -168,7 +168,9 @@ ThemeData _buildFusayfesa() {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       side: const BorderSide(color: Color(0xFFE7E2D6)),
       backgroundColor: Colors.white,
-      labelStyle: const TextStyle(fontFamily: kFontFamily),
+      selectedColor: teal,
+      labelStyle: const TextStyle(fontFamily: kFontFamily, color: Color(0xFF1C1B1F)),
+      checkmarkColor: Colors.white,
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -376,7 +378,9 @@ ThemeData _buildSukoon() {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       side: const BorderSide(color: hairline),
       backgroundColor: surface,
-      labelStyle: const TextStyle(fontFamily: kFontFamily),
+      selectedColor: amber,
+      labelStyle: TextStyle(fontFamily: kFontFamily, color: ink),
+      checkmarkColor: Color(0xFF1A1208),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(

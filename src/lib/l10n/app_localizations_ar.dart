@@ -81,6 +81,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonEmpty => 'لا توجد بيانات بعد';
 
   @override
+  String get commonMore => 'المزيد';
+
+  @override
+  String get commonShare => 'مشاركة';
+
+  @override
+  String get commonCopied => 'تم النسخ';
+
+  @override
   String get authWelcome => 'أهلاً بك في دروس';
 
   @override
@@ -329,6 +338,43 @@ class AppLocalizationsAr extends AppLocalizations {
       'لم تُسجَّل مواد بعد — عدّل الطالب لإضافة مواد';
 
   @override
+  String get studentsActions => 'خيارات الطالب';
+
+  @override
+  String get studentsShareLink => 'مشاركة رابط ولي الأمر';
+
+  @override
+  String get studentsShareLinkHint =>
+      'افتح الرابط من أي جهاز وشارك ولّي الأمر مباشرة';
+
+  @override
+  String get studentsStatsTitle => 'أداء الطالب';
+
+  @override
+  String get studentsStatsAttendanceRate => 'نسبة الحضور';
+
+  @override
+  String get studentsStatsTestsAverage => 'متوسط الاختبارات';
+
+  @override
+  String get studentsStatsTestsCount => 'عدد الاختبارات';
+
+  @override
+  String get studentsStatsNoTests => 'لا توجد اختبارات بعد لعرض الإحصائيات';
+
+  @override
+  String get studentsStatsExport => 'تصدير الملخص';
+
+  @override
+  String get studentsExportAttendance => 'تصدير سجل الحضور';
+
+  @override
+  String get studentsExportTests => 'تصدير الاختبارات';
+
+  @override
+  String get studentsExportShared => 'تم تجهيز الملخص للمشاركة';
+
+  @override
   String get subjectsTitle => 'المواد';
 
   @override
@@ -458,6 +504,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get testsAddTitle => 'إضافة اختبار';
 
   @override
+  String get testsEditTitle => 'تعديل اختبار';
+
+  @override
   String get testsType => 'النوع';
 
   @override
@@ -483,6 +532,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get testsEmpty => 'لا توجد اختبارات بعد';
+
+  @override
+  String get testsDeleted => 'تم حذف الاختبار';
+
+  @override
+  String get testsSaved => 'تم حفظ الاختبار';
+
+  @override
+  String get testsShareResult => 'مشاركة النتيجة';
 
   @override
   String get notesTitle => 'الملاحظات';
@@ -905,6 +963,16 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get portalNotificationsHint =>
       'سيصلك تنبيه عند تحديث المعلّم لبيانات الطالب';
+
+  @override
+  String get portalStatsTitle => 'أداء الطالب';
+
+  @override
+  String get portalStatsShare => 'مشاركة الملخص';
+
+  @override
+  String get portalStatsExportHint =>
+      'شارك ملخص الأداء مع ولي الأمر عبر واتساب';
 
   @override
   String get weekMon => 'الاثنين';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -402,6 +403,7 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
                     _attendanceSection(context, attendance),
                     _scheduleSection(context, schedule),
                     _feeSection(context, fee),
+                    _statsSection(context, attendance, tests),
                     _testsSection(context, tests),
                     _notesSection(context, notes),
                     _announcementsSection(context, announcements),
@@ -845,6 +847,80 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
                 _metricRow(context, l10n.feesPaid, paid),
               ],
             ),
+    );
+  }
+
+  Widget _statsSection(
+    BuildContext context,
+    Map<String, dynamic> attendance,
+    List<dynamic> tests,
+  ) {
+    final l10n = context.l10n;
+
+    final total = attendance['total'];
+    final present = attendance['present'];
+    final rate = _attendancePercent(total, present);
+
+    double? averagePct;
+    var scored = 0;
+    for (final item in tests) {
+      if (item is! Map<String, dynamic>) continue;
+      final score = item['score'];
+      final maxScore = item['max_score'];
+      if (score is num && maxScore is num && maxScore > 0) {
+        averagePct = (averagePct ?? 0) + (score / maxScore) * 100;
+        scored++;
+      }
+    }
+    if (scored > 0) averagePct = (averagePct ?? 0) / scored;
+
+    final rows = <Widget>[
+      _metricRow(context, l10n.portalAttendancePercent, total is num && total > 0 ? '$rate%' : l10n.portalNoData),
+      _metricRow(context, l10n.portalRecentTests, '${tests.length}'),
+      _metricRow(
+        context,
+        l10n.studentsStatsTestsAverage,
+        averagePct == null ? l10n.portalNoData : '${_numLabel(averagePct)}%',
+      ),
+    ];
+
+    final summary = <String>[
+      l10n.portalStatsTitle,
+      '${l10n.portalAttendancePercent}: ${total is num && total > 0 ? '$rate%' : l10n.portalNoData}',
+      '${l10n.portalRecentTests}: ${tests.length}',
+      if (averagePct == null)
+        l10n.studentsStatsNoTests
+      else
+        '${l10n.studentsStatsTestsAverage}: ${_numLabel(averagePct)}%',
+    ];
+
+    return _sectionCard(
+      context,
+      l10n.portalStatsTitle,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final row in rows) row,
+          const SizedBox(height: 8),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton.icon(
+              onPressed: () async {
+                await Clipboard.setData(
+                  ClipboardData(text: summary.join('\n')),
+                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.portalStatsExportHint)),
+                  );
+                }
+              },
+              icon: const Icon(Icons.ios_share),
+              label: Text(l10n.portalStatsShare),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -193,3 +193,41 @@ Append-only.
   permissions. Pair this with a DocumentsUI intent
   (content://com.android.externalstorage.documents/root/downloads) to let
   the user open the Downloads folder directly from the app.
+- 2026-09-16 -- Announcement stale-list bug: when a DB trigger creates rows in
+  table B (notifications) as a side effect of a change in table A
+  (announcements), subscribing ONLY to B leaves the A-driven UI stale. Either
+  publish A on realtime too and subscribe, or invalidate the A provider from
+  the B callback — but only show system notifications from ONE channel to
+  avoid duplicate popups (the trigger already inserts into notifications, so
+  let the notifications channel own the system popup).
+- 2026-09-16 -- FCM is NOT buildable on this machine: dl.google.com (Google
+  Maven: com.google.gms google-services plugin, com.google.firebase/*,
+  firebase-bom) returns 404 from here and none of those artifacts are in the
+  Gradle cache. pub.dev IS reachable. For "push-like" behavior without FCM,
+  use flutter_local_notifications + existing Supabase Realtime channels —
+  real system banners/sound with zero cloud dependencies.
+- 2026-09-16 -- supabase postgres-changes payload API (supabase 2.16 /
+  realtime_client 2.13): `newRecord`/`oldRecord` are NON-nullable
+  Map<String,dynamic> (empty for DELETE) — no null guard needed. New
+  flutter_local_notifications 22.x API uses named params for
+  initialize(settings:) and show(id:), and the tap callback passes a
+  NotificationResponse object, not (int, String?).
+## Lesson: dl.google.com (Google Maven) is FILTERED, not just missing artifacts — use Aliyun mirror
+- problem: AGP 8.11.1 + transitive artifacts unresolved; dl.google.com returned 404 for artifacts that verifiably exist (e.g. gradle-9.0.1.pom, desugar_jdk_libs).
+- root cause: network filter/proxy intercepts dl.google.com and answers 404 for everything.
+- attempted fixes: (a) downgrade flutter_local_notifications to versions with older AGP (17/18 use 7.3.1, 19/20 use 8.6.0 — none cached/available); (b) skip plugin.
+- successful fix: prepend `maven { url = uri("https://maven.aliyun.com/repository/google") }` to ALL repository lists (pluginManagement, allprojects, and subprojects buildscript block); enable core library desugaring.
+- lesson: any future Android Gradle dependency fetch failure on this machine => check dl.google.com treat as 404-filter and use the mirror; do not downgrade packages first.
+- reusable pattern: gradle/google-maven-mirror
+
+## Lesson: plugins with own buildscript hardcoded AGP need repo injection at subprojects buildscript level
+- problem: flutter_local_notifications android/build.gradle declares buildscript { classpath 'com.android.tools.build:gradle:8.11.1' } and own google() repo; app-level allprojects repos do NOT cover subproject buildscript resolution.
+- fix: in root android/build.gradle.kts add `subprojects { buildscript { repositories { maven { url = uri(mirror) } } } }`.
+- lesson: new Flutter plugins that hardcode AGP in buildscript require the mirror in BOTH pluginManagement/settings and subprojects-buildscript.
+- reusable pattern: gradle/google-maven-mirror
+
+## Lesson: flutter_local_notifications requires core library desugaring in the app module
+- problem: after fixing repos, :app:checkDebugAarMetadata failed 'Dependency :flutter_local_notifications requires core library desugaring to be enabled for :app'.
+- fix: compileOptions { isCoreLibraryDesugaringEnabled = true } + dependencies { coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") } in app/build.gradle.kts.
+- lesson: any Android plugin using java.time backport (local notifications, crashlytics) will demand desugaring; desugar_jdk_libs 2.1.4 is available from the Aliyun mirror.
+- reusable pattern: android-core-library-desugaring

@@ -476,6 +476,25 @@ class DurusApi {
     await _c.from('tests').delete().eq('id', id);
   }
 
+  Future<void> updateTest(
+    String id, {
+    String? subjectId,
+    String? type,
+    String? date,
+    double? score,
+    double? maxScore,
+    String? note,
+  }) async {
+    await _c.from('tests').update({
+      'subject_id': ?subjectId,
+      if (type != null) 'type': type,
+      'date': ?date,
+      'score': ?score,
+      'max_score': ?maxScore,
+      'note': ?note,
+    }).eq('id', id);
+  }
+
   // ---------- Notes ----------
 
   Future<List<LessonNote>> notes() async =>

@@ -17,6 +17,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // flutter_local_notifications requires core library desugaring (java.time backport).
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -49,6 +51,8 @@ dependencies {
     // FileProvider (in-app APK installer channel). Version cached locally —
     // pinned to avoid fetching newer artifacts on this filtered network.
     implementation("androidx.core:core:1.13.1")
+    // Core library desugaring (required by flutter_local_notifications).
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
 flutter {

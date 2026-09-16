@@ -238,6 +238,24 @@ abstract class AppLocalizations {
   /// **'لا توجد بيانات بعد'**
   String get commonEmpty;
 
+  /// No description provided for @commonMore.
+  ///
+  /// In ar, this message translates to:
+  /// **'المزيد'**
+  String get commonMore;
+
+  /// No description provided for @commonShare.
+  ///
+  /// In ar, this message translates to:
+  /// **'مشاركة'**
+  String get commonShare;
+
+  /// No description provided for @commonCopied.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم النسخ'**
+  String get commonCopied;
+
   /// No description provided for @authWelcome.
   ///
   /// In ar, this message translates to:
@@ -718,6 +736,78 @@ abstract class AppLocalizations {
   /// **'لم تُسجَّل مواد بعد — عدّل الطالب لإضافة مواد'**
   String get studentsNoSubjects;
 
+  /// No description provided for @studentsActions.
+  ///
+  /// In ar, this message translates to:
+  /// **'خيارات الطالب'**
+  String get studentsActions;
+
+  /// No description provided for @studentsShareLink.
+  ///
+  /// In ar, this message translates to:
+  /// **'مشاركة رابط ولي الأمر'**
+  String get studentsShareLink;
+
+  /// No description provided for @studentsShareLinkHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح الرابط من أي جهاز وشارك ولّي الأمر مباشرة'**
+  String get studentsShareLinkHint;
+
+  /// No description provided for @studentsStatsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أداء الطالب'**
+  String get studentsStatsTitle;
+
+  /// No description provided for @studentsStatsAttendanceRate.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسبة الحضور'**
+  String get studentsStatsAttendanceRate;
+
+  /// No description provided for @studentsStatsTestsAverage.
+  ///
+  /// In ar, this message translates to:
+  /// **'متوسط الاختبارات'**
+  String get studentsStatsTestsAverage;
+
+  /// No description provided for @studentsStatsTestsCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'عدد الاختبارات'**
+  String get studentsStatsTestsCount;
+
+  /// No description provided for @studentsStatsNoTests.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد اختبارات بعد لعرض الإحصائيات'**
+  String get studentsStatsNoTests;
+
+  /// No description provided for @studentsStatsExport.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصدير الملخص'**
+  String get studentsStatsExport;
+
+  /// No description provided for @studentsExportAttendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصدير سجل الحضور'**
+  String get studentsExportAttendance;
+
+  /// No description provided for @studentsExportTests.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصدير الاختبارات'**
+  String get studentsExportTests;
+
+  /// No description provided for @studentsExportShared.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تجهيز الملخص للمشاركة'**
+  String get studentsExportShared;
+
   /// No description provided for @subjectsTitle.
   ///
   /// In ar, this message translates to:
@@ -976,6 +1066,12 @@ abstract class AppLocalizations {
   /// **'إضافة اختبار'**
   String get testsAddTitle;
 
+  /// No description provided for @testsEditTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل اختبار'**
+  String get testsEditTitle;
+
   /// No description provided for @testsType.
   ///
   /// In ar, this message translates to:
@@ -1029,6 +1125,24 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'لا توجد اختبارات بعد'**
   String get testsEmpty;
+
+  /// No description provided for @testsDeleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حذف الاختبار'**
+  String get testsDeleted;
+
+  /// No description provided for @testsSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حفظ الاختبار'**
+  String get testsSaved;
+
+  /// No description provided for @testsShareResult.
+  ///
+  /// In ar, this message translates to:
+  /// **'مشاركة النتيجة'**
+  String get testsShareResult;
 
   /// No description provided for @notesTitle.
   ///
@@ -1851,6 +1965,24 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'سيصلك تنبيه عند تحديث المعلّم لبيانات الطالب'**
   String get portalNotificationsHint;
+
+  /// No description provided for @portalStatsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أداء الطالب'**
+  String get portalStatsTitle;
+
+  /// No description provided for @portalStatsShare.
+  ///
+  /// In ar, this message translates to:
+  /// **'مشاركة الملخص'**
+  String get portalStatsShare;
+
+  /// No description provided for @portalStatsExportHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'شارك ملخص الأداء مع ولي الأمر عبر واتساب'**
+  String get portalStatsExportHint;
 
   /// No description provided for @weekMon.
   ///

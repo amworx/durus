@@ -74,3 +74,26 @@ Append-only. Reusable patterns extracted from successes.
   tag + release. Verify with `isNewerVersion` parity (current == tag) or a
   false-update loop appears. Publish order prevents draft-timeout confusion:
   create+push tag, push app_meta, `gh release create` (no assets) then upload.
+
+- **Realtime-driven UI refresh + local notifications (reusable):** when a DB
+  trigger fans rows into a `notifications` table, publish BOTH the source table
+  and notifications on supabase_realtime. The shell keeps one channel per table:
+  the source-table channel invalidates the source provider (e.g.
+  announcementsProvider); the notifications channel invalidates the badge
+  provider AND owns the Android system popup (flutter_local_notifications) so
+  a single logical change never double-pops. Deterministic notification id =
+  row uuid hashCode & 0x7FFFFFFF makes repeat events overwrite instead of
+  stack; honor per-category prefs by reading the notificationPrefs FutureProvider
+  before showing.
+## Pattern: gradle/google-maven-mirror
+- context: Android/Flutter builds on machines where dl.google.com is filtered (404 for all artifacts).
+- solution: prepend `maven { url = uri("https://maven.aliyun.com/repository/google") }` to:
+  1) settings.gradle.kts pluginManagement.repositories
+  2) root build.gradle.kts allprojects.repositories
+  3) root build.gradle.kts subprojects { buildscript { repositories { ... } } } (covers plugins with their own buildscript AGP)
+- also add Maven Central fallback (works natively when dl.google.com filtered).
+- key: mirror serves AGP, desugar_jdk_libs, androidx, gson — verified 200s; gson also on Central.
+
+## Pattern: android-core-library-desugaring
+- context: adding plugins that require java.time backport (flutter_local_notifications etc.).
+- solution: app/build.gradle.kts -> compileOptions { isCoreLibraryDesugaringEnabled = true } + dependencies { coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") }.

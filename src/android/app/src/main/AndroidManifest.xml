@@ -5,6 +5,10 @@
     <!-- Lets the system package installer consume the in-app downloaded APK
          (Android 8+ requires this for ACTION_VIEW install requests). -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <!-- Android 13+ system notification permission for the local
+         notification channel (no FCM — notifications are triggered
+         via Supabase Realtime while the app is running). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="دروس"
         android:name="${applicationName}"

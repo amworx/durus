@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:durus/app.dart';
 import 'package:durus/core/config.dart';
+import 'package:durus/core/local_notifications.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/theme/themes.dart';
 
@@ -15,6 +16,9 @@ Future<void> main() async {
     url: AppConfig.supabaseUrl,
     publishableKey: AppConfig.supabasePublishableKey,
   );
+
+  // Local system notifications (no FCM) — safe no-op on web.
+  await LocalNotifications.init();
 
   final prefs = await SharedPreferences.getInstance();
 

@@ -25,6 +25,9 @@
   "commonOpenFailed": "تعذّر فتح الرابط",
   "commonBack": "رجوع",
   "commonEmpty": "لا توجد بيانات بعد",
+  "commonMore": "المزيد",
+  "commonShare": "مشاركة",
+  "commonCopied": "تم النسخ",
 
   "authWelcome": "أهلاً بك في دروس",
   "authSubtitle": "تطبيق إدارة الدروس الخصوصية",
@@ -118,6 +121,18 @@
   "studentsDetailNotes": "الملاحظات",
   "studentsDetailSlots": "أوقات الجلسات",
   "studentsNoSubjects": "لم تُسجَّل مواد بعد — عدّل الطالب لإضافة مواد",
+  "studentsActions": "خيارات الطالب",
+  "studentsShareLink": "مشاركة رابط ولي الأمر",
+  "studentsShareLinkHint": "افتح الرابط من أي جهاز وشارك ولّي الأمر مباشرة",
+  "studentsStatsTitle": "أداء الطالب",
+  "studentsStatsAttendanceRate": "نسبة الحضور",
+  "studentsStatsTestsAverage": "متوسط الاختبارات",
+  "studentsStatsTestsCount": "عدد الاختبارات",
+  "studentsStatsNoTests": "لا توجد اختبارات بعد لعرض الإحصائيات",
+  "studentsStatsExport": "تصدير الملخص",
+  "studentsExportAttendance": "تصدير سجل الحضور",
+  "studentsExportTests": "تصدير الاختبارات",
+  "studentsExportShared": "تم تجهيز الملخص للمشاركة",
 
   "subjectsTitle": "المواد",
   "subjectsEmpty": "لا توجد مواد — أضف أول مادة",
@@ -166,6 +181,7 @@
 
   "testsTitle": "الاختبارات",
   "testsAddTitle": "إضافة اختبار",
+  "testsEditTitle": "تعديل اختبار",
   "testsType": "النوع",
   "testsTypeMonthly": "شهري",
   "testsTypeMidterm": "منتصف الفصل",
@@ -175,6 +191,9 @@
   "testsScore": "الدرجة",
   "testsMaxScore": "الدرجة الكاملة",
   "testsEmpty": "لا توجد اختبارات بعد",
+  "testsDeleted": "تم حذف الاختبار",
+  "testsSaved": "تم حفظ الاختبار",
+  "testsShareResult": "مشاركة النتيجة",
 
   "notesTitle": "الملاحظات",
   "notesAddHint": "اكتب ملاحظة عن الطالب...",
@@ -350,6 +369,9 @@
 
   "portalNotifications": "تنبيهات ولي الأمر",
   "portalNotificationsHint": "سيصلك تنبيه عند تحديث المعلّم لبيانات الطالب",
+  "portalStatsTitle": "أداء الطالب",
+  "portalStatsShare": "مشاركة الملخص",
+  "portalStatsExportHint": "شارك ملخص الأداء مع ولي الأمر عبر واتساب",
 
   "weekMon": "الاثنين",
   "weekTue": "الثلاثاء",

@@ -287,3 +287,52 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 | errors | 1 (v1.1.4 release left AppConfig.appVersion at 1.1.3 — fixed now) |
 | lessons | (1) Directory.systemTemp on Android is NOT reliably the app cache dir (OEMs set TMPDIR to /data/local/tmp or leave it unset); for FileProvider-backed intents, ALWAYS use the app's actual cacheDir (get it from the native side or path_provider) — the 2026-09-16 lesson claiming "systemTemp IS the cache dir" was wrong on the user's device. (2) `gh release create` with asset args creates the release as a DRAFT and only publishes after all uploads finish; if the command times out mid-upload, it stays a draft with zero assets — create the release WITHOUT assets first, then upload separately with `gh release upload --clobber`. (3) Always bump AppConfig.appVersion alongside pubspec `version`; leaving them out of sync causes a false "update available" loop every time the device checks GitHub Releases. |
 | tags | bugfix, updater, icon, version, release, v1.1.5 |
+
+
+### EVT-20260916-0004 — Realtime announcements auto-refresh + local system notifications
+
+| Field | Value |
+|-------|-------|
+| id | EVT-20260916-0004 |
+| timestamp | 2026-09-16T18:45:00+03:00 |
+| mode | BUILD |
+| action | fix: announcements list stale until manual refresh; feat: real Android system notifications (no FCM) |
+| summary | (1) Bug: when an announcement (or any notification-producing row) arrived via Realtime, the badge refreshed but the announcements list stayed stale until manual pull-to-refresh. Root cause: home_shell.dart only subscribed to `public.notifications` and only invalidated teacherNotificationsProvider; the `announcements` table was not on the supabase_realtime publication. Fix: new migration 20260916140000_announcements_realtime.sql publishes `public.announcements`; home_shell.dart adds a second Realtime channel (`durus-announcements`) that invalidates announcementsProvider on any change. Channel disposal added for lifecycle hygiene. (2) Feature: local Android system notifications when new rows arrive. Decision: Plan B (no FCM) — verified dl.google.com (Google Maven: com.google.gms/google-services plugin, firebase-messaging, firebase-bom) is unreachable from this machine (404) and nothing is in the Gradle cache, so firebase_messaging cannot build here; pub.dev IS reachable, so flutter_local_notifications 22.3.1 was added. New src/lib/core/local_notifications.dart wraps the plugin (initialize with @mipmap/ic_launcher, requestNotificationsPermission for Android 13+, deterministic id = row uuid.hashCode & 0x7FFFFFFF, channel durus_notifications/الإشعارات, brand teal #0E7C66, payload = notification type). main.dart initializes it before runApp. home_shell.dart notifications-callback calls _showSystemNotificationFor (skips DELETE, needs non-empty title, honors user per-category prefs from notificationPrefsProvider); announcements channel deliberately does NOT show a system notification (the trg_notify_announcement trigger already inserts into notifications → the notifications channel handles it — avoids double pop). Manifest gets android.permission.POST_NOTIFICATIONS. Tap handler opens NotificationsScreen. flutter analyze 0 new issues (8 pre-existing infos); flutter test 25/25. |
+| result | success — stale-list bug fixed; Android system notifications wired to Realtime (Plan B: no FCM) |
+| files | supabase/migrations/20260916140000_announcements_realtime.sql, src/lib/screens/home_shell.dart, src/lib/core/local_notifications.dart (new), src/lib/main.dart, src/pubspec.yaml, src/android/app/src/main/AndroidManifest.xml |
+| errors | none |
+| lessons | (1) Newer supabase postgres-changes payload API: `newRecord`/`oldRecord` are NON-nullable Map<String,dynamic> (empty for delete) — no null check needed; `PostgresChangeEvent.delete` guards delete events. (2) flutter_local_notifications 22.x API: initialize/settings and show/id are named params; tap callback receives NotificationResponse (not (int,String?)). (3) When one DB table change logically also produces another table's rows via triggers (announcements → notifications), wire system notifications to the ROW-GENERATING channel only, or the user gets duplicate popups. (4) FCM path remains blocked on this machine (Google Maven unreachable, no cached artifacts) — verified explicitly; revisit only with a working network or pre-seeded Gradle cache. |
+| tags | realtime, announcements, notifications, local-notifications, no-fcm, bugfix, feature |
+## EVT-20260916-0005
+- id: EVT-20260916-0005
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: Unblock Android build for flutter_local_notifications
+- summary: APK build failed because the plugin hardcodes AGP 8.11.1 in its own buildscript and dl.google.com (Google Maven) is filtered on this machine (returns 404 for every artifact, even ones that exist). Diagnosed that maven.aliyun.com/repository/google fully mirrors Google Maven and is reachable; Maven Central is also reachable. Added Aliyun mirror as first repo in settings.gradle.kts (pluginManagement) and build.gradle.kts (allprojects + subprojects buildscript). Enabled isCoreLibraryDesugaringEnabled=true and added coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") in app/build.gradle.kts (required by plugin AAR metadata check).
+- result: flutter build apk --debug succeeds (gredal 306s first run fetching mirror artifacts, then 78s cached). Analyze: 8 infos/0 errors. Tests 25/25 pass.
+- files: src/android/settings.gradle.kts, src/android/build.gradle.kts, src/android/app/build.gradle.kts
+- errors: 'Could not resolve all artifacts ... gradle-settings-api:8.11.1, sdk-common:31.11.1, sdklib:31.11.1' + ':app:checkDebugAarMetadata requires core library desugaring'
+- lessons: see lessons list below (dl.google.com filtered; Aliyun mirror is the Google Maven gateway)
+- tags: android, gradle, flutter_local_notifications, mirror, network
+
+## OP-20260916-0001
+- id: OP-20260916-0001
+- timestamp: 2026-09-16
+- workflow: android_build_unblock_mirror
+- project: durus
+- steps: 1) identify plugin buildscript AGP hardcode 8.11.1; 2) enumerate Gradle cache AGP versions; 3) probe dl.google.com + Maven Central + mirrors; 4) add Aliyun mirror to Gradle repos; 5) enable desugaring + add desugar_jdk_libs; 6) rebuild pass
+- duration: ~30 min
+- result: green APK build
+- lessons: dl.google.com returns 404 for all artifacts -> treat as filtered, route Google Maven via maven.aliyun.com/repository/google
+- reusable_pattern: gradle/google-maven-mirror
+## EVT-20260916-0006
+- id: EVT-20260916-0006
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: students-tab feature package (stats, edits, exports, shares) + release v1.1.6
+- summary: Completed the students-tab package that started with fee card edits. students_screens.dart: parent-link section now uses full shareable URL AppConfig.webBaseUrl + #/portal/token with WhatsApp share button; student detail action bar (Edit/Report/More); _showStudentActions sheet (WhatsApp / Share parent link / Export attendance / Export tests / Delete); _shareExport via Clipboard + waChatLink (no share_plus by design); attendance/tests export composers; teacher-side stats section (_statsSection + _metricRow) showing attendance rate, tests count/average; tests CRUD full edit path (_TestSheet edit mode, _showTestActions Edit/Share/Delete). portal_screens.dart: portal shows stats section (attendance rate, tests avg/count) with share-summary-to-clipboard. Fixed build bug where an edit consumed _slotTile declaration. flutter analyze 0 errors / 8 infos; flutter test 25/25. Release v1.1.6: config appVersion 1.1.6 + pubspec 1.1.6+1; migration 20260916150000_app_meta_v116.sql (Arabic notes, apk_url) pushed; flutter build web --release (70s) + apk --split-per-abi green (arm64 20.2MB / armv7 18.1MB / x64 21.6MB); local web smoke :8171 boots cleanly, portal entry renders (بوابة ولي الأمر / رمز الدخول / عرض البيانات). Added src/android/build/ to android/.gitignore.
+- result: success - students-tab package shipped, v1.1.6 artifacts built, web smoke verified
+- files: src/lib/screens/students_screens.dart, src/lib/screens/portal_screens.dart, src/lib/core/config.dart, src/pubspec.yaml, supabase/migrations/20260916150000_app_meta_v116.sql, src/android/.gitignore, memory/
+- errors: 1 (transient build break from _slotTile declaration consumed by an edit - restored; analyze/tests green after)
+- lessons: (1) When mechanically inserting large blocks (e.g. _statsSection/_metricRow before _slotTile) verify the surrounding declarations survive; flutter analyze is the safety net before any build. (2) Keep exports/shares on Clipboard + waChatLink to avoid share_plus dependency and network risk. (3) Web smoke: Flutter web needs Enable accessibility clicked before the a11y tree is readable, and the MCP click on that placeholder can fail - dispatch synthetic events or read page via flt-semantics-host after enabling.
+- tags: students, stats, exports, share, tests-crud, release, v1.1.6, smoke

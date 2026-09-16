@@ -1,11 +1,11 @@
 // Durus — students screens (list / form / detail).
 //
 // Arabic-only, RTL. All user-facing strings come from `context.l10n`.
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:durus/core/config.dart';
 import 'package:durus/core/durus_api.dart';
 import 'package:durus/core/links.dart';
 import 'package:durus/core/utils.dart';
@@ -414,7 +414,14 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                   children: [
                     for (final subject in subjects)
                       FilterChip(
-                        label: Text(subject.displayLabel),
+                        label: Text(
+                          subject.displayLabel,
+                          style: TextStyle(
+                            color: _selectedSubjectIds.contains(subject.id)
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : null,
+                          ),
+                        ),
                         selected: _selectedSubjectIds.contains(subject.id),
                         onSelected: (selected) => setState(() {
                           if (selected) {
@@ -533,18 +540,46 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
     );
   }
 
-  Future<void> _generateParentLink(Student student) async {
+  Future<String?> _generateParentLink(Student student) async {
     final l10n = context.l10n;
     try {
       final DurusApi api = ref.read(apiProvider);
-      await api.ensureParentToken(student.id);
+      final token = await api.ensureParentToken(student.id);
       ref.invalidate(studentsProvider);
+      return token;
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.commonError)),
         );
       }
+      return null;
+    }
+  }
+
+  /// Ensures a token exists, then shares the full portal link with the
+  /// parent via WhatsApp (and copies it to the clipboard as a fallback).
+  Future<void> _shareParentLink(Student student) async {
+    final l10n = context.l10n;
+    var token = student.parentToken;
+    if (token == null || token.isEmpty) {
+      token = await _generateParentLink(student);
+    }
+    if (token == null || token.isEmpty) return;
+    final linkText = '${AppConfig.webBaseUrl}/#/portal/$token';
+    await Clipboard.setData(ClipboardData(text: linkText));
+    if (!mounted) return;
+    if (_hasParentPhone(student)) {
+      final ok = await openExternal(waChatLink(student.parentPhone!, text: linkText));
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.studentsShareLinkHint)),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.studentsLinkCopied)),
+      );
     }
   }
 
@@ -582,6 +617,143 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
         SnackBar(content: Text(l10n.commonOpenFailed)),
       );
     }
+  }
+
+  /// Bottom sheet with extra student actions: WhatsApp / share parent link /
+  /// export attendance / export tests / delete.
+  Future<void> _showStudentActions(
+    BuildContext context,
+    AppLocalizations l10n,
+    Student student,
+  ) async {
+    final scheme = Theme.of(context).colorScheme;
+    final lessons = ref.read(lessonsProvider).value ?? const <LessonSession>[];
+    final tests = ref.read(testsProvider).value ?? const <TestResult>[];
+    final subjects = ref.read(subjectsProvider).value ?? const <Subject>[];
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_hasParentPhone(student))
+              ListTile(
+                leading: const Icon(Icons.chat),
+                title: Text(l10n.studentsWhatsappContact),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _openWhatsApp(student);
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: Text(l10n.studentsShareLink),
+              subtitle: Text(l10n.studentsShareLinkHint),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _shareParentLink(student);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_month_outlined),
+              title: Text(l10n.studentsExportAttendance),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _shareExport(
+                  student,
+                  _composeAttendanceExport(l10n, student, lessons, subjects),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.assignment_outlined),
+              title: Text(l10n.studentsExportTests),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _shareExport(
+                  student,
+                  _composeTestsExport(l10n, student, tests, subjects),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_outline, color: scheme.error),
+              title: Text(
+                l10n.commonDelete,
+                style: TextStyle(color: scheme.error),
+              ),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _deleteStudent(student);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Copies [text] to the clipboard, tells the teacher it is ready, and opens
+  /// WhatsApp with the text pre-filled when a parent phone exists.
+  Future<void> _shareExport(Student student, String text) async {
+    final l10n = context.l10n;
+    if (text.isEmpty) return;
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.studentsExportShared)),
+    );
+    if (_hasParentPhone(student)) {
+      final ok =
+          await openExternal(waChatLink(student.parentPhone!, text: text));
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonOpenFailed)),
+        );
+      }
+    }
+  }
+
+  /// Plain-text attendance log for one student (newest first).
+  String _composeAttendanceExport(
+    AppLocalizations l10n,
+    Student student,
+    List<LessonSession> lessons,
+    List<Subject> subjects,
+  ) {
+    final list = lessons
+        .where((l) => l.studentId == student.id)
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+    if (list.isEmpty) return '';
+    final lines = <String>[
+      '${l10n.studentsExportAttendance} — ${student.name}',
+      for (final lesson in list)
+        '${lesson.date} • ${_subjectName(subjects, lesson.subjectId).isEmpty ? l10n.commonNone : _subjectName(subjects, lesson.subjectId)} • ${attendanceStyle(l10n, Theme.of(context).colorScheme, lesson.attendance).label}',
+    ];
+    return lines.join('\n');
+  }
+
+  /// Plain-text tests log for one student (newest first).
+  String _composeTestsExport(
+    AppLocalizations l10n,
+    Student student,
+    List<TestResult> tests,
+    List<Subject> subjects,
+  ) {
+    final list = tests
+        .where((t) => t.studentId == student.id)
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+    if (list.isEmpty) return '';
+    final lines = <String>[
+      '${l10n.studentsExportTests} — ${student.name}',
+      for (final test in list)
+        '${test.date} • ${_subjectName(subjects, test.subjectId).isEmpty ? l10n.commonNone : _subjectName(subjects, test.subjectId)} • ${_testTypeLabel(l10n, test.type)} • ${_numText(test.score ?? 0)} / ${_numText(test.maxScore ?? 0)}',
+    ];
+    return lines.join('\n');
   }
 
   Future<void> _deleteStudent(Student student) async {
@@ -658,6 +830,11 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
       final DurusApi api = ref.read(apiProvider);
       await api.deleteTest(test.id);
       ref.invalidate(testsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.testsDeleted)),
+        );
+      }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -705,17 +882,43 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
             children: [
               _headerCard(context, l10n, student),
               const SizedBox(height: 16),
-              FilledButton.tonalIcon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => MonthlyReportScreen(
-                      studentId: student.id,
-                      studentName: student.name,
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _openStudentForm(context, student),
+                      icon: const Icon(Icons.edit_outlined),
+                      label: Text(l10n.commonEdit),
                     ),
                   ),
-                ),
-                icon: const Icon(Icons.description_outlined),
-                label: Text('${l10n.reportsTitle} — ${student.name}'),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton.tonalIcon(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => MonthlyReportScreen(
+                            studentId: student.id,
+                            studentName: student.name,
+                          ),
+                        ),
+                      ),
+                      icon: const Icon(Icons.description_outlined),
+                      label: Text(l10n.reportsTitle),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showStudentActions(
+                        context,
+                        l10n,
+                        student,
+                      ),
+                      icon: const Icon(Icons.more_horiz),
+                      label: Text(l10n.studentsActions),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               SectionCard(
@@ -847,6 +1050,20 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                     }),
                   ],
                 ),
+              ),
+              const SizedBox(height: 16),
+              SectionCard(
+                title: l10n.studentsStatsTitle,
+                child: _sectionBody(testsAsync, (tests) {
+                  return _statsSection(
+                    context,
+                    l10n,
+                    student,
+                    subjects,
+                    lessonsAsync.value ?? const <LessonSession>[],
+                    tests,
+                  );
+                }),
               ),
               const SizedBox(height: 16),
               SectionCard(
@@ -1054,10 +1271,15 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
         ],
       );
     }
-    final linkText = kIsWeb ? Uri.base.resolve('#/portal/$token').toString() : token;
+    final linkText = '${AppConfig.webBaseUrl}/#/portal/$token';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Text(
+          l10n.studentsShareLinkHint,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -1072,8 +1294,8 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
         const SizedBox(height: 8),
         Align(
           alignment: AlignmentDirectional.centerEnd,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+          child: Wrap(
+            spacing: 8,
             children: [
               TextButton.icon(
                 onPressed: () => _copyParentLink(linkText),
@@ -1081,17 +1303,127 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                 label: Text(l10n.studentsCopyLink),
               ),
               if (_hasParentPhone(student)) ...[
-                const SizedBox(width: 8),
                 TextButton.icon(
-                  onPressed: () => _openWhatsApp(student),
+                  onPressed: () => _openWhatsApp(student, text: linkText),
                   icon: const Icon(Icons.chat),
-                  label: Text(l10n.studentsWhatsappContact),
+                  label: Text(l10n.studentsShareLink),
                 ),
               ],
             ],
           ),
         ),
       ],
+    );
+  }
+
+  /// Teacher-side performance summary for one student (attendance rate,
+  /// tests average, tests count) with an export/share action.
+  Widget _statsSection(
+    BuildContext context,
+    AppLocalizations l10n,
+    Student student,
+    List<Subject> subjects,
+    List<LessonSession> lessons,
+    List<TestResult> tests,
+  ) {
+    final theme = Theme.of(context);
+    final myLessons =
+        lessons.where((l) => l.studentId == student.id).toList();
+    final myTests = tests.where((t) => t.studentId == student.id).toList();
+
+    final presentCount = myLessons
+        .where((l) => l.attendance == 'present')
+        .length;
+    final attendanceRate = myLessons.isEmpty
+        ? 0
+        : ((presentCount / myLessons.length) * 100).round();
+
+    double? averagePct;
+    var scored = 0;
+    for (final test in myTests) {
+      final score = test.score;
+      final maxScore = test.maxScore;
+      if (score != null && maxScore != null && maxScore > 0) {
+        averagePct = (averagePct ?? 0) + (score / maxScore) * 100;
+        scored++;
+      }
+    }
+    if (scored > 0) averagePct = (averagePct ?? 0) / scored;
+
+    final rows = <Widget>[
+      _metricRow(
+        context,
+        l10n.studentsStatsAttendanceRate,
+        myLessons.isEmpty ? l10n.commonNone : '$attendanceRate%',
+      ),
+      _metricRow(
+        context,
+        l10n.studentsStatsTestsCount,
+        '${myTests.length}',
+      ),
+      if (averagePct != null)
+        _metricRow(
+          context,
+          l10n.studentsStatsTestsAverage,
+          '${_numText(averagePct)}%',
+        )
+      else
+        _metricRow(context, l10n.studentsStatsTestsAverage, l10n.commonNone),
+    ];
+
+    final summary = <String>[
+      '${l10n.studentsStatsTitle} — ${student.name}',
+      '${l10n.studentsStatsAttendanceRate}: '
+          '${myLessons.isEmpty ? l10n.commonNone : '$attendanceRate%'}',
+      '${l10n.studentsStatsTestsCount}: ${myTests.length}',
+      if (averagePct == null)
+        l10n.studentsStatsNoTests
+      else
+        '${l10n.studentsStatsTestsAverage}: ${_numText(averagePct)}%',
+      for (final test in myTests.take(5))
+        '${test.date} • ${_subjectName(subjects, test.subjectId).isEmpty ? l10n.commonNone : _subjectName(subjects, test.subjectId)} • ${_testTypeLabel(l10n, test.type)} • ${_numText(test.score ?? 0)} / ${_numText(test.maxScore ?? 0)}',
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final row in rows) row,
+        if (myTests.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              l10n.studentsStatsNoTests,
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: TextButton.icon(
+            onPressed: () => _shareExport(student, summary.join('\n')),
+            icon: const Icon(Icons.ios_share),
+            label: Text(l10n.studentsStatsExport),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _metricRow(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
+          Text(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1144,6 +1476,10 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
       _testTypeLabel(l10n, test.type),
       '${_numText(test.score ?? 0)} / ${_numText(test.maxScore ?? 0)}',
     ];
+    final student = _findStudent(
+      ref.read(studentsProvider).value ?? const <Student>[],
+      test.studentId,
+    );
     return ListTile(
       contentPadding: EdgeInsets.zero,
       dense: true,
@@ -1151,7 +1487,75 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
       title: Text(subjectName.isEmpty ? l10n.commonNone : subjectName),
       subtitle: Text(subtitleParts.join(' • ')),
       trailing: Text(test.date),
+      onTap: () => _showTestActions(context, l10n, subjects, test, student),
       onLongPress: () => _deleteTest(test),
+    );
+  }
+
+  /// Bottom sheet for a single test: edit / share result / delete.
+  Future<void> _showTestActions(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<Subject> subjects,
+    TestResult test,
+    Student? student,
+  ) async {
+    final scheme = Theme.of(context).colorScheme;
+    final subjectName = _subjectName(subjects, test.subjectId);
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(
+                subjectName.isEmpty ? l10n.commonNone : subjectName,
+                style: Theme.of(sheetContext).textTheme.titleMedium,
+              ),
+              subtitle: Text(
+                '${test.date} • ${_testTypeLabel(l10n, test.type)} • '
+                '${_numText(test.score ?? 0)} / ${_numText(test.maxScore ?? 0)}',
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: Text(l10n.commonEdit),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _openTestSheet(context, test.studentId, test: test);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.ios_share),
+              title: Text(l10n.testsShareResult),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                if (student == null) return;
+                _shareExport(
+                  student,
+                  '${l10n.testsShareResult} — $subjectName • ${test.date} • '
+                      '${_testTypeLabel(l10n, test.type)} • '
+                      '${_numText(test.score ?? 0)} / ${_numText(test.maxScore ?? 0)}',
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_outline, color: scheme.error),
+              title: Text(
+                l10n.commonDelete,
+                style: TextStyle(color: scheme.error),
+              ),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _deleteTest(test);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1242,11 +1646,11 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
     );
   }
 
-  void _openTestSheet(BuildContext context, String studentId) {
+  void _openTestSheet(BuildContext context, String studentId, {TestResult? test}) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _TestSheet(studentId: studentId),
+      builder: (_) => _TestSheet(studentId: studentId, test: test),
     );
   }
 }
@@ -1473,9 +1877,10 @@ class _SlotFormSheetState extends ConsumerState<_SlotFormSheet> {
 }
 
 class _TestSheet extends ConsumerStatefulWidget {
-  const _TestSheet({required this.studentId});
+  const _TestSheet({required this.studentId, this.test});
 
   final String studentId;
+  final TestResult? test;
 
   @override
   ConsumerState<_TestSheet> createState() => _TestSheetState();
@@ -1490,6 +1895,36 @@ class _TestSheetState extends ConsumerState<_TestSheet> {
   String _type = 'monthly';
   DateTime _date = DateTime.now();
   bool _saving = false;
+
+  bool get _isEdit => widget.test != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final test = widget.test;
+    if (test == null) return;
+    _subjectId = test.subjectId;
+    _type = test.type;
+    _date = _parseIsoDate(test.date) ?? DateTime.now();
+    final score = test.score;
+    final maxScore = test.maxScore;
+    _scoreController.text = score == null ? '' : _numText(score);
+    _maxScoreController.text = maxScore == null ? '' : _numText(maxScore);
+    final note = test.note;
+    if (note != null && note.isNotEmpty) {
+      _noteController.text = note;
+    }
+  }
+
+  static DateTime? _parseIsoDate(String value) {
+    final parts = value.split('-');
+    if (parts.length != 3) return null;
+    final year = int.tryParse(parts[0]);
+    final month = int.tryParse(parts[1]);
+    final day = int.tryParse(parts[2]);
+    if (year == null || month == null || day == null) return null;
+    return DateTime(year, month, day);
+  }
 
   @override
   void dispose() {
@@ -1520,17 +1955,32 @@ class _TestSheetState extends ConsumerState<_TestSheet> {
     try {
       final DurusApi api = ref.read(apiProvider);
       final note = _noteController.text.trim();
-      await api.createTest(
-        studentId: widget.studentId,
-        subjectId: _subjectId,
-        type: _type,
-        date: _isoDate(_date),
-        score: score,
-        maxScore: maxScore,
-        note: note.isEmpty ? null : note,
-      );
+      if (_isEdit) {
+        await api.updateTest(
+          widget.test!.id,
+          subjectId: _subjectId,
+          type: _type,
+          date: _isoDate(_date),
+          score: score,
+          maxScore: maxScore,
+          note: note.isEmpty ? null : note,
+        );
+      } else {
+        await api.createTest(
+          studentId: widget.studentId,
+          subjectId: _subjectId,
+          type: _type,
+          date: _isoDate(_date),
+          score: score,
+          maxScore: maxScore,
+          note: note.isEmpty ? null : note,
+        );
+      }
       ref.invalidate(testsProvider);
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.testsSaved)));
+        Navigator.of(context).pop();
+      }
     } catch (_) {
       if (mounted) {
         messenger.showSnackBar(SnackBar(content: Text(l10n.commonError)));
@@ -1573,7 +2023,7 @@ class _TestSheetState extends ConsumerState<_TestSheet> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  l10n.testsAddTitle,
+                  _isEdit ? l10n.testsEditTitle : l10n.testsAddTitle,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 16),
