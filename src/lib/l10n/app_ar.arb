@@ -146,6 +146,7 @@
   "scheduleDay": "اليوم",
   "scheduleStart": "البداية",
   "scheduleEnd": "النهاية",
+  "scheduleTimeInvalid": "وقت النهاية يجب أن يكون بعد وقت البداية",
   "scheduleLocation": "المكان",
   "scheduleActive": "مفعّل",
   "scheduleAllStudents": "كل الطلاب",

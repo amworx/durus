@@ -874,6 +874,12 @@ abstract class AppLocalizations {
   /// **'النهاية'**
   String get scheduleEnd;
 
+  /// No description provided for @scheduleTimeInvalid.
+  ///
+  /// In ar, this message translates to:
+  /// **'وقت النهاية يجب أن يكون بعد وقت البداية'**
+  String get scheduleTimeInvalid;
+
   /// No description provided for @scheduleLocation.
   ///
   /// In ar, this message translates to:

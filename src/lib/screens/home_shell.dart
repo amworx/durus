@@ -16,6 +16,11 @@ import 'package:durus/screens/subjects_screens.dart';
 /// Main tab shell. Five destinations; the active tab is kept alive via
 /// [IndexedStack] so scrolling/state survives tab switches.
 ///
+/// The Students tab hosts a nested [Navigator]: screens pushed from within
+/// the students tab (student detail, student form, monthly report) render
+/// inside the tab body, so the shell [NavigationBar] stays visible and the
+/// student detail's own bottom action bar stacks directly above it.
+///
 /// Also subscribes to Postgres realtime on the `notifications` table so the
 /// badge count and the notifications center stay fresh when DB triggers add
 /// rows (attendance, fees, payments, …), and on the `announcements` table so
@@ -149,7 +154,7 @@ class _HomeShellState extends ConsumerState<HomeShell>
         children: [
           HomeScreen(),
           ScheduleScreen(),
-          StudentsListScreen(),
+          _StudentsTabNavigator(),
           SubjectsScreen(),
           FeesScreen(),
           SettingsScreen(),
@@ -190,6 +195,27 @@ class _HomeShellState extends ConsumerState<HomeShell>
             label: l10n.navSettings,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Nested navigator for the Students tab.
+///
+/// Routes pushed from inside the students tab (detail, form, monthly report)
+/// are hosted here instead of the root navigator, so they render inside the
+/// tab body and the shell [NavigationBar] remains visible. The student
+/// detail screen's own bottom action bar then stacks directly above the main
+/// navigation bar instead of replacing it.
+class _StudentsTabNavigator extends StatelessWidget {
+  const _StudentsTabNavigator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      onGenerateRoute: (settings) => MaterialPageRoute<void>(
+        settings: settings,
+        builder: (_) => const StudentsListScreen(),
       ),
     );
   }

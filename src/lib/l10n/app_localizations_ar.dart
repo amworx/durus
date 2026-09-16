@@ -408,6 +408,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scheduleEnd => 'النهاية';
 
   @override
+  String get scheduleTimeInvalid => 'وقت النهاية يجب أن يكون بعد وقت البداية';
+
+  @override
   String get scheduleLocation => 'المكان';
 
   @override

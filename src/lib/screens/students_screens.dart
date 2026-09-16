@@ -2022,6 +2022,7 @@ class _SlotFormSheetState extends ConsumerState<_SlotFormSheet> {
   String? _location;
   String? _subjectId;
   bool _saving = false;
+  bool _timeInvalid = false;
 
   @override
   void initState() {
@@ -2047,6 +2048,7 @@ class _SlotFormSheetState extends ConsumerState<_SlotFormSheet> {
       } else {
         _endMinutes = minutes;
       }
+      _timeInvalid = false;
     });
   }
 
@@ -2055,7 +2057,8 @@ class _SlotFormSheetState extends ConsumerState<_SlotFormSheet> {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     if (_endMinutes <= _startMinutes) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.commonError)));
+      setState(() => _timeInvalid = true);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.scheduleTimeInvalid)));
       return;
     }
     setState(() => _saving = true);
@@ -2174,6 +2177,17 @@ class _SlotFormSheetState extends ConsumerState<_SlotFormSheet> {
                     ),
                   ],
                 ),
+                if (_timeInvalid)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      l10n.scheduleTimeInvalid,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Theme.of(context).colorScheme.error),
+                    ),
+                  ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   initialValue: _initialIfPresent(locationItems, _location),
