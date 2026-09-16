@@ -149,6 +149,32 @@ class _SubjectsBodyState extends ConsumerState<_SubjectsBody> {
     }
   }
 
+  // ── filter sheet (compact button + modal bottom sheet) ──
+
+  int get _activeFilterCount => _filterGrade != null ? 1 : 0;
+
+  Future<void> _openFilterSheet() async {
+    final l10n = context.l10n;
+    final subjects = ref.read(subjectsProvider).value ?? const <Subject>[];
+    final result = await showFilterSheet(
+      context,
+      title: l10n.filterTitle,
+      sections: [
+        FilterSheetSection(
+          id: 'grade',
+          label: l10n.subjectsGrade,
+          current: _filterGrade,
+          choices: [
+            FilterChoice(null, l10n.filterAllGrades),
+            for (final g in _uniqueGrades(subjects)) FilterChoice(g, g),
+          ],
+        ),
+      ],
+    );
+    if (result == null || !mounted) return;
+    setState(() => _filterGrade = result['grade']);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -156,13 +182,12 @@ class _SubjectsBodyState extends ConsumerState<_SubjectsBody> {
     final refsAsync = ref.watch(studentSubjectRefsProvider);
     return Column(
       children: [
-        // ── search + grade filter row ──
+        // ── search + filter row ──
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Row(
             children: [
               Expanded(
-                flex: 3,
                 child: TextField(
                   controller: _searchController,
                   onChanged: (value) => setState(() => _query = value.trim()),
@@ -175,23 +200,9 @@ class _SubjectsBodyState extends ConsumerState<_SubjectsBody> {
                 ),
               ),
               const SizedBox(width: 8),
-              Expanded(
-                flex: 2,
-                child: DropdownButtonFormField<String?>(
-                  initialValue: _filterGrade,
-                  isDense: true,
-                  decoration: InputDecoration(
-                    labelText: l10n.filterAllGrades,
-                    isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  items: [
-                    const DropdownMenuItem<String?>(value: null, child: Text('')),
-                    for (final g in _uniqueGrades(subjectsAsync.value ?? const <Subject>[]))
-                      DropdownMenuItem(value: g, child: Text(g)),
-                  ],
-                  onChanged: (v) => setState(() => _filterGrade = v),
-                ),
+              FilterButton(
+                activeCount: _activeFilterCount,
+                onPressed: _openFilterSheet,
               ),
             ],
           ),

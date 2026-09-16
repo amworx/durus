@@ -339,3 +339,156 @@ class _SelectionActionChip extends StatelessWidget {
     );
   }
 }
+
+/// One selectable option inside a [FilterSheetSection].
+class FilterChoice {
+  const FilterChoice(this.value, this.label);
+
+  /// The applied filter value. The first option of each section is the
+  /// "all" sentinel (e.g. `null`, or a `_all*` marker on Fees).
+  final String? value;
+  final String label;
+}
+
+/// One labeled dropdown inside the reusable filter bottom sheet.
+class FilterSheetSection {
+  const FilterSheetSection({
+    required this.id,
+    required this.label,
+    required this.choices,
+    this.current,
+  });
+
+  final String id;
+  final String label;
+  final List<FilterChoice> choices;
+  final String? current;
+}
+
+/// Raises an icon button with an active-filter count badge. Tapping it opens
+/// the filter sheet; the parent applies the returned values itself.
+class FilterButton extends StatelessWidget {
+  const FilterButton({
+    super.key,
+    required this.activeCount,
+    required this.onPressed,
+    this.tooltip,
+  });
+
+  final int activeCount;
+  final VoidCallback onPressed;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return IconButton.filledTonal(
+      tooltip: tooltip ?? l10n.filterTitle,
+      onPressed: onPressed,
+      icon: Badge.count(
+        count: activeCount,
+        isLabelVisible: activeCount > 0,
+        child: const Icon(Icons.tune),
+      ),
+    );
+  }
+}
+
+/// Shows a modal bottom sheet with one labeled dropdown per [sections] plus
+/// "مسح الكل" (clear all) and "تطبيق" (apply) actions.
+///
+/// Returns a map of section-id → chosen value when applied, or `null` when
+/// dismissed. The first choice of each section is treated as the "all"
+/// sentinel and is what "مسح الكل" resets to.
+Future<Map<String, String?>?> showFilterSheet(
+  BuildContext context, {
+  required String title,
+  required List<FilterSheetSection> sections,
+}) {
+  final drafts = {for (final s in sections) s.id: s.current};
+  return showModalBottomSheet<Map<String, String?>>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (sheetContext) => StatefulBuilder(
+      builder: (context, setSheetState) {
+        final l10n = context.l10n;
+        final theme = Theme.of(context);
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              0,
+              16,
+              MediaQuery.of(context).viewInsets.bottom + 16,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  title,
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 16),
+                for (final section in sections) ...[
+                  Text(
+                    section.label,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<String?>(
+                    key: ValueKey('${section.id}:${drafts[section.id]}'),
+                    initialValue: drafts[section.id],
+                    isDense: true,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    items: [
+                      for (final c in section.choices)
+                        DropdownMenuItem<String?>(
+                          value: c.value,
+                          child: Text(c.label),
+                        ),
+                    ],
+                    onChanged: (v) => setSheetState(() => drafts[section.id] = v),
+                  ),
+                  const SizedBox(height: 14),
+                ],
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => setSheetState(() {
+                          for (final s in sections) {
+                            drafts[s.id] = s.choices.first.value;
+                          }
+                        }),
+                        child: Text(l10n.filterClearAll),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () =>
+                            Navigator.of(sheetContext).pop({...drafts}),
+                        child: Text(l10n.filterApply),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}

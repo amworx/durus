@@ -958,6 +958,12 @@ abstract class AppLocalizations {
   /// **'الشهر'**
   String get feesMonth;
 
+  /// No description provided for @feesStatus.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحالة'**
+  String get feesStatus;
+
   /// No description provided for @feesAmount.
   ///
   /// In ar, this message translates to:
@@ -1173,6 +1179,24 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'كل الحالات'**
   String get filterAllStatus;
+
+  /// No description provided for @filterTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الفلاتر'**
+  String get filterTitle;
+
+  /// No description provided for @filterApply.
+  ///
+  /// In ar, this message translates to:
+  /// **'تطبيق'**
+  String get filterApply;
+
+  /// No description provided for @filterClearAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسح الكل'**
+  String get filterClearAll;
 
   /// No description provided for @sortName.
   ///

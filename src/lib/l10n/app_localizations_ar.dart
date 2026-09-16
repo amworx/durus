@@ -450,6 +450,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get feesMonth => 'الشهر';
 
   @override
+  String get feesStatus => 'الحالة';
+
+  @override
   String get feesAmount => 'المبلغ';
 
   @override
@@ -562,6 +565,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get filterAllStatus => 'كل الحالات';
+
+  @override
+  String get filterTitle => 'الفلاتر';
+
+  @override
+  String get filterApply => 'تطبيق';
+
+  @override
+  String get filterClearAll => 'مسح الكل';
 
   @override
   String get sortName => 'الاسم';

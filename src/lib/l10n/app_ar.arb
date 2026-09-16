@@ -162,6 +162,7 @@
 
   "feesTitle": "الأقساط",
   "feesMonth": "الشهر",
+  "feesStatus": "الحالة",
   "feesAmount": "المبلغ",
   "feesPaid": "المدفوع",
   "feesRemaining": "المتبقي",
@@ -223,6 +224,9 @@
   "filterAllLocations": "كل الأماكن",
   "filterAllMonths": "كل الشهور",
   "filterAllStatus": "كل الحالات",
+  "filterTitle": "الفلاتر",
+  "filterApply": "تطبيق",
+  "filterClearAll": "مسح الكل",
   "sortName": "الاسم",
   "sortNewest": "الأحدث",
 

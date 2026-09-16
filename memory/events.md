@@ -372,3 +372,27 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - errors: 2 minor (1) gh release upload with 3 APK paths timed out at 180s with 0 assets - fixed by uploading one file per call; (2) release_notes_v117.md written to scratch then deleted after upload (pattern); also flutter build regenerated l10n files with LF line endings - restored via git checkout (content identical). Note: PowerShell True after git push returns false due to stderr wrapper - create/tag pushes must be verified explicitly with git ls-remote.
 - lessons: (1) Upload GH release assets ONE file per command - a multi-file 'gh release upload a b c' on this machine stalls past 180s and leaves zero assets. (2) After 'git push 2>&1 | Select-Object' the True flag lies (NativeCommandError wrapper) - always confirm tags/branches via git ls-remote / gh release view instead of chaining if (True). (3) Verify release liveness with gh release view --json isDraft,assets AND a HEAD request on the apk_url that follows redirects to release-assets.githubusercontent.com (200 = live).
 - tags: release, v1.1.7, bulk-ops, filters, gh-pages, apk, web, supabase, app-meta
+
+## EVT-20260916-0010
+- id: EVT-20260916-0010
+- timestamp: 2026-09-16
+- mode: PLAN
+- action: Filter redesign decision — choose bottom sheet pattern
+- summary: Created interactive showcase docs/filters-design.html comparing 5 filter alternatives (chip rail, bottom sheet, compact menus, expandable panel, mode-switch segmented) with live phone mockups and RTL Arabic. User chose Option 2: Bottom Sheet — zero permanent vertical space, filter icon with active-count badge opens modal bottom sheet with dropdowns + apply/clear. ~76% space savings. Recorded as ADR-20260916-0008.
+- result: success — design decision locked, ADR recorded, ready for implementation
+- files: docs/filters-design.html, memory/decisions.md, memory/events.md
+- errors: 0
+- lessons: (1) design-showcase HTML precedents exist in docs/ (font-picker.html, design-showcase.html) — keep using docs/ for interactive comparisons. (2) when presenting multiple alternatives, interactive phone-frame mockups with live JS interactions produce a better decision experience than static images.
+- tags: design, filters, bottom-sheet, ui-redesign, ADR
+
+## EVT-20260916-0011
+- id: EVT-20260916-0011
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: implement bottom-sheet filter pattern (ADR-20260916-0008) on students/subjects/fees tabs
+- summary: Replaced all stacked DropdownButtonFormField filter rows with the approved bottom-sheet pattern. New shared widgets appended to widgets.dart: FilterChoice (value+label), FilterSheetSection (id/label/choices/current), showFilterSheet() (modal bottom sheet returning Map<sectionId, String?>; sections render as labeled DropdownButtonFormField with key:ValueKey('$id:$draft') so clear-all rebuilds them; first choice of each section is the "all" sentinel that مسح الكل resets to; تطبيق pops the drafts map; SafeArea + viewInsets so the sheet stays above the keyboard) and FilterButton (IconButton.filledTonal with Badge.count active-filter badge + Icons.tune). Students tab: removed the grade+subject dropdown chips row (~2 rows ≈ 110px); FilterButton now sits in the search row after the sort toggle; _openFilterSheet builds grade (filterAllGrades + unique grades) and subject (filterAllSubjects + displayLabel) sections; state vars unchanged (null = all). Subjects tab: removed the grade dropdown from the search row; FilterButton added after search; single grade section. Fees tab: removed the student dropdown + month/status row (3 dropdowns ≈ 170px); new compact row below the summary card shows a "الفلاتر" title + FilterButton; three sections (الطالب / الشهر / الحالة) with _allStudents/_allStatuses sentinels preserved; this also FIXED a pre-existing bug where the 'all statuses' item in the old dropdown was labeled كل الطلاب instead of كل الحالات. l10n: added filterTitle, filterApply, filterClearAll, feesStatus to app_ar.arb; ran flutter gen-l10n. flutter analyze 0 errors/0 warnings (8 pre-existing infos — none in new code); flutter test 25/25.
+- result: success — bottom-sheet filters implemented on all three tabs; vertical space savings ≈ 110px (students), ≈56px (subjects), ≈170px (fees)
+- files: src/lib/widgets/widgets.dart, src/lib/screens/students_screens.dart, src/lib/screens/subjects_screens.dart, src/lib/screens/fees_screens.dart, src/lib/l10n/app_ar.arb, src/lib/l10n/app_localizations.dart, src/lib/l10n/app_localizations_ar.dart, docs/filters-design.html (untracked showcase reference)
+- errors: 0
+- lessons: (1) For a generic bottom-sheet dropdown that must reset via clear-all, drive DropdownButtonFormField with initialValue + a ValueKey derived from the draft value — the widget rebuilds with the new initial on clear instead of fighting its internal state. (2) Always put the "all/clear" sentinel as choices.first so clear-all is a uniform s.choices.first.value assignment; maps back to null/_all* sentinels in the caller. (3) The fees 'all statuses' dropdown bug (showing كل الطلاب) was inherited from v1.1.7 — the bottom sheet rewrite is a good moment to re-audit filter option labels.
+- tags: filters, bottom-sheet, ui-redesign, students, subjects, fees, widgets, l10n, ADR-20260916-0008

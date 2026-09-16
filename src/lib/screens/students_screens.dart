@@ -229,18 +229,57 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
     ref.invalidate(studentsProvider); // tokens may have been created
   }
 
+// ── filter sheet (compact button + modal bottom sheet) ──
+
+  int get _activeFilterCount =>
+      (_filterGrade != null ? 1 : 0) + (_filterSubjectId != null ? 1 : 0);
+
+  Future<void> _openFilterSheet() async {
+    final l10n = context.l10n;
+    final students = ref.read(studentsProvider).value ?? const <Student>[];
+    final subjects = ref.read(subjectsProvider).value ?? const <Subject>[];
+    final result = await showFilterSheet(
+      context,
+      title: l10n.filterTitle,
+      sections: [
+        FilterSheetSection(
+          id: 'grade',
+          label: l10n.studentsGrade,
+          current: _filterGrade,
+          choices: [
+            FilterChoice(null, l10n.filterAllGrades),
+            for (final g in _uniqueGrades(students)) FilterChoice(g, g),
+          ],
+        ),
+        FilterSheetSection(
+          id: 'subject',
+          label: l10n.subjectsTitle,
+          current: _filterSubjectId,
+          choices: [
+            FilterChoice(null, l10n.filterAllSubjects),
+            for (final s in subjects)
+              FilterChoice(s.id, s.displayLabel),
+          ],
+        ),
+      ],
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      _filterGrade = result['grade'];
+      _filterSubjectId = result['subject'];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final studentsAsync = ref.watch(studentsProvider);
-    final subjectsAsync = ref.watch(subjectsProvider);
     final refsAsync = ref.watch(studentSubjectRefsProvider);
-    final subjects = subjectsAsync.value ?? const <Subject>[];
     final refs = refsAsync.value ?? const <StudentSubjectRef>[];
 
     return Column(
       children: [
-        // ── search + sort row ──
+        // ── search + sort + filter row ──
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Row(
@@ -263,50 +302,10 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
                 tooltip: _sortNewest ? l10n.sortNewest : l10n.sortName,
                 onPressed: () => setState(() => _sortNewest = !_sortNewest),
               ),
-            ],
-          ),
-        ),
-        // ── filter chips ──
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Row(
-            children: [
-              // Grade filter
-              Expanded(
-                child: DropdownButtonFormField<String?>(
-                  initialValue: _filterGrade,
-                  isDense: true,
-                  decoration: InputDecoration(
-                    labelText: l10n.filterAllGrades,
-                    isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  items: [
-                    const DropdownMenuItem<String?>(value: null, child: Text('')),
-                    for (final g in _uniqueGrades(studentsAsync.value ?? const []))
-                      DropdownMenuItem(value: g, child: Text(g)),
-                  ],
-                  onChanged: (v) => setState(() => _filterGrade = v),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Subject filter
-              Expanded(
-                child: DropdownButtonFormField<String?>(
-                  initialValue: _filterSubjectId,
-                  isDense: true,
-                  decoration: InputDecoration(
-                    labelText: l10n.filterAllSubjects,
-                    isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  items: [
-                    const DropdownMenuItem<String?>(value: null, child: Text('')),
-                    for (final s in subjects)
-                      DropdownMenuItem(value: s.id, child: Text(s.displayLabel, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                  ],
-                  onChanged: (v) => setState(() => _filterSubjectId = v),
-                ),
+              const SizedBox(width: 4),
+              FilterButton(
+                activeCount: _activeFilterCount,
+                onPressed: _openFilterSheet,
               ),
             ],
           ),

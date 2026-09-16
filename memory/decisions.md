@@ -67,3 +67,24 @@ Append-only. Format: `ADR-YYYYMMDD-XXX`.
 - **Decision:** `subjects` is a CRUD entity (name, grade, notes) — no fixed
   enum and no built-in subject list.
 - **Consequences:** RLS-scoped like other data; teacher owns the list.
+
+## ADR-20260916-0008 - Filter redesign: Bottom Sheet pattern
+
+- **Status:** Accepted
+- **Context:** v1.1.7 shipped full-width `DropdownButtonFormField` filter rows
+  on the Students, Subjects, and Fees tabs. The stacked dropdowns consume
+  ~168px of vertical space before any list content appears — especially bad
+  on narrow screens and the Fees tab (summary card + 3 dropdowns). User
+  reviewed five interactive alternatives on `docs/filters-design.html`
+  (chip rail, bottom sheet, compact menus, expandable panel, mode-switch).
+- **Decision:** Replace all inline filter rows with a **single search row +
+  a filter-icon button (⚙) bearing an active-count badge** on each tab.
+  Tapping the icon opens a **modal bottom sheet** containing the relevant
+  filter sections (dropdowns grouped with labels), plus "تطبيق" (apply)
+  and "مسح الكل" (clear all) buttons. Zero permanent vertical space beyond
+  the search row (~40px). Active filter count is surfaced on the badge.
+- **Consequences:** ~76% space reduction; list content visible immediately
+  on all three tabs. Trade-off: two taps to change a filter, but
+  active-state badge makes current filters discoverable at a glance.
+  Flutter: `showModalBottomSheet` + `StatefulBuilder` for live badge
+  updates; existing client-side filter logic unchanged.

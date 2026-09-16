@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>دروس — مقارنة تصاميم الفلاتر (اختيار التصميم)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #FAF8F4;
+    --ink: #14213D;
+    --muted: #6F7A8C;
+    --teal: #0E7C66;
+    --teal-container: #DFF3EC;
+    --on-teal-container: #0A3B2E;
+    --ember: #E8622B;
+    --ember-container: #FDE8D9;
+    --on-ember-container: #5A2A12;
+    --border: #ECEAE3;
+    --outline: #E7E2D6;
+    --white: #ffffff;
+    --radius: 26px;
+    --font: 'Zain', 'Noto Sans Arabic', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    padding-bottom: 80px;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── header ── */
+  .hero {
+    background: linear-gradient(160deg, #0A3B2E 0%, #0E7C66 60%, #12A083 100%);
+    color: #fff;
+    border-radius: 0 0 40px 40px;
+    padding: 48px 0 56px;
+    margin-bottom: -24px;
+  }
+  .hero .wrap { max-width: 1240px; }
+  .hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #E6F6F1;
+    margin-bottom: 14px;
+  }
+  .hero h1 { font-size: clamp(30px, 5vw, 52px); font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+  .hero p.sub { font-size: clamp(16px, 2vw, 20px); opacity: .92; max-width: 780px; font-weight: 400; }
+  .hero .meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero .meta span {
+    background: rgba(255,255,255,.12);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ── intro / problem card ── */
+  .problem {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 6px 24px rgba(20,33,61,.05);
+  }
+  .problem h2 { font-size: 24px; font-weight: 800; margin-bottom: 12px; color: var(--teal); }
+  .problem p { font-size: 17px; color: #33415F; max-width: 900px; }
+  .problem .stats { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 18px; }
+  .problem .stat {
+    flex: 1 1 180px;
+    background: var(--teal-container);
+    border-radius: 18px;
+    padding: 14px 18px;
+  }
+  .problem .stat b { display: block; font-size: 24px; font-weight: 800; color: var(--on-teal-container); }
+  .problem .stat small { color: var(--muted); font-size: 14px; }
+
+  /* ── choice banner ── */
+  #choiceBanner {
+    position: sticky;
+    top: 12px;
+    z-index: 50;
+    display: none;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 999px;
+    padding: 12px 22px;
+    box-shadow: 0 10px 30px rgba(20,33,61,.35);
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  #choiceBanner.show { display: flex; }
+  #choiceBanner button {
+    background: var(--ember);
+    color: #fff;
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── section titles ── */
+  h2.sec { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+  p.secsub { color: var(--muted); font-size: 16px; margin-bottom: 24px; max-width: 720px; }
+
+  /* ── option cards grid ── */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 26px; }
+
+  .option {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow .25s, transform .25s, border-color .25s;
+  }
+  .option:hover { box-shadow: 0 12px 32px rgba(20,33,61,.08); transform: translateY(-3px); }
+  .option.selected { border: 2px solid var(--teal); box-shadow: 0 0 0 4px rgba(14,124,102,.15), 0 12px 32px rgba(20,33,61,.08); }
+  .option-head {
+    padding: 20px 22px 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .option-head .num {
+    width: 40px; height: 40px;
+    border-radius: 14px;
+    background: var(--teal-container);
+    color: var(--on-teal-container);
+    font-weight: 800;
+    font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .option-head h3 { font-size: 21px; font-weight: 800; line-height: 1.3; }
+  .option-head .dim { color: var(--muted); font-size: 14px; font-weight: 400; }
+  .space {
+    margin: 0 22px 14px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: var(--ember-container);
+    color: var(--on-ember-container);
+    font-size: 14.5px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .space .bar { flex: 1; height: 8px; background: rgba(232,98,43,.18); border-radius: 999px; overflow: hidden; }
+  .space .bar i { display: block; height: 100%; background: var(--ember); border-radius: 999px; }
+
+  /* ── phone mockup ── */
+  .demo {
+    background: var(--paper);
+    padding: 18px 22px 22px;
+    display: flex;
+    justify-content: center;
+  }
+  .phone {
+    width: 260px;
+    background: var(--white);
+    border-radius: 38px;
+    border: 8px solid var(--ink);
+    box-shadow: 0 16px 40px rgba(20,33,61,.22);
+    overflow: hidden;
+    position: relative;
+    min-height: 470px;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone .statusbar {
+    background: var(--paper);
+    height: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 14px;
+    font-size: 9px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .phone .notch { width: 70px; height: 14px; background: var(--ink); border-radius: 0 0 10px 10px; margin: 0 auto; margin-top: -20px; }
+  .phone .appbar {
+    background: var(--white);
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--outline);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .phone .appbar .t { font-size: 15px; font-weight: 800; }
+  .phone .appbar .a { background: var(--teal-container); color: var(--teal); border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 700; }
+  .phone .content { flex: 1; padding: 10px 10px 0; display: flex; flex-direction: column; min-height: 0; }
+  .phone .students { flex: 1; overflow: hidden; padding-bottom: 8px; }
+  .phone .list-label { font-size: 10px; color: var(--muted); margin: 6px 2px 6px; font-weight: 700; }
+  .phone .row {
+    display: flex; align-items: center; gap: 9px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 8px 10px;
+    margin-bottom: 7px;
+  }
+  .phone .row .av {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--teal-container); color: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; flex-shrink: 0;
+  }
+  .phone .row .nm { flex: 1; font-size: 12.5px; font-weight: 700; line-height: 1.3; }
+  .phone .row .bd { font-size: 10px; color: var(--muted); font-weight: 400; }
+  .phone .row .chip-mini {
+    background: var(--ember-container); color: var(--on-ember-container);
+    border-radius: 999px; font-size: 9px; font-weight: 700; padding: 2px 8px; white-space: nowrap;
+  }
+  .phone .row .chip-mini.g { background: var(--teal-container); color: var(--on-teal-container); margin-right: 4px; }
+  .phone .row .tag-group { display: flex; align-items: center; gap: 3px; }
+  .phone .row .chk { width: 14px; height: 14px; border-radius: 5px; border: 1.5px solid var(--outline); background: var(--white); flex-shrink: 0; }
+  .phone .row .chk.on { background: var(--teal); border-color: var(--teal); }
+
+  .phone .fill-toggle {
+    width: 100%; margin: 8px 0; padding: 8px 12px;
+    border-radius: 999px; border: 1.5px solid var(--teal);
+    background: var(--teal-container); color: var(--teal);
+    font-family: var(--font); font-size: 12px; font-weight: 700;
+    cursor: pointer; text-align: center;
+  }
+  .phone .fill-toggle .badge {
+    background: var(--ember); color: #fff; border-radius: 999px;
+    padding: 0 7px; font-size: 10px; margin-right: 5px;
+  }
+
+  /* generic demo controls */
+  .ctl { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
+  .ctl input[type=text] {
+    flex: 1; min-width: 0;
+    border: 1px solid var(--outline); border-radius: 999px;
+    background: var(--white); padding: 7px 12px;
+    font-family: var(--font); font-size: 12px; color: var(--ink);
+    outline: none;
+  }
+  .ctl input[type=text]:focus { border-color: var(--teal); }
+  .iconbtn {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1px solid var(--outline); background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 12px; color: var(--teal);
+    font-family: var(--font); flex-shrink: 0;
+  }
+  .iconbtn .badge {
+    position: absolute; transform: translate(10px,-10px);
+    background: var(--ember); color: #fff; border-radius: 999px;
+    font-size: 8px; font-weight: 700; padding: 0 4px;
+    min-width: 13px; height: 13px; display: flex; align-items: center; justify-content: center;
+  }
+  .iconbtn.wrap-badge { position: relative; }
+
+  /* chips rail (option 1) */
+  .rail { display: flex; gap: 5px; overflow-x: auto; padding: 2px 0 8px; scrollbar-width: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail .rchip {
+    flex-shrink: 0;
+    border: 1px solid var(--outline); background: var(--white); color: var(--ink);
+    border-radius: 999px; padding: 4px 11px; font-size: 11px; font-weight: 700;
+    cursor: pointer; font-family: var(--font); transition: all .15s;
+  }
+  .rail .rchip.on { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .rail .rchip.all { background: var(--teal-container); border-color: transparent; color: var(--teal); }
+  .rail .rchip.all.on { background: var(--teal); color: #fff; }
+
+  /* menu bar (option 3) */
+  .menubar { position: relative; display: flex; gap: 5px; margin-bottom: 7px; }
+  .menubar .mbtn {
+    flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 4px;
+    border: 1px solid var(--outline); background: var(--white);
+    border-radius: 999px; padding: 6px 11px; font-size: 11px; font-weight: 700;
+    cursor: pointer; font-family: var(--font); color: var(--ink);
+  }
+  .menubar .mbtn .arr { font-size: 8px; color: var(--muted); }
+  .menu-pop {
+    position: absolute; top: 34px; right: 0; z-index: 20;
+    min-width: 120px; background: var(--white);
+    border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(20,33,61,.15);
+    padding: 5px; display: none;
+  }
+  .menu-pop.open { display: block; }
+  .menu-pop .mi {
+    padding: 6px 10px; border-radius: 10px; font-size: 11.5px; font-weight: 700;
+    cursor: pointer; text-align: right;
+  }
+  .menu-pop .mi:hover { background: var(--teal-container); }
+  .menu-pop .mi.on { color: var(--teal); }
+
+  /* bottom sheet (option 2) */
+  .sheet-overlay {
+    position: absolute; inset: 0; background: rgba(20,33,61,.35);
+    display: none; flex-direction: column; justify-content: flex-end; z-index: 30;
+  }
+  .sheet-overlay.open { display: flex; }
+  .sheet {
+    background: var(--white); border-radius: 22px 22px 0 0; padding: 14px 14px 10px;
+    animation: rise .25s ease;
+  }
+  @keyframes rise { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .sheet .grip { width: 40px; height: 4px; border-radius: 999px; background: var(--outline); margin: 0 auto 10px; }
+  .sheet h5 { font-size: 13px; font-weight: 800; margin-bottom: 8px; }
+  .sheet label { font-size: 10px; color: var(--muted); font-weight: 700; display: block; margin: 8px 2px 4px; }
+  .sheet select {
+    width: 100%; border: 1px solid var(--outline); border-radius: 12px;
+    padding: 7px 10px; font-family: var(--font); font-size: 12px; background: var(--white); color: var(--ink);
+  }
+  .sheet .apply-btn {
+    width: 100%; margin-top: 12px; border: 0; border-radius: 999px;
+    background: var(--teal); color: #fff; padding: 9px;
+    font-family: var(--font); font-size: 12.5px; font-weight: 700; cursor: pointer;
+  }
+  .sheet .clear-btn {
+    width: 100%; margin-top: 6px; border: 1px solid var(--outline); border-radius: 999px;
+    background: var(--white); color: var(--muted); padding: 7px;
+    font-family: var(--font); font-size: 11px; font-weight: 700; cursor: pointer;
+  }
+
+  /* expandable panel (option 4) */
+  .fold-panel { overflow: hidden; max-height: 0; transition: max-height .3s ease; }
+  .fold-panel.open { max-height: 140px; }
+  .fold-panel .frow { display: flex; gap: 5px; padding-bottom: 8px; }
+  .fold-panel select {
+    flex: 1; border: 1px solid var(--outline); border-radius: 12px;
+    padding: 6px 10px; font-family: var(--font); font-size: 11.5px; background: var(--white); color: var(--ink);
+  }
+  .active-chips { display: flex; flex-wrap: wrap; gap: 4px; padding-bottom: 7px; }
+  .active-chips .achip {
+    background: var(--teal-container); color: var(--on-teal-container);
+    border-radius: 999px; padding: 3px 9px; font-size: 10.5px; font-weight: 700;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .active-chips .achip .x { cursor: pointer; font-weight: 800; color: var(--teal); }
+  .active-chips:empty { display: none; }
+
+  /* content areas */
+  .option-body { padding: 4px 22px 18px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .option-body .desc { font-size: 15.5px; color: #33415F; }
+  .proscons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .proscons .col { border-radius: 16px; padding: 10px 13px; font-size: 13px; }
+  .proscons .col b { font-size: 13.5px; display: block; margin-bottom: 4px; }
+  .proscons .col ul { list-style: none; }
+  .proscons .col li { padding-right: 16px; position: relative; margin-bottom: 3px; color: #33415F; font-size: 12.5px; }
+  .proscons .col li::before { position: absolute; right: 0; top: 0; }
+  .pros .proscons .col.pro { background: var(--teal-container); }
+  .pros .proscons .col.pro b { color: var(--on-teal-container); }
+  .pros .proscons .col.pro li::before { content: '✓'; color: var(--teal); font-weight: 800; }
+  .pros .proscons .col.con { background: var(--ember-container); }
+  .pros .proscons .col.con b { color: var(--on-ember-container); }
+  .pros .proscons .col.con li::before { content: '✕'; color: var(--ember); font-weight: 800; }
+
+  .impl {
+    background: var(--paper); border: 1px dashed var(--outline); border-radius: 14px;
+    padding: 10px 13px; font-size: 12px; color: var(--muted); direction: ltr; text-align: left;
+    font-family: 'Noto Sans Arabic', monospace;
+  }
+  .impl code { font-size: 11.5px; color: var(--teal); }
+
+  .choose {
+    margin-top: auto;
+    display: block; width: 100%;
+    background: var(--white); color: var(--teal);
+    border: 2px solid var(--teal); border-radius: 999px;
+    padding: 11px; font-family: var(--font); font-size: 15px; font-weight: 800;
+    cursor: pointer; transition: all .2s;
+  }
+  .choose:hover { background: var(--teal-container); }
+  .option.selected .choose { background: var(--teal); color: #fff; }
+
+  /* current-state card */
+  .current {
+    background: linear-gradient(160deg, #fff7f2 0%, #fff 100%);
+    border: 1px solid var(--ember);
+    border-radius: var(--radius);
+    padding: 26px 30px;
+    margin-bottom: 44px;
+    display: flex; flex-wrap: wrap; gap: 24px; align-items: center;
+  }
+  .current .txt { flex: 1 1 300px; }
+  .current h3 { font-size: 22px; font-weight: 800; color: var(--on-ember-container); margin-bottom: 8px; }
+  .current p { font-size: 15.5px; color: #6b4b3a; max-width: 640px; }
+  .current .phone.mini { min-height: 0; }
+
+  .foot { text-align: center; color: var(--muted); font-size: 13.5px; margin-top: 34px; }
+
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+    .hero { padding: 40px 0 48px; border-radius: 0 0 28px 28px; }
+    .proscons { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">تطبيق دروس — مقارنة تصاميم</span>
+    <h1>تصميم جديد لفلاتر التبويبات</h1>
+    <p class="sub">نعرض ٥ بدائل لتصميم فلاتر «الطلاب» و«المواد» و«الرسوم» — كلها مصممة لتوفير المساحة العمودية مع بقاء الفلاتر سهلة الاستخدام. جرّب التفاعل داخل كل هاتف ثم اختر المفضل لديك.</p>
+    <div class="meta">
+      <span>📱 متوافقة مع الشاشات الضيقة</span>
+      <span>🎨 تحترم هوية دروس (فُسَيْفِسَاء)</span>
+      <span>♿ إمكانية وصول AA</span>
+      <span>🌙 متوافقة مع سُكون</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div id="choiceBanner">
+    <span>✅ اختيارك الحالي: <b id="bannerName"></b></span>
+    <button onclick="clearChoice()">تغيير الاختيار</button>
+  </div>
+
+  <section class="problem">
+    <h2>لماذا نعيد التصميم؟</h2>
+    <p>التصميم الحالي يضع كل فلتر في <b>حقل قائمة كامل العرض</b> (DropdownButtonFormField) فوق القائمة، فتصبح المساحة قبل ظهور الطلاب/المواد/الرسوم كبيرة جداً — خصوصاً في تبويب «الطلاب» (بحث + فرز + صفان من الحقول) وتبويب «الرسوم» (بطاقة الملخص + فلتر الطالب + صف الشهر والحالة). النتيجة: المستخدم يرى شاشة فلاتر فارغة تقريباً قبل أن يرى أي محتوى.</p>
+    <div class="stats">
+      <div class="stat"><b>~168px</b><small>ارتفاع شريط الفلاتر الحالي في تبويب الطلاب قبل القائمة</small></div>
+      <div class="stat"><b>2-3 حقول</b><small>قوائم كاملة العرض مكدسة فوق بعضها</small></div>
+      <div class="stat"><b>0 فلاتر ظاهرة</b><small>في تبويب «الرسوم» عند أول فتح — يجب تمرير الصفحة لرؤية الحقول</small></div>
+    </div>
+  </section>
+
+  <!-- ───── CURRENT ───── -->
+  <section class="current">
+    <div class="txt">
+      <h3>الإصدار الحالي (قبل التعديل)</h3>
+      <p>بحث في السطر الأول، ثم فرز، ثم صفّان من حقول القوائم كاملة العرض (الصف + المادة). في الشاشات الضيقة تستهلك الفلاتر وحدها ثلث الشاشة.</p>
+    </div>
+    <div class="phone mini" style="width:230px">
+      <div class="statusbar"><span>9:41</span><span>●</span></div>
+      <div class="appbar"><span class="t">الطلاب</span><span class="a">24</span></div>
+      <div class="content">
+        <div class="ctl"><input type="text" placeholder="🔍 بحث عن طالب..."><div class="iconbtn" style="width:auto;padding:0 12px;border-radius:999px">فرز</div></div>
+        <div style="display:flex;gap:5px;margin-bottom:7px">
+          <select style="flex:1;border:1px solid var(--outline);border-radius:12px;padding:7px 10px;font-family:var(--font);font-size:11px;background:var(--white)"><option>الصف: الكل</option></select>
+          <select style="flex:1;border:1px solid var(--outline);border-radius:12px;padding:7px 10px;font-family:var(--font);font-size:11px;background:var(--white)"><option>المادة: الكل</option></select>
+        </div>
+        <div style="display:flex;gap:5px;margin-bottom:7px">
+          <select style="flex:1;border:1px solid var(--outline);border-radius:12px;padding:7px 10px;font-family:var(--font);font-size:11px;background:var(--white)"><option>الشهر: الكل</option></select>
+          <select style="flex:1;border:1px solid var(--outline);border-radius:12px;padding:7px 10px;font-family:var(--font);font-size:11px;background:var(--white)"><option>الحالة: الكل</option></select>
+        </div>
+        <div style="height:60px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;background:var(--paper);border-radius:14px">⬇️ المحتوى يبدأ هنا</div>
+      </div>
+    </div>
+  </section>
+
+  <h2 class="sec">البدائل المقترحة</h2>
+  <p class="secsub">اضغط على العناصر داخل كل هاتف لتجربة الإحساس الفعلي. كل بطاقة تنتهي بزر «أعجبني» لتسجيل اختيارك.</p>
+
+  <div class="grid" id="grid">
+
+    <!-- ═══ OPTION 1: chip rail ═══ -->
+    <article class="option" id="opt1" data-name="شريط الرقاقات (Chip Rail)">
+      <div class="option-head">
+        <div class="num">١</div>
+        <div>
+          <h3>شريط الرقاقات</h3>
+          <span class="dim">Chip Rail — رقاقات قابلة للتمرير أفقياً</span>
+        </div>
+      </div>
+      <div class="space">المساحة: <b>~44px</b> <div class="bar"><i style="width:26%"></i></div> <span>-74% عن الحالي</span></div>
+      <div class="demo">
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span>●</span></div>
+          <div class="appbar"><span class="t">الطلاب</span><span class="a">24</span></div>
+          <div class="content">
+            <div class="ctl"><input type="text" placeholder="🔍 بحث عن طالب..." oninput="filterRows(this)"></div>
+            <div class="rail" id="rail1">
+              <button class="rchip all on" onclick="chipSel(this,1)">الكل</button>
+              <button class="rchip" onclick="chipSel(this,1)">الأول</button>
+              <button class="rchip" onclick="chipSel(this,1)">الثاني</button>
+              <button class="rchip" onclick="chipSel(this,1)">الخامس</button>
+              <button class="rchip" onclick="chipSel(this,1)">السادس</button>
+              <button class="rchip" onclick="chipSel(this,1)">السابع</button>
+            </div>
+            <div class="students">
+              <div class="list-label">عرض الفصل الأول (5)</div>
+              <div class="row"><div class="chk"></div><div class="av">أ</div><div class="nm">أحمد محمود<div class="bd">الأول — علوم</div></div></div>
+              <div class="row"><div class="chk on"></div><div class="av">س</div><div class="nm">سارة خالد<div class="bd">الأول — رياضيات</div></div></div>
+              <div class="row"><div class="chk"></div><div class="av">ع</div><div class="nm">عمر حسن<div class="bd">الأول — عربي</div></div></div>
+              <div class="row"><div class="chk"></div><div class="av">ل</div><div class="nm">لينا عادل<div class="bd">الأول — إنجليزي</div></div></div>
+              <div class="row"><div class="chk"></div><div class="av">م</div><div class="nm">محمد سمير<div class="bd">الأول — رياضيات</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="option-body">
+        <p class="desc">نستبدل حقول القوائم بصف واحد من رقاقات صغيرة قابلة للتمرير أفقياً. كل قيمة فلتر تصبح رقاقة بلمسة واحدة — «الكل» في البداية دائماً للرجوع السريع.</p>
+        <div class="proscons">
+          <div class="col pro"><b>إيجابيات</b><ul>
+            <li>أعلى توفير للمساحة (سطر واحد)</li>
+            <li>رؤية القيم بلمحة دون فتح أي قائمة</li>
+            <li>سرعة الاختيار: ضغطة واحدة لا ضغطتان</li>
+            <li>مناسب للقيم القصيرة (الصفوف)</li>
+          </ul></div>
+          <div class="col con"><b>سلبيات</b><ul>
+            <li>لا يصلح للقوائم الطويلة (الأسماء/الأشهر)</li>
+            <li>التمرير الأفقي يخفّي بعض القيم</li>
+            <li>غير مريح عند وجود ٢٠+ قيمة</li>
+          </ul></div>
+        </div>
+        <div class="impl">Flutter: <code>SingleChildScrollView(scrollDirection: horizontal)</code> + <code>ChoiceChip</code></div>
+        <button class="choose" onclick="choose('opt1')">أعجبني — اختر هذا</button>
+      </div>
+    </article>
+
+    <!-- ═══ OPTION 2: bottom sheet ═══ -->
+    <article class="option" id="opt2" data-name="ورقة الفلاتر السفلية (Bottom Sheet)">
+      <div class="option-head">
+        <div class="num">٢</div>
+        <div>
+          <h3>ورقة الفلاتر السفلية</h3>
+          <span class="dim">Bottom Sheet — زر واحد + ورقة منبثقة</span>
+        </div>
+      </div>
+      <div class="space">المساحة: <b>~40px</b> <div class="bar"><i style="width:24%"></i></div> <span>-76% عن الحالي</span></div>
+      <div class="demo">
+        <div class="phone" style="min-height:470px">
+          <div class="statusbar"><span>9:41</span><span>●</span></div>
+          <div class="appbar"><span class="t">الرسوم</span><span class="a">32</span></div>
+          <div class="content">
+            <div class="ctl">
+              <input type="text" placeholder="🔍 بحث عن طالب...">
+              <div class="iconbtn wrap-badge" onclick="openSheet(this)">⚙<span class="badge" id="fbadge2">2</span></div>
+            </div>
+            <div class="list-label">المحتوى يظهر فوراً بدون فلاتر</div>
+            <div class="students">
+              <div class="row"><div class="av">أ</div><div class="nm">أحمد محمود<div class="bd">الشهر: أيلول — مدفوع</div></div><span class="chip-mini">90$</span></div>
+              <div class="row"><div class="av">س</div><div class="nm">سارة خالد<div class="bd">الشهر: أيلول — غير مدفوع</div></div><span class="chip-mini g">120$</span></div>
+              <div class="row"><div class="av">ع</div><div class="nm">عمر حسن<div class="bd">الشهر: تشرين — جزئي</div></div><span class="chip-mini">50$</span></div>
+              <div class="row"><div class="av">ل</div><div class="nm">لينا عادل<div class="bd">الشهر: أيلول — مدفوع</div></div><span class="chip-mini">90$</span></div>
+            </div>
+            <div class="sheet-overlay" id="sheet2">
+              <div class="sheet">
+                <div class="grip"></div>
+                <h5>الفلاتر</h5>
+                <label>الطالب</label>
+                <select><option>كل الطلاب</option><option>أحمد محمود</option></select>
+                <label>الشهر</label>
+                <select><option selected>أيلول</option><option>تشرين الأول</option></select>
+                <label>الحالة</label>
+                <select><option>غير مدفوع</option><option selected>مدفوع</option></select>
+                <button class="apply-btn" onclick="closeSheet('sheet2')">تطبيق</button>
+                <button class="clear-btn" onclick="resetSheet('sheet2')">مسح الكل</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="option-body">
+        <p class="desc">زر واحد صغير في سطر البحث يعرض عدد الفلاتر النشطة، ويُفتح عند الضغط ورقة سفلية منظمة تجمع كل الفلاتر في مكان واحد مع أزرار «تطبيق» و«مسح الكل».</p>
+        <div class="proscons">
+          <div class="col pro"><b>إيجابيات</b><ul>
+            <li>صفر مساحة دائمة — القائمة كاملة تظهر فوراً</li>
+            <li>مثالي للفلاتر الكثيرة أو الطويلة (أسماء/أشهر)</li>
+            <li>عدّاد يظهر وجود فلاتر نشطة بلمحة</li>
+            <li>نمط Material مألوف لدى المستخدمين</li>
+          </ul></div>
+          <div class="col con"><b>سلبيات</b><ul>
+            <li>يتطلب ضغطتين لتغيير أي فلتر</li>
+            <li>الفلاتر غير مرئية مباشرة قبل الفتح</li>
+            <li>لا يعرض قيماً سريعة للمقارنة</li>
+          </ul></div>
+        </div>
+        <div class="impl">Flutter: <code>showModalBottomSheet</code> + <code>StatefulBuilder</code> للعدّاد</div>
+        <button class="choose" onclick="choose('opt2')">أعجبني — اختر هذا</button>
+      </div>
+    </article>
+
+    <!-- ═══ OPTION 3: menu bar ═══ -->
+    <article class="option" id="opt3" data-name="شريط القوائم المدمج (Compact Menus)">
+      <div class="option-head">
+        <div class="num">٣</div>
+        <div>
+          <h3>شريط القوائم المدمج</h3>
+          <span class="dim">Compact Menus — أزرار قائمة مضغوطة بسطر واحد</span>
+        </div>
+      </div>
+      <div class="space">المساحة: <b>~76px</b> <div class="bar"><i style="width:45%"></i></div> <span>-55% عن الحالي</span></div>
+      <div class="demo">
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span>●</span></div>
+          <div class="appbar"><span class="t">الطلاب</span><span class="a">24</span></div>
+          <div class="content">
+            <div class="ctl"><input type="text" placeholder="🔍 بحث عن طالب..."></div>
+            <div class="menubar" id="menubar3">
+              <button class="mbtn" onclick="toggleMenu(this,'menuGrade')">الصف: الكل <span class="arr">▼</span></button>
+              <button class="mbtn" onclick="toggleMenu(this,'menuSubj')">المادة: الكل <span class="arr">▼</span></button>
+              <button class="mbtn" onclick="toggleMenu(this,'menuSort')">الترتيب: الاسم <span class="arr">▼</span></button>
+              <div class="menu-pop" id="menuGrade">
+                <div class="mi" onclick="pickMenu(this,'menuGrade','الصف: الكل')">الكل</div>
+                <div class="mi" onclick="pickMenu(this,'menuGrade','الصف: الخامس')">الخامس</div>
+                <div class="mi" onclick="pickMenu(this,'menuGrade','الصف: السادس')">السادس</div>
+              </div>
+              <div class="menu-pop" id="menuSubj">
+                <div class="mi" onclick="pickMenu(this,'menuSubj','المادة: الكل')">الكل</div>
+                <div class="mi" onclick="pickMenu(this,'menuSubj','رياضيات')">رياضيات</div>
+                <div class="mi" onclick="pickMenu(this,'menuSubj','علوم')">علوم</div>
+              </div>
+              <div class="menu-pop" id="menuSort">
+                <div class="mi" onclick="pickMenu(this,'menuSort','الترتيب: الاسم')">الاسم</div>
+                <div class="mi" onclick="pickMenu(this,'menuSort','الأحدث أولاً')">الأحدث أولاً</div>
+              </div>
+            </div>
+            <div class="students">
+              <div class="row"><div class="av">أ</div><div class="nm">أحمد محمود<div class="bd">الخامس — علوم</div></div></div>
+              <div class="row"><div class="av">س</div><div class="nm">سارة خالد<div class="bd">الخامس — رياضيات</div></div></div>
+              <div class="row"><div class="av">ع</div><div class="nm">عمر حسن<div class="bd">السادس — عربي</div></div></div>
+              <div class="row"><div class="av">ل</div><div class="nm">لينا عادل<div class="bd">الخامس — إنجليزي</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="option-body">
+        <p class="desc">نحوّل كل فلتر إلى زر مدمج يعرض القيمة الحالية فقط («الصف: الكل») ويفتح قائمة منسدلة صغيرة عند الضغط. كل الفلاتر في سطر مضغوط واحد دون حقول ضخمة.</p>
+        <div class="proscons">
+          <div class="col pro"><b>إيجابيات</b><ul>
+            <li>جميع الفلاتر ظاهرة ومكتشفة بسهولة</li>
+            <li>سطر واحد مضغوط — لا حقول كاملة</li>
+            <li>يعرض القيمة الحالية بوضوح</li>
+            <li>يتوسع بسهولة لأي عدد فلاتر</li>
+          </ul></div>
+          <div class="col con"><b>سلبيات</b><ul>
+            <li>القوائم المنسدلة قد تغطي المحتوى</li>
+            <li>ضيق عند وجود 4+ فلاتر في شاشة صغيرة</li>
+            <li>الأسماء الطويلة قد تُقتطع</li>
+          </ul></div>
+        </div>
+        <div class="impl">Flutter: <code>DropdownMenu</code> أو <code>MenuAnchor</code> + <code>InputChip</code></div>
+        <button class="choose" onclick="choose('opt3')">أعجبني — اختر هذا</button>
+      </div>
+    </article>
+
+    <!-- ═══ OPTION 4: expandable ═══ -->
+    <article class="option" id="opt4" data-name="اللوحة القابلة للطي (Expandable)">
+      <div class="option-head">
+        <div class="num">٤</div>
+        <div>
+          <h3>اللوحة القابلة للطي</h3>
+          <span class="dim">Expandable — تُطوى وتُفتح عند الحاجة</span>
+        </div>
+      </div>
+      <div class="space">المساحة: <b>~44px مطوية</b> <div class="bar"><i style="width:40%"></i></div> <span>-30% ~ -74% حسب الحالة</span></div>
+      <div class="demo">
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span>●</span></div>
+          <div class="appbar"><span class="t">المواد</span><span class="a">12</span></div>
+          <div class="content">
+            <button class="fill-toggle" onclick="toggleFold(this)">الفلاتر <span class="badge" id="fcount4">1</span> ▼</button>
+            <div class="fold-panel" id="fold4">
+              <div class="frow">
+                <select><option>الصف: الكل</option><option>الخامس</option></select>
+                <select><option>المادة: الكل</option><option>رياضيات</option></select>
+              </div>
+            </div>
+            <div class="active-chips" id="chips4">
+              <span class="achip">المادة: رياضيات <span class="x" onclick="this.parentElement.remove();decCount('fcount4')">✕</span></span>
+            </div>
+            <div class="students">
+              <div class="row"><div class="av">ر</div><div class="nm">رياضيات<div class="bd">الخامس — ٨ طلاب</div></div></div>
+              <div class="row"><div class="av">ع</div><div class="nm">علوم<div class="bd">السادس — ٦ طلاب</div></div></div>
+              <div class="row"><div class="av">ع</div><div class="nm">عربي<div class="bd">الخامس — ٧ طلاب</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="option-body">
+        <p class="desc">صف رفيع بعنوان «الفلاتر» يبقى مطوياً افتراضياً، ويُفتح بحركة انسيابية عند الضغط ليعرض الحقول نفسها. الفلاتر النشطة تظهر كرقاقات صغيرة قابلة للإزالة بلمسة.</p>
+        <div class="proscons">
+          <div class="col pro"><b>إيجابيات</b><ul>
+            <li>توازن: مساحة ضئيلة + حقول كاملة عند الحاجة</li>
+            <li>الرقاقات النشطة مرئية دائماً وقابلة للإزالة</li>
+            <li>لا يغطي المحتوى — يدفعه للأسفل بأناقة</li>
+            <li>يعطي إحساساً مألوفاً (نفس الحقول)</li>
+          </ul></div>
+          <div class="col con"><b>سلبيات</b><ul>
+            <li>ضغطة إضافية لفتح الفلاتر</li>
+            <li>الحقول تظهر فقط عند الفتح (اختفاء مؤقت)</li>
+            <li>إعادة فتح بعد كل تغيير قد تزعج</li>
+          </ul></div>
+        </div>
+        <div class="impl">Flutter: <code>AnimatedSize</code> / <code>ExpansionTile</code> + <code>FilterChip</code></div>
+        <button class="choose" onclick="choose('opt4')">أعجبني — اختر هذا</button>
+      </div>
+    </article>
+
+    <!-- ═══ OPTION 5: mode switch ═══ -->
+    <article class="option" id="opt5" data-name="مبدّل الأوضاع (Search/Filter Toggle)">
+      <div class="option-head">
+        <div class="num">٥</div>
+        <div>
+          <h3>مبدّل الأوضاع</h3>
+          <span class="dim">Search/Filter — بحث وفلاتر في نفس السطر تبادلياً</span>
+        </div>
+      </div>
+      <div class="space">المساحة: <b>~48px</b> <div class="bar"><i style="width:29%"></i></div> <span>-71% عن الحالي</span></div>
+      <div class="demo">
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span>●</span></div>
+          <div class="appbar"><span class="t">الطلاب</span><span class="a">24</span></div>
+          <div class="content">
+            <div class="ctl">
+              <div style="display:flex;background:var(--paper);border:1px solid var(--outline);border-radius:999px;padding:3px;flex:1">
+                <button style="flex:1;border:0;border-radius:999px;background:var(--teal);color:#fff;padding:6px;font-family:var(--font);font-size:11px;font-weight:800;cursor:pointer" onclick="modeSwitch(this,'searchBox5','filterBox5',true)">بحث</button>
+                <button style="flex:1;border:0;border-radius:999px;background:transparent;color:var(--muted);padding:6px;font-family:var(--font);font-size:11px;font-weight:700;cursor:pointer" onclick="modeSwitch(this,'searchBox5','filterBox5',false)">فلاتر ⚙</button>
+              </div>
+            </div>
+            <div id="searchBox5"><input type="text" style="width:100%;border:1px solid var(--outline);border-radius:999px;background:var(--white);padding:7px 12px;font-family:var(--font);font-size:12px;color:var(--ink);outline:none" placeholder="🔍 بحث عن طالب..."></div>
+            <div id="filterBox5" style="display:none;gap:5px;margin-bottom:7px">
+              <div style="display:flex;gap:5px">
+                <select style="flex:1;border:1px solid var(--outline);border-radius:12px;padding:7px 10px;font-family:var(--font);font-size:11px;background:var(--white)"><option>الصف: الكل</option></select>
+                <select style="flex:1;border:1px solid var(--outline);border-radius:12px;padding:7px 10px;font-family:var(--font);font-size:11px;background:var(--white)"><option>المادة: الكل</option></select>
+              </div>
+            </div>
+            <div class="students">
+              <div class="row"><div class="av">أ</div><div class="nm">أحمد محمود<div class="bd">الخامس — علوم</div></div></div>
+              <div class="row"><div class="av">س</div><div class="nm">سارة خالد<div class="bd">الخامس — رياضيات</div></div></div>
+              <div class="row"><div class="av">ع</div><div class="nm">عمر حسن<div class="bd">السادس — عربي</div></div></div>
+              <div class="row"><div class="av">ل</div><div class="nm">لينا عادل<div class="bd">الخامس — إنجليزي</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="option-body">
+        <p class="desc">مبدّل منزلق واحد يجمع «البحث» و«الفلاتر» في نفس السطر: وضع البحث يعرض حقل البحث فقط، ووضع الفلاتر يعرض حقول التصفية مكانه — لا يظهر الاثنان معاً أبداً.</p>
+        <div class="proscons">
+          <div class="col pro"><b>إيجابيات</b><ul>
+            <li>سطر واحد دائماً — وضعان متبادلان</li>
+            <li>حقول كاملة مألوفة دون فقدان مساحة</li>
+            <li>واضح ومباشر: «أبحث» أو «أفلتر»</li>
+            <li>يصلح لأي عدد فلاتر داخل الورقة أو السطر</li>
+          </ul></div>
+          <div class="col con"><b>سلبيات</b><ul>
+            <li>لا يمكن البحث والتصفية في نفس اللحظة ظاهرياً</li>
+            <li>تبديل متكرر بين الوضعين قد يزعج</li>
+            <li>يتطلب حفظ حالة البحث عند العودة</li>
+          </ul></div>
+        </div>
+        <div class="impl">Flutter: <code>SegmentedButton</code> + <code>AnimatedSwitcher</code> أو <code>TabBar</code> داخلي</div>
+        <button class="choose" onclick="choose('opt5')">أعجبني — اختر هذا</button>
+      </div>
+    </article>
+
+  </div>
+
+  <p class="foot">اختيارك محفوظ محلياً في متصفحك فقط — جرّب التصاميم ثم أخبر الفريق بالبديل المفضل لتطبيقه في كود دروس.</p>
+</div>
+
+<script>
+  // ── chip rail (opt 1) ──
+  function chipSel(el, id) {
+    const rail = document.getElementById('rail' + id);
+    rail.querySelectorAll('.rchip').forEach(c => c.classList.remove('on'));
+    el.classList.add('on');
+  }
+  function filterRows(input) {
+    // demo only: no-op visual hook
+    input.style.borderColor = input.value ? 'var(--teal)' : '';
+  }
+
+  // ── bottom sheet (opt 2) ──
+  function openSheet(btn) {
+    const phone = btn.closest('.phone');
+    phone.querySelector('.sheet-overlay').classList.add('open');
+  }
+  function closeSheet(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+  function resetSheet(id) {
+    const sheet = document.getElementById(id);
+    sheet.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    closeSheet(id);
+    const badge = document.getElementById('fbadge2');
+    if (badge) badge.textContent = '0';
+  }
+
+  // ── menu bar (opt 3) ──
+  function toggleMenu(btn, menuId) {
+    const bar = btn.closest('.menubar');
+    const menus = bar.querySelectorAll('.menu-pop');
+    menus.forEach(m => m.classList.remove('open'));
+    const menu = document.getElementById(menuId);
+    menu.classList.toggle('open');
+    // position near clicked button
+    menu.style.right = '0';
+  }
+  function pickMenu(item, menuId, label) {
+    const menu = document.getElementById(menuId);
+    const btn = item.closest('.menubar').querySelector('.mbtn');
+    // update the btn that owns this menu
+    const allBtns = item.closest('.menubar').querySelectorAll('.mbtn');
+    allBtns.forEach(b => {
+      if (b.innerText.includes(label.split(':')[0])) { b.innerHTML = label + ' <span class="arr">▼</span>'; }
+    });
+    item.closest('.menu-pop').querySelectorAll('.mi').forEach(m => m.classList.remove('on'));
+    item.classList.add('on');
+    menu.classList.remove('open');
+  }
+
+  // ── expandable (opt 4) ──
+  function toggleFold(btn) {
+    const panel = btn.parentElement.querySelector('.fold-panel');
+    panel.classList.toggle('open');
+    btn.querySelector('.badge').style.display = panel.classList.contains('open') ? 'none' : '';
+  }
+  function decCount(id) {
+    const el = document.getElementById(id);
+    el.textContent = Math.max(0, parseInt(el.textContent || '0') - 1);
+  }
+
+  // ── mode switch (opt 5) ──
+  function modeSwitch(btn, searchId, filterId, isSearch) {
+    const search = document.getElementById(searchId);
+    const filter = document.getElementById(filterId);
+    const group = btn.parentElement;
+    const btns = group.querySelectorAll('button');
+    btns.forEach(b => { b.style.background = 'transparent'; b.style.color = 'var(--muted)'; b.style.fontWeight = '700'; });
+    btn.style.background = 'var(--teal)';
+    btn.style.color = '#fff';
+    btn.style.fontWeight = '800';
+    if (isSearch) {
+      search.style.display = 'block';
+      filter.style.display = 'none';
+    } else {
+      search.style.display = 'none';
+      filter.style.display = 'block';
+    }
+  }
+
+  // ── choice persistence ──
+  function choose(id) {
+    const cards = document.querySelectorAll('.option');
+    cards.forEach(c => c.classList.remove('selected'));
+    const card = document.getElementById(id);
+    card.classList.add('selected');
+    const banner = document.getElementById('choiceBanner');
+    document.getElementById('bannerName').textContent = card.dataset.name;
+    banner.classList.add('show');
+    try { localStorage.setItem('durus-filter-choice', id); } catch (e) {}
+    banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function clearChoice() {
+    document.querySelectorAll('.option').forEach(c => c.classList.remove('selected'));
+    document.getElementById('choiceBanner').classList.remove('show');
+    try { localStorage.removeItem('durus-filter-choice'); } catch (e) {}
+  }
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      const saved = localStorage.getItem('durus-filter-choice');
+      if (saved && document.getElementById(saved)) choose(saved);
+    } catch (e) {}
+  });
+</script>
+
+</body>
+</html>

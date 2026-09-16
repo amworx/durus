@@ -192,6 +192,61 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
     return set.toList()..sort();
   }
 
+// ── filter sheet (compact button + modal bottom sheet) ──
+
+  int get _activeFilterCount =>
+      (_filterStudentId != _allStudents ? 1 : 0) +
+      (_filterMonth != null ? 1 : 0) +
+      (_filterStatus != _allStatuses ? 1 : 0);
+
+  Future<void> _openFilterSheet() async {
+    final l10n = context.l10n;
+    final students = ref.read(studentsProvider).value ?? const <Student>[];
+    final fees = ref.read(feesProvider).value ?? const <Fee>[];
+    final result = await showFilterSheet(
+      context,
+      title: l10n.filterTitle,
+      sections: [
+        FilterSheetSection(
+          id: 'student',
+          label: l10n.homeStudent,
+          current: _filterStudentId,
+          choices: [
+            FilterChoice(_allStudents, l10n.scheduleAllStudents),
+            for (final student in students)
+              FilterChoice(student.id, student.name),
+          ],
+        ),
+        FilterSheetSection(
+          id: 'month',
+          label: l10n.feesMonth,
+          current: _filterMonth,
+          choices: [
+            FilterChoice(null, l10n.filterAllMonths),
+            for (final m in _monthsOf(fees))
+              FilterChoice(m, fmtMonthKey(m)),
+          ],
+        ),
+        FilterSheetSection(
+          id: 'status',
+          label: l10n.feesStatus,
+          current: _filterStatus,
+          choices: [
+            FilterChoice(_allStatuses, l10n.filterAllStatus),
+            for (final status in const ['unpaid', 'partial', 'paid'])
+              FilterChoice(status, _feeStatus(l10n, status).label),
+          ],
+        ),
+      ],
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      _filterStudentId = result['student'] ?? _allStudents;
+      _filterMonth = result['month'];
+      _filterStatus = result['status'] ?? _allStatuses;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -253,69 +308,20 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: DropdownButtonFormField<String>(
-            initialValue: _filterStudentId,
-            decoration: InputDecoration(
-              labelText: l10n.feesSelectStudent,
-              isDense: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            items: [
-              DropdownMenuItem(
-                value: _allStudents,
-                child: Text(l10n.scheduleAllStudents),
-              ),
-              for (final student in students)
-                DropdownMenuItem(value: student.id, child: Text(student.name)),
-            ],
-            onChanged: (value) => setState(() => _filterStudentId = value),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<String?>(
-                  initialValue: _filterMonth,
-                  isDense: true,
-                  decoration: InputDecoration(
-                    labelText: l10n.filterAllMonths,
-                    isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  items: [
-                    const DropdownMenuItem<String?>(value: null, child: Text('')),
-                    for (final m in _monthsOf(fees))
-                      DropdownMenuItem(value: m, child: Text(fmtMonthKey(m))),
-                  ],
-                  onChanged: (v) => setState(() => _filterMonth = v),
+                child: Text(
+                  l10n.filterTitle,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: scheme.onSurface,
+                      ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  initialValue: _filterStatus,
-                  isDense: true,
-                  decoration: InputDecoration(
-                    labelText: l10n.filterAllStatus,
-                    isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  items: [
-                    DropdownMenuItem(
-                      value: _allStatuses,
-                      child: Text(l10n.scheduleAllStudents),
-                    ),
-                    for (final status in const ['unpaid', 'partial', 'paid'])
-                      DropdownMenuItem(
-                        value: status,
-                        child: Text(_feeStatus(l10n, status).label),
-                      ),
-                  ],
-                  onChanged: (value) =>
-                      setState(() => _filterStatus = value ?? _allStatuses),
-                ),
+              FilterButton(
+                activeCount: _activeFilterCount,
+                onPressed: _openFilterSheet,
               ),
             ],
           ),
