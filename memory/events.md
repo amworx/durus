@@ -528,3 +528,63 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - errors: 0
 - lessons: (1) The draft-first + separate-upload + explicit-publish sequence has now worked 3 releases straight with zero timeouts — keep it as the standard. (2) aapt2 versionName check before uploading catches version-skew bugs that app_meta comparison would otherwise surface on users' devices first.
 - tags: release, v1.1.10, github, app_meta, storage, gh-pages, profile, publish
+
+## EVT-20260916-0023
+- id: EVT-20260916-0023
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: seed #2 — more dummy data for the AM Worx school
+- summary: Follow-up to the first AM Worx seed (000000): 5 new students (كريم/نور/يوسف/جنى بلا هاتف/آدم, all assigned to the amworxx teacher), 2 new subjects (علوم/الخامس, لغة إنجليزية/السادس), 6 new slots (Fri/Sat coverage + 2nd Thu slot for سارة), 18 sessions (late-Aug + Sep, all 5 attendance states, topics/homework/rescheduled_to, today's عمر session, one slot-less جنى session for the untimed UI), Sep fees for the 5 + October fees for all 9 (unpaid), 4 payments (incl. محمد Sep completion 20000+25000), 7 tests, 5 notes, 3 announcements (pinned + all/parents/teachers mix), 1 manual teacher notification. Pushed via supabase db push, no errors. REST-verified: students 9, subjects 5, sessions 44 (=26+18), fees 22 (=8+14), payments 10 (=6+4), tests 12 (=5+7), notes 8 (=3+5). Slots 11 and announcements 7 include pre-existing user-created rows (random UUIDs from app testing) — seed rows confirmed present by id. Triggers fired as designed (notifications auto-created).
+- result: success — phones need pull-to-refresh/resume (or v1.1.10 in-app update) to see the new rows
+- files: supabase/migrations/20260916220000_seed_dummy_data_more.sql (pushed live, on disk uncommitted)
+- errors: 0
+- lessons: (1) Always verify seed impact with per-table counts AND spot-check ids — totals alone hid 4 user-created rows (1 slot + 3 announcements) that would have looked like seed duplication. (2) October-fee-style future unpaid rows are the cheapest way to exercise due/overdue filters without touching anyone's real data.
+- tags: seed, dummy-data, supabase, migration, testing
+
+## EVT-20260916-0024
+- id: EVT-20260916-0024
+- timestamp: 2026-09-16
+- mode: REVIEW
+- action: audit confirmation gates on destructive actions
+- summary: User asked whether critical actions are guarded. Traced all 14 API deletes + toggles to UI call sites. Guarded: single delete student/slot/test/subject/fee/payment/announcement/invitation-revoke (shared confirmDialog), all three bulk deletes (count-aware confirm), session undo (dedicated confirm), quick-mark undo (reversal-by-design, 4s window). NOT guarded: (1) teacher activate/deactivate toggle (settings) — instant lockout, no confirm, the one real gap; (2) per-row notification delete — no confirm/undo, trivial impact (regenerable log). Dead-safe: deleteNote and removeSubjectFromStudents have no UI callers; no mass-clear exists (only mark-all-read). No code changed — reported + offered fix.
+- result: review only — 1 real gap (teacher toggle), 1 trivial (notification delete)
+- files: none (read-only audit)
+- errors: 0
+- lessons: (1) Audit deletes from the API layer outward (14 methods) not from the UI inward — guarantees full coverage including dead endpoints. (2) Toggles that lock users out are destructive actions too and need the same confirmDialog treatment as deletes.
+- tags: review, audit, confirmation, destructive, ux-safety
+
+## EVT-20260916-0025
+- id: EVT-20260916-0025
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: guard the two unguarded destructive actions
+- summary: Follow-up to audit EVT-20260916-0024, user-approved. (1) Teacher activate/deactivate toggle now shows confirmDialog with direction-specific copy (disable warns of instant lockout until re-enabled). 5 new l10n keys ×3 files. (2) Notification delete is now delayed-delete with a true 4s undo window: per-id Timer map on the State, server delete fires only on timeout, undo cancels; dispose cancels pending timers. Rationale documented in code: client rows can't be re-created (server-owned), so confirm-then-delete was replaced by delete-with-undo instead. flutter analyze 0 errors (8 pre-existing infos), flutter test 29/29. Uncommitted (no release asked).
+- result: success — every destructive action in the app now has a gate
+- files: src/lib/screens/settings_screen.dart, src/lib/screens/notifications_screen.dart, src/lib/l10n/* (3) (not committed)
+- errors: 0
+- lessons: (1) Undo needs re-creation power — when the client can't re-create (server-owned rows), use delayed-delete + cancel instead of a blocking confirm; same safety, less friction. (2) Gate both directions of a lockout toggle: accidental re-enable of a deliberately-disabled account is also an incident.
+- tags: build, confirmation, teacher-toggle, notifications, undo, l10n
+
+## EVT-20260916-0026
+- id: EVT-20260916-0026
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: fix dead schedule blocks — recurring slots tappable again
+- summary: User reported calendar sessions not clickable after the combo redesign. Root cause: the rewrite wrapped recorded-lesson blocks and untimed rows in InkWell but returned recurring (مكرر) blocks bare — and on most days those dashed blocks ARE the calendar, so the whole screen felt dead. Fix: rec blocks now open the shared session sheet in create mode for the selected day (same flow as Home's tap-anywhere tile), with a pre-check for an existing lesson so a tap can never duplicate. No new strings, no migration. flutter analyze 0 errors (8 pre-existing infos), flutter test 29/29. Uncommitted (no release asked).
+- result: success — every timeline block is actionable again: recorded → detail/edit/undo, unrecorded → record attendance
+- files: src/lib/screens/schedule_screen.dart (not committed)
+- errors: 0
+- lessons: (1) Rebuilds must preserve every tap target of the old design — audit InkWell/GestureDetector parity, not just visuals. (2) Unrecorded slots are the highest-value tap on a calendar (record flow), not dead decoration.
+- tags: build, bugfix, schedule, timeline, session-sheet, ux
+
+## EVT-20260916-0027
+- id: EVT-20260916-0027
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: release v1.1.11 (guards + schedule taps + seed file) end-to-end
+- summary: User said push. Pipeline: tests 29/29 first; bump 1.1.10+1→1.1.11+1 + AppConfig; migration 20260916230000_app_meta_v121.sql pushed + REST-verified; APKs split-per-ABI + aapt2 versionName 1.1.11; 3 commits pushed (1404004 fix, 3a6f179 seed-file, 5832926 release); web to gh-pages; draft → upload --clobber → publish; Storage upserts 3×200; asset 206 + Pages 200. Two scares handled: (1) fresh APKs were byte-identical in size to v1.1.10 — halted, ran flutter clean + full rebuild, sizes STILL identical, so proved freshness directly instead: new string 'إيقاف المعلم؟' found at binary offset 1164283 (UTF-16LE) + aapt2 versionName 1.1.11 + rebuilt web changed only 2 files on gh-pages; shipped only after that proof. (2) release showed draft:true AFTER an earlier verified publish — cause unknown (possibly clobber re-upload), caught by re-verifying post-upload; republished, confirmed draft:false + publishedAt. Includes seed #2 file commit (was live, now tracked).
+- result: success — v1.1.11 live everywhere; phones on ≤1.1.10 auto-detect on resume
+- files: fix + seed + release commits above (pushed); memory below
+- errors: 2 scares, 0 ship-blockers after verification
+- lessons: (1) NEVER trust artifact sizes as a freshness proxy — grep the binary for a new string (UTF-16LE for Dart snapshots) + check versionName; sizes can coincide, bytes don't lie. (2) Always re-verify draft:false AFTER the final upload, never before — uploads can unpublish. (3) flutter clean wipes build/web too — rebuild web + republish gh-pages in the same run.
+- tags: release, v1.1.11, github, app_meta, storage, gh-pages, verification, publish
