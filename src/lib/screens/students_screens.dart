@@ -15,6 +15,7 @@ import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/screens/reports_screen.dart';
+import 'package:durus/widgets/durus_top_bar.dart';
 import 'package:durus/widgets/session_detail_sheet.dart';
 import 'package:durus/widgets/widgets.dart';
 
@@ -29,8 +30,8 @@ class StudentsListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.studentsTitle),
+      appBar: DurusTopBar(
+        title: l10n.studentsTitle,
         actions: [
           IconButton(
             icon: const Icon(Icons.person_add_alt),

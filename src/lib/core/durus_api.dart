@@ -46,6 +46,17 @@ class DurusApi {
     return null;
   }
 
+  /// Updates the current user's own profile. Only writable fields the user
+  /// is allowed to change are sent (full_name); RLS guards `is_manager`.
+  Future<void> updateProfile({required String fullName}) async {
+    final name = fullName.trim();
+    if (name.isEmpty) return;
+    await _c
+        .from('profiles')
+        .update({'full_name': name})
+        .eq('id', _uidOrThrow());
+  }
+
   Future<String?> mySchoolId() async {
     final p = await currentProfile();
     if (p == null) {

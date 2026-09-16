@@ -11,6 +11,8 @@ import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/screens/teachers_screen.dart';
 import 'package:durus/theme/themes.dart';
+import 'package:durus/widgets/durus_top_bar.dart';
+import 'package:durus/widgets/profile_edit_sheet.dart';
 import 'package:durus/widgets/widgets.dart';
 
 /// Settings: profile + mode, appearance (theme/dark mode), teacher
@@ -25,7 +27,7 @@ class SettingsScreen extends ConsumerWidget {
     final profile = profileAsync.valueOrNull;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsTitle)),
+      appBar: DurusTopBar(title: l10n.settingsTitle),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
@@ -135,6 +137,11 @@ class _ProfileSection extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
+            IconButton(
+              tooltip: l10n.profileEditTitle,
+              onPressed: () => showProfileEditSheet(context),
+              icon: const Icon(Icons.edit_outlined),
             ),
           ],
         ),

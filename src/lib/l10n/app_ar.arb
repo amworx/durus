@@ -157,6 +157,54 @@
   "scheduleThisWeek": "هذا الأسبوع",
   "scheduleNoSlots": "لا توجد جلسات هذا اليوم",
   "scheduleRecurringSlot": "موعد متكرر",
+  "scheduleRecurringChip": "مكرر",
+  "scheduleWith": "مع",
+  "scheduleHeroComingNext": "القادم الآن: {time}",
+  "@scheduleHeroComingNext": {
+    "description": "Today hero line naming the next upcoming session time",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleHeroFirstSession": "أول جلسة: {time}",
+  "@scheduleHeroFirstSession": {
+    "description": "Hero line for a non-today day, naming the first session time",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleHeroNoSessions": "لا جلسات هذا اليوم",
+  "scheduleHeroFreeDay": "يوم فارغ — استمتع بوقتك",
+  "scheduleHeroCount": "{count}",
+  "@scheduleHeroCount": {
+    "description": "Sessions count with Arabic pluralization (0/1/2/3-10/11+)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scheduleHeroAfterMinutes": "بعد {minutes} دقيقة",
+  "@scheduleHeroAfterMinutes": {
+    "description": "Countdown chip until the next session, e.g. after 30 minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "scheduleUntimedTitle": "جلسات بدون موعد",
+  "scheduleTabMon": "اثنين",
+  "scheduleTabTue": "ثلاثاء",
+  "scheduleTabWed": "أربعاء",
+  "scheduleTabThu": "خميس",
+  "scheduleTabFri": "جمعة",
+  "scheduleTabSat": "سبت",
+  "scheduleTabSun": "أحد",
 
   "studentsDetailAttendance": "سجل الحضور",
   "studentsNoAttendance": "لا توجد جلسات مسجّلة بعد",
@@ -286,6 +334,8 @@
   "settingsUpdateOpenFolder": "فتح المجلد",
   "settingsUpdatesError": "تعذّر التحقق من التحديثات",
   "settingsProfile": "الحساب",
+  "profileEditTitle": "تعديل الحساب",
+  "profileSaved": "تم تحديث الحساب",
   "settingsLogout": "تسجيل الخروج",
   "settingsTeachers": "المعلمون",
   "settingsAddTeacher": "إضافة معلم جديد",

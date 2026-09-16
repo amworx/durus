@@ -8,8 +8,8 @@ import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/screens/announcements_screen.dart';
-import 'package:durus/screens/notifications_screen.dart';
 import 'package:durus/widgets/announcement_compose_sheet.dart';
+import 'package:durus/widgets/durus_top_bar.dart';
 import 'package:durus/widgets/session_detail_sheet.dart';
 import 'package:durus/widgets/widgets.dart';
 
@@ -20,30 +20,8 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final notifications = ref.watch(teacherNotificationsProvider);
-    final unread =
-        notifications.valueOrNull?.where((n) => !n.isRead).length ?? 0;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.homeTodaySessions),
-        actions: [
-          IconButton(
-            tooltip: l10n.notificationsTitle,
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const NotificationsScreen(),
-              ),
-            ),
-            icon: Badge(
-              isLabelVisible: unread > 0,
-              label: Text('$unread'),
-              child: const Icon(Icons.notifications_outlined),
-            ),
-          ),
-        ],
-      ),
+      appBar: const DurusTopBar(),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),

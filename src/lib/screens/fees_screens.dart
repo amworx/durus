@@ -10,6 +10,7 @@ import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
+import 'package:durus/widgets/durus_top_bar.dart';
 import 'package:durus/widgets/widgets.dart';
 
 // ---------------------------------------------------------------------------
@@ -23,8 +24,8 @@ class FeesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.feesTitle),
+      appBar: DurusTopBar(
+        title: l10n.feesTitle,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),

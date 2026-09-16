@@ -441,6 +441,62 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scheduleRecurringSlot => 'موعد متكرر';
 
   @override
+  String get scheduleRecurringChip => 'مكرر';
+
+  @override
+  String get scheduleWith => 'مع';
+
+  @override
+  String scheduleHeroComingNext(String time) {
+    return 'القادم الآن: $time';
+  }
+
+  @override
+  String scheduleHeroFirstSession(String time) {
+    return 'أول جلسة: $time';
+  }
+
+  @override
+  String get scheduleHeroNoSessions => 'لا جلسات هذا اليوم';
+
+  @override
+  String get scheduleHeroFreeDay => 'يوم فارغ — استمتع بوقتك';
+
+  @override
+  String scheduleHeroCount(int count) {
+    return '$count';
+  }
+
+  @override
+  String scheduleHeroAfterMinutes(int minutes) {
+    return 'بعد $minutes دقيقة';
+  }
+
+  @override
+  String get scheduleUntimedTitle => 'جلسات بدون موعد';
+
+  @override
+  String get scheduleTabMon => 'اثنين';
+
+  @override
+  String get scheduleTabTue => 'ثلاثاء';
+
+  @override
+  String get scheduleTabWed => 'أربعاء';
+
+  @override
+  String get scheduleTabThu => 'خميس';
+
+  @override
+  String get scheduleTabFri => 'جمعة';
+
+  @override
+  String get scheduleTabSat => 'سبت';
+
+  @override
+  String get scheduleTabSun => 'أحد';
+
+  @override
   String get studentsDetailAttendance => 'سجل الحضور';
 
   @override
@@ -699,6 +755,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsProfile => 'الحساب';
+
+  @override
+  String get profileEditTitle => 'تعديل الحساب';
+
+  @override
+  String get profileSaved => 'تم تحديث الحساب';
 
   @override
   String get settingsLogout => 'تسجيل الخروج';

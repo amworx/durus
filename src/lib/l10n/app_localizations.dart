@@ -940,6 +940,102 @@ abstract class AppLocalizations {
   /// **'موعد متكرر'**
   String get scheduleRecurringSlot;
 
+  /// No description provided for @scheduleRecurringChip.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكرر'**
+  String get scheduleRecurringChip;
+
+  /// No description provided for @scheduleWith.
+  ///
+  /// In ar, this message translates to:
+  /// **'مع'**
+  String get scheduleWith;
+
+  /// Today hero line naming the next upcoming session time
+  ///
+  /// In ar, this message translates to:
+  /// **'القادم الآن: {time}'**
+  String scheduleHeroComingNext(String time);
+
+  /// Hero line for a non-today day, naming the first session time
+  ///
+  /// In ar, this message translates to:
+  /// **'أول جلسة: {time}'**
+  String scheduleHeroFirstSession(String time);
+
+  /// No description provided for @scheduleHeroNoSessions.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا جلسات هذا اليوم'**
+  String get scheduleHeroNoSessions;
+
+  /// No description provided for @scheduleHeroFreeDay.
+  ///
+  /// In ar, this message translates to:
+  /// **'يوم فارغ — استمتع بوقتك'**
+  String get scheduleHeroFreeDay;
+
+  /// Sessions count with Arabic pluralization (0/1/2/3-10/11+)
+  ///
+  /// In ar, this message translates to:
+  /// **'{count}'**
+  String scheduleHeroCount(int count);
+
+  /// Countdown chip until the next session, e.g. after 30 minutes
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد {minutes} دقيقة'**
+  String scheduleHeroAfterMinutes(int minutes);
+
+  /// No description provided for @scheduleUntimedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'جلسات بدون موعد'**
+  String get scheduleUntimedTitle;
+
+  /// No description provided for @scheduleTabMon.
+  ///
+  /// In ar, this message translates to:
+  /// **'اثنين'**
+  String get scheduleTabMon;
+
+  /// No description provided for @scheduleTabTue.
+  ///
+  /// In ar, this message translates to:
+  /// **'ثلاثاء'**
+  String get scheduleTabTue;
+
+  /// No description provided for @scheduleTabWed.
+  ///
+  /// In ar, this message translates to:
+  /// **'أربعاء'**
+  String get scheduleTabWed;
+
+  /// No description provided for @scheduleTabThu.
+  ///
+  /// In ar, this message translates to:
+  /// **'خميس'**
+  String get scheduleTabThu;
+
+  /// No description provided for @scheduleTabFri.
+  ///
+  /// In ar, this message translates to:
+  /// **'جمعة'**
+  String get scheduleTabFri;
+
+  /// No description provided for @scheduleTabSat.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبت'**
+  String get scheduleTabSat;
+
+  /// No description provided for @scheduleTabSun.
+  ///
+  /// In ar, this message translates to:
+  /// **'أحد'**
+  String get scheduleTabSun;
+
   /// No description provided for @studentsDetailAttendance.
   ///
   /// In ar, this message translates to:
@@ -1437,6 +1533,18 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'الحساب'**
   String get settingsProfile;
+
+  /// No description provided for @profileEditTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الحساب'**
+  String get profileEditTitle;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحديث الحساب'**
+  String get profileSaved;
 
   /// No description provided for @settingsLogout.
   ///
