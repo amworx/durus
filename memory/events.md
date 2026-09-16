@@ -492,3 +492,39 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - errors: 0 (no gh timeouts this time — draft-first + separate upload worked first try)
 - lessons: (1) Never trust a carried-over session summary for version numbers — git log + pubspec + gh release list are the source of truth (summary said v1.1.6, reality was v1.1.8 → shipped v1.1.9). (2) Verify large asset URLs with curl -r 0-0 -L (range request, expect 206) instead of downloading 20MB. (3) gh-pages publish via temp worktree (add -B, wipe except .git/.nojekyll, copy build/web, commit, push, remove) keeps the master checkout untouched. (4) Supabase Storage upload: POST object path + x-upsert: true header (never ?upsert=true query — it mangles object names).
 - tags: release, v1.1.9, github, app_meta, storage, gh-pages, topbar, schedule, publish
+
+## EVT-20260916-0020
+- id: EVT-20260916-0020
+- timestamp: 2026-09-16
+- mode: RESEARCH + PLAN
+- action: profile rebuild research + interactive mockup showcase
+- summary: User wants full profile rebuild (all details editable, better avatar) + verdicts on 4 free resources. Findings: (1) Mantine user cards = React, no Flutter reuse — design language only (UserInfoAction/UserCardImage/UserInfoIcons map to header/stats/rows). (2) Eldora animated badge = React snippet — re-implementable as ~30-line Flutter pulse. (3) Uiverse wicked-lionfish-36 = 403 + is a BUTTON not an avatar — unportable sight-unseen. (4) Avatune Fatin Verse = no Flutter SDK BUT free keyless REST API verified live (svg 200/12KB, png 200/11KB, seed-deterministic, theme=fatin-verse incl. pawel-olek-man/woman gendered themes); no LICENSE file found (hotlinking is the documented use). Decisions: Avatune-only avatars, email change allowed, theme picker, mockups first. Built docs/profile-design.html (RTL, Zain, same showcase pattern, REAL Avatune imgs per-phone seeds): 5 designs → user asked merge of 1+3 → added 3 merged with gender seg (8 total) → user said keep only new → trimmed to 3 → user kept design 1, gender under picture tab only → 3 new variations off base (hero-green/tabs, horizontal-head/tabs, top-tabs/card). Confirmed: #2-adjacent final asks resolved stepwise. Every stage verified via Chrome CDP (DOM snapshot + JS interaction asserts: theme swap, shuffle, tabs, goSec anchors, choose+persist); only console noise is mockup a11y warnings.
+- result: success — showcase live at localhost:8127/profile-design.html; user confirmed final direction (green hero + tabs, gender in picture tab only)
+- files: docs/profile-design.html (new, untracked — showcases stay uncommitted)
+- errors: 0 (uiverse 403 + wrong-category finding reported honestly instead)
+- lessons: (1) For avatar services, curl the actual bytes (200 + content-type + size) before promising integration — docs lie less than landing pages but bytes don't lie at all. (2) Gendered-character requirement maps cleanly to Avatune's pawel-olek-man/woman themes with seed kept stable. (3) Mockup JS state pitfall: theme-vs-gender needs a BASE store or the override eats the picked style (fixed before it bit).
+- tags: research, profile, avatar, avatune, mockup, showcase, design, rtl
+
+## EVT-20260916-0021
+- id: EVT-20260916-0021
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: profile rebuild — hero + tabs screen, Avatune avatars, credentials editing
+- summary: Implemented confirmed design (green hero + البيانات/الدخول/الصورة tabs). Backend: migration 20260916200000_profile_fields.sql (bio, phone, avatar_theme default fatin-verse, avatar_gender m/f check, avatar_seed) pushed live + REST-verified; NO RLS change needed (profiles_update_self only pins is_manager). Models: Profile +5 fields/fromJson (toJson untouched so existing whitelist test still passes). API: updateProfile becomes nullable-patch (empty bio/phone clear, clearAvatarGender flag), updateEmail via updateUser, updatePassword verifies current by re-sign-in then updates. New core/avatar_url.dart (resolveAvatarTheme gender-wins, teacherAvatarUrl PNG, seed encode, size clamp) and widgets/teacher_avatar.dart (SweepGradient ring + glow, Image.network with initial-letter fallback, PulseDot presence dot). New screens/profile_screen.dart: gradient hero (avatar 84 + status dot, name, email•role, pulsing badge, stats chips students/this-month-sessions/subjects), per-tab stateful forms with didUpdateWidget resync, email notice card, password match/length validation. Top bar avatar + settings profile row now render TeacherAvatar and push ProfileScreen; deleted profile_edit_sheet.dart. l10n: 36 keys ×3 files. Tests: avatar_url_test (3) + Profile new-fields test → 29/29 green; analyze 0 errors (8 pre-existing infos). NOT committed/pushed (no release asked).
+- result: success — feature complete locally, migration live; needs on-device visual pass (no stored test-account password for CDP login)
+- files: supabase/migrations/20260916200000_profile_fields.sql (pushed), src/lib/models/models.dart, src/lib/core/durus_api.dart, src/lib/core/avatar_url.dart (new), src/lib/widgets/teacher_avatar.dart (new), src/lib/screens/profile_screen.dart (new), src/lib/widgets/durus_top_bar.dart, src/lib/screens/settings_screen.dart, src/lib/l10n/* (3), src/test/avatar_url_test.dart (new), src/test/widget_test.dart (not committed)
+- errors: 2 minor self-fixed (Uri.encodeQueryComponent emits + not %20 — test expectation wrong, not code; dangling_library_doc_comments after dropping library; — converted header to // comments)
+- lessons: (1) profiles_update_self's with-check pins is_manager only — new self-editable columns need zero policy work; verify by reading the policy, don't assume. (2) updateUser(email:) keeps the old session until the new address confirms — say so in the UI notice or users think it failed. (3) Verifying current password via signInWithPassword before updateUser makes a "current password" field honest instead of theater.
+- tags: build, profile, avatar, avatune, auth, email, password, l10n, migration, rtl
+
+## EVT-20260916-0022
+- id: EVT-20260916-0022
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: release v1.1.10 (profile rebuild) end-to-end
+- summary: User confirmed the release. Pipeline, zero failures: tests 29/29 green on release code first; version bump 1.1.9+1→1.1.10+1 + AppConfig 1.1.10; migration 20260916210000_app_meta_v120.sql pushed (Arabic notes: hero profile screen, Avatune avatars + gender/style, bio/phone, email+password change), REST-verified latest_release.version = 1.1.10; APKs split-per-ABI (arm64 20.6MB / v7a 18.5MB / x64 22.1MB), aapt2 confirms versionName 1.1.10; two commits pushed (ecfb8a3 feat 14 files incl. migration 020 + sheet deletion, dfa9611 release); web --base-href /durus/ to gh-pages via temp worktree (38b7bb9); gh release create v1.1.10 --draft → upload --clobber (sizes match builds) → edit --draft=false published; Storage durus-apk upserts 3×200 + HEADs 200 (x-upsert header, no repeat of the name-mangle bug); final verify asset 206 + Pages 200. Installed 1.1.9 devices auto-detect on next resume.
+- result: success — v1.1.10 live everywhere (DB meta, master, web, GitHub release, fast links)
+- files: src/pubspec.yaml, src/lib/core/config.dart, supabase/migrations/20260916210000_app_meta_v120.sql + full v1.1.10 feature set from EVT-20260916-0021 (committed ecfb8a3 + dfa9611, pushed)
+- errors: 0
+- lessons: (1) The draft-first + separate-upload + explicit-publish sequence has now worked 3 releases straight with zero timeouts — keep it as the standard. (2) aapt2 versionName check before uploading catches version-skew bugs that app_meta comparison would otherwise surface on users' devices first.
+- tags: release, v1.1.10, github, app_meta, storage, gh-pages, profile, publish
