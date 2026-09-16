@@ -9,11 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:durus/core/durus_api.dart';
 import 'package:durus/core/links.dart';
 import 'package:durus/core/utils.dart';
+import 'package:durus/core/attendance.dart';
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/screens/reports_screen.dart';
+import 'package:durus/widgets/session_detail_sheet.dart';
 import 'package:durus/widgets/widgets.dart';
 
 // ---------------------------------------------------------------------------
@@ -680,6 +682,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
       widget.studentId,
     );
     final subjects = subjectsAsync.value ?? const <Subject>[];
+    final slots = slotsAsync.value ?? const <RecurringSlot>[];
 
     return Scaffold(
       appBar: AppBar(title: Text(cachedStudent?.name ?? l10n.studentsTitle)),
@@ -799,7 +802,14 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                   return Column(
                     children: [
                       for (final lesson in list.take(10))
-                        _attendanceTile(context, l10n, subjects, lesson),
+                        _attendanceTile(
+                          context,
+                          l10n,
+                          subjects,
+                          lesson,
+                          slots: slots,
+                          studentName: student.name,
+                        ),
                     ],
                   );
                 }),
@@ -1149,32 +1159,75 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
     BuildContext context,
     AppLocalizations l10n,
     List<Subject> subjects,
-    LessonSession lesson,
-  ) {
+    LessonSession lesson, {
+    required List<RecurringSlot> slots,
+    required String studentName,
+  }) {
     final subjectName = _subjectName(subjects, lesson.subjectId);
     final theme = Theme.of(context);
-    final (label, color) = _attendanceStyle(l10n, lesson.attendance);
+    final scheme = theme.colorScheme;
+    final style = attendanceStyle(l10n, scheme, lesson.attendance);
     final titleParts = <String>[
       lesson.date,
       if (subjectName.isNotEmpty) subjectName,
     ];
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              titleParts.join(' • '),
-              style: theme.textTheme.bodyMedium,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    return InkWell(
+      onTap: () => _openAttendanceDetail(
+        context,
+        l10n,
+        lesson,
+        studentName,
+        subjectName,
+        slots,
+      ),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                titleParts.join(' • '),
+                style: theme.textTheme.bodyMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          StatusChip(label: label, color: color),
-        ],
+            const SizedBox(width: 8),
+            StatusChip(label: style.label, color: style.color),
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _openAttendanceDetail(
+    BuildContext context,
+    AppLocalizations l10n,
+    LessonSession lesson,
+    String studentName,
+    String subjectName,
+    List<RecurringSlot> slots,
+  ) async {
+    RecurringSlot? slot;
+    for (final s in slots) {
+      if (s.id == lesson.slotId) {
+        slot = s;
+        break;
+      }
+    }
+    final result = await showSessionDetailSheet(
+      context,
+      slot: slot,
+      lesson: lesson,
+      studentName: studentName,
+      subjectName: subjectName,
+      date: lesson.date,
+    );
+    if (result != null) {
+      ref.invalidate(lessonsProvider);
+      ref.invalidate(teacherNotificationsProvider);
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -1700,15 +1753,6 @@ String _dayLabel(int dayOfWeek) {
   final index = dayOfWeek - 1;
   if (index < 0 || index >= arabicWeekdays.length) return '';
   return arabicWeekdays[index];
-}
-
-(String, Color) _attendanceStyle(AppLocalizations l10n, String attendance) {
-  return switch (attendance) {
-    'present' => (l10n.homeMarkPresent, Colors.green),
-    'absent' => (l10n.homeMarkAbsent, Colors.red),
-    'rescheduled' => (l10n.homeMarkRescheduled, Colors.orange),
-    _ => (attendance, Colors.blueGrey),
-  };
 }
 
 String _testTypeLabel(AppLocalizations l10n, String? type) {

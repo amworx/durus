@@ -260,6 +260,9 @@ class LessonSession {
     required this.date,
     required this.attendance,
     this.note,
+    this.topics,
+    this.homework,
+    this.rescheduledTo,
     this.recordedBy,
     this.createdAt,
   });
@@ -270,8 +273,12 @@ class LessonSession {
   final String? subjectId;
   final String? slotId;
   final String date; // 'YYYY-MM-DD'
-  final String attendance; // 'present' | 'absent' | 'rescheduled'
+  // 'present' | 'absent' | 'late' | 'rescheduled' | 'cancelled'
+  final String attendance;
   final String? note;
+  final String? topics; // الموضوع المُنجز
+  final String? homework; // الواجب
+  final String? rescheduledTo; // 'YYYY-MM-DD' when مؤجّلة
   final String? recordedBy;
   final DateTime? createdAt;
 
@@ -284,6 +291,9 @@ class LessonSession {
         date: json['date'] as String,
         attendance: json['attendance'] as String,
         note: json['note'] as String?,
+        topics: json['topics'] as String?,
+        homework: json['homework'] as String?,
+        rescheduledTo: json['rescheduled_to'] as String?,
         recordedBy: json['recorded_by'] as String?,
         createdAt: _parseTs(json['created_at']),
       );
@@ -299,6 +309,9 @@ class LessonSession {
       'date': date,
       'attendance': attendance,
       if (note != null) 'note': note,
+      if (topics != null) 'topics': topics,
+      if (homework != null) 'homework': homework,
+      if (rescheduledTo != null) 'rescheduled_to': rescheduledTo,
       if (recordedBy != null) 'recorded_by': recordedBy,
       if (created != null) 'created_at': created.toIso8601String(),
     };
@@ -575,31 +588,48 @@ class Announcement {
     required this.id,
     required this.schoolId,
     this.authorId,
+    this.title,
     required this.body,
+    this.audience = 'all',
+    this.pinned = false,
+    this.expiresAt,
     this.createdAt,
   });
 
   final String id;
   final String schoolId;
   final String? authorId;
+  final String? title;
   final String body;
+  final String audience; // 'all' | 'parents' | 'teachers'
+  final bool pinned;
+  final DateTime? expiresAt;
   final DateTime? createdAt;
 
   factory Announcement.fromJson(Map<String, dynamic> json) => Announcement(
         id: json['id'] as String,
         schoolId: json['school_id'] as String,
         authorId: json['author_id'] as String?,
+        title: json['title'] as String?,
         body: json['body'] as String,
+        audience: json['audience'] as String? ?? 'all',
+        pinned: json['pinned'] as bool? ?? false,
+        expiresAt: _parseTs(json['expires_at']),
         createdAt: _parseTs(json['created_at']),
       );
 
   Map<String, dynamic> toJson() {
     final created = createdAt;
+    final expires = expiresAt;
     return {
       'id': id,
       'school_id': schoolId,
       if (authorId != null) 'author_id': authorId,
+      if (title != null) 'title': title,
       'body': body,
+      'audience': audience,
+      'pinned': pinned,
+      if (expires != null) 'expires_at': expires.toIso8601String(),
       if (created != null) 'created_at': created.toIso8601String(),
     };
   }
@@ -715,13 +745,17 @@ class AttendanceSummary {
     this.total = 0,
     this.present = 0,
     this.absent = 0,
+    this.late = 0,
     this.rescheduled = 0,
+    this.cancelled = 0,
   });
 
   final int total;
   final int present;
   final int absent;
+  final int late;
   final int rescheduled;
+  final int cancelled;
 
   double get presentPercent => total == 0 ? 0 : (present / total * 100);
 
@@ -730,14 +764,18 @@ class AttendanceSummary {
         total: json['total'] as int? ?? 0,
         present: json['present'] as int? ?? 0,
         absent: json['absent'] as int? ?? 0,
+        late: json['late'] as int? ?? 0,
         rescheduled: json['rescheduled'] as int? ?? 0,
+        cancelled: json['cancelled'] as int? ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
         'total': total,
         'present': present,
         'absent': absent,
+        'late': late,
         'rescheduled': rescheduled,
+        'cancelled': cancelled,
       };
 }
 

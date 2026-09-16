@@ -326,16 +326,20 @@ class DurusApi {
   Future<List<LessonSession>> lessons() async =>
       _mapList(await _c.from('sessions').select(), LessonSession.fromJson);
 
-  Future<void> recordAttendance({
+  /// Upserts the attendance row and returns its id (used for the undo action).
+  Future<String?> recordAttendance({
     required String studentId,
     String? subjectId,
     String? slotId,
     required String date,
     required String attendance,
     String? note,
+    String? topics,
+    String? homework,
+    String? rescheduledTo,
   }) async {
     final school = await _schoolIdOrThrow();
-    await _c.from('sessions').upsert({
+    final res = await _c.from('sessions').upsert({
       'school_id': school,
       'student_id': studentId,
       'subject_id': ?subjectId,
@@ -343,15 +347,38 @@ class DurusApi {
       'date': date,
       'attendance': attendance,
       'note': ?note,
+      'topics': ?topics,
+      'homework': ?homework,
+      'rescheduled_to': ?rescheduledTo,
       'recorded_by': _uidOrThrow(),
-    }, onConflict: 'student_id,slot_id,date');
+    }, onConflict: 'student_id,slot_id,date').select('id').maybeSingle();
+    if (res is Map<String, dynamic>) {
+      return res['id'] as String?;
+    }
+    return null;
   }
 
-  Future<void> updateLesson(String id, {String? attendance, String? note}) async {
+  Future<void> updateLesson(
+    String id, {
+    String? attendance,
+    String? note,
+    String? topics,
+    String? homework,
+    String? rescheduledTo,
+  }) async {
     await _c.from('sessions').update({
-      'attendance': ?attendance,
+      if (attendance != null) 'attendance': attendance,
       'note': ?note,
+      'topics': ?topics,
+      'homework': ?homework,
+      'rescheduled_to': ?rescheduledTo,
     }).eq('id', id);
+  }
+
+  /// UNDO primitive: removes the recorded attendance row entirely, returning
+  /// the session to "not marked yet".
+  Future<void> deleteLesson(String id) async {
+    await _c.from('sessions').delete().eq('id', id);
   }
 
   // ---------- Fees / payments ----------
@@ -483,18 +510,103 @@ class DurusApi {
         Announcement.fromJson,
       );
 
-  Future<void> createAnnouncement(String body) async {
+  Future<void> createAnnouncement({
+    String? title,
+    required String body,
+    String audience = 'all',
+    bool pinned = false,
+    String? expiresAt,
+  }) async {
     final school = await _schoolIdOrThrow();
     await _c.from('announcements').insert({
       'school_id': school,
       'author_id': _uidOrThrow(),
+      'title': ?title,
       'body': body,
+      'audience': audience,
+      'pinned': pinned,
+      'expires_at': ?expiresAt,
     });
+  }
+
+  Future<void> updateAnnouncement(
+    String id, {
+    String? title,
+    String? body,
+    String? audience,
+    bool? pinned,
+    String? expiresAt,
+  }) async {
+    await _c.from('announcements').update({
+      if (title != null) 'title': title,
+      if (body != null) 'body': body,
+      if (audience != null) 'audience': audience,
+      if (pinned != null) 'pinned': pinned,
+      'expires_at': ?expiresAt,
+    }).eq('id', id);
+  }
+
+  Future<void> setAnnouncementPinned(String id, bool pinned) async {
+    await _c.from('announcements').update({'pinned': pinned}).eq('id', id);
   }
 
   Future<void> deleteAnnouncement(String id) async {
     await _c.from('announcements').delete().eq('id', id);
   }
+
+  // ---------- Notification prefs ----------
+
+  /// Returns per-category on/off for the current teacher; missing rows
+  /// default to on.
+  Future<Map<String, bool>> notificationPrefs() async {
+    final uid = currentUserId();
+    if (uid == null) {
+      return _defaultPrefs();
+    }
+    final data = await _c
+        .from('notification_prefs')
+        .select()
+        .eq('user_id', uid)
+        .maybeSingle();
+    if (data is! Map<String, dynamic>) {
+      return _defaultPrefs();
+    }
+    return _defaultPrefs()
+      ..['attendance'] = data['attendance'] as bool? ?? true
+      ..['note'] = data['note'] as bool? ?? true
+      ..['test'] = data['test'] as bool? ?? true
+      ..['fee'] = data['fee'] as bool? ?? true
+      ..['payment'] = data['payment'] as bool? ?? true
+      ..['announcement'] = data['announcement'] as bool? ?? true
+      ..['teacher'] = data['teacher'] as bool? ?? true
+      ..['general'] = data['general'] as bool? ?? true;
+  }
+
+  Future<void> upsertNotificationPrefs(Map<String, bool> prefs) async {
+    await _c.from('notification_prefs').upsert({
+      'user_id': _uidOrThrow(),
+      'attendance': prefs['attendance'] ?? true,
+      'note': prefs['note'] ?? true,
+      'test': prefs['test'] ?? true,
+      'fee': prefs['fee'] ?? true,
+      'payment': prefs['payment'] ?? true,
+      'announcement': prefs['announcement'] ?? true,
+      'teacher': prefs['teacher'] ?? true,
+      'general': prefs['general'] ?? true,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Map<String, bool> _defaultPrefs() => {
+        'attendance': true,
+        'note': true,
+        'test': true,
+        'fee': true,
+        'payment': true,
+        'announcement': true,
+        'teacher': true,
+        'general': true,
+      };
 
   // ---------- Notifications ----------
 
@@ -512,6 +624,10 @@ class DurusApi {
       return;
     }
     await _c.from('notifications').update({'is_read': true}).inFilter('id', ids);
+  }
+
+  Future<void> deleteTeacherNotification(String id) async {
+    await _c.from('notifications').delete().eq('id', id);
   }
 
   // ---------- Parent portal (token RPCs) ----------

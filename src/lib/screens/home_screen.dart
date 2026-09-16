@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:durus/core/attendance.dart';
 import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
+import 'package:durus/screens/announcements_screen.dart';
 import 'package:durus/screens/notifications_screen.dart';
+import 'package:durus/widgets/announcement_compose_sheet.dart';
+import 'package:durus/widgets/session_detail_sheet.dart';
 import 'package:durus/widgets/widgets.dart';
 
 /// Home dashboard: today's sessions with one-tap attendance, plus the latest
@@ -123,22 +127,106 @@ class _TodaySessionsCard extends ConsumerWidget {
     final studentsById = {for (final s in students) s.id: s};
     final subjectsById = {for (final s in subjects) s.id: s};
     final todayIso = _isoToday();
+    final slotIds = {for (final s in todaySlots) s.id};
+    final recorded = lessons
+        .where((l) => l.date == todayIso && slotIds.contains(l.slotId))
+        .length;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        _TodayStatsChips(
+          total: todaySlots.length,
+          recorded: recorded,
+        ),
+        const SizedBox(height: 12),
         for (final slot in todaySlots) ...[
           _SessionTile(
             slot: slot,
-            studentName: studentsById[slot.studentId]?.name ?? l10n.commonNone,
+            studentName:
+                studentsById[slot.studentId]?.name ?? l10n.commonNone,
             subjectName:
                 subjectsById[slot.subjectId]?.displayLabel ?? l10n.commonNone,
             lesson: _lessonFor(lessons, slot.id, todayIso),
-            onMark: (attendance) =>
-                _markAttendance(context, ref, l10n, slot, todayIso, attendance),
+            onTap: () => _openDetail(
+              context,
+              ref,
+              l10n,
+              slot,
+              studentsById[slot.studentId]?.name ?? l10n.commonNone,
+              subjectsById[slot.subjectId]?.displayLabel ?? l10n.commonNone,
+              todayIso,
+            ),
+            onQuickMark: (attendance) =>
+                _quickMark(context, ref, l10n, slot, todayIso, attendance),
           ),
           if (slot != todaySlots.last) const SizedBox(height: 8),
         ],
+      ],
+    );
+  }
+}
+
+/// Compact chips: total / recorded / remaining for today.
+class _TodayStatsChips extends StatelessWidget {
+  const _TodayStatsChips({required this.total, required this.recorded});
+
+  final int total;
+  final int recorded;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final remaining = total - recorded;
+    final chip = ({
+      required String label,
+      required IconData icon,
+      required int value,
+      Color? color,
+    }) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHigh.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: color ?? scheme.onSurfaceVariant),
+            const SizedBox(width: 6),
+            Text(
+              '$label $value',
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
+    };
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      children: [
+        chip(
+          label: l10n.homeTodayTotal,
+          icon: Icons.event_outlined,
+          value: total,
+        ),
+        chip(
+          label: l10n.homeTodayRecorded,
+          icon: Icons.check_circle_outline,
+          value: recorded,
+          color: const Color(0xFF2E7D32),
+        ),
+        chip(
+          label: l10n.homeTodayRemaining,
+          icon: Icons.schedule,
+          value: remaining,
+        ),
       ],
     );
   }
@@ -178,6 +266,7 @@ class _AnnouncementsCard extends ConsumerWidget {
               });
             final recent = sorted.take(3).toList();
             for (final item in recent) {
+              final heading = item.title ?? item.body;
               children.add(
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +278,45 @@ class _AnnouncementsCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text(item.body, style: theme.textTheme.bodyMedium),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  heading,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: item.title != null
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                              if (item.pinned) ...[
+                                const SizedBox(width: 6),
+                                Icon(
+                                  Icons.push_pin,
+                                  size: 14,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ],
+                            ],
+                          ),
+                          if (item.title != null &&
+                              item.body != item.title) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              item.body,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -208,13 +335,24 @@ class _AnnouncementsCard extends ConsumerWidget {
           }
           children.add(const SizedBox(height: 4));
           children.add(
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
-                onPressed: () => _compose(context, ref, l10n),
-                icon: const Icon(Icons.add, size: 18),
-                label: Text(l10n.homeAddAnnouncement),
-              ),
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: () => _compose(context, ref, l10n),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(l10n.homeAddAnnouncement),
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const AnnouncementsScreen(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.arrow_back_ios_new, size: 16),
+                  label: Text(l10n.announcementsManageAll),
+                ),
+              ],
             ),
           );
           return Column(
@@ -232,18 +370,19 @@ class _AnnouncementsCard extends ConsumerWidget {
     WidgetRef ref,
     AppLocalizations l10n,
   ) async {
-    final body = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => const _AnnouncementSheet(),
-    );
-    final text = body?.trim() ?? '';
-    if (text.isEmpty || !context.mounted) {
+    final draft = await showAnnouncementComposeSheet(context);
+    if (draft == null || !context.mounted) {
       return;
     }
     final messenger = ScaffoldMessenger.of(context);
     try {
-      await ref.read(apiProvider).createAnnouncement(text);
+      await ref.read(apiProvider).createAnnouncement(
+            title: draft.title,
+            body: draft.body,
+            audience: draft.audience,
+            pinned: draft.pinned,
+            expiresAt: draft.expiresAt,
+          );
       ref.invalidate(announcementsProvider);
       ref.invalidate(teacherNotificationsProvider);
       messenger.showSnackBar(
@@ -263,78 +402,22 @@ class _AnnouncementsCard extends ConsumerWidget {
   }
 }
 
-/// Bottom sheet used to compose a new announcement.
-class _AnnouncementSheet extends ConsumerStatefulWidget {
-  const _AnnouncementSheet();
-
-  @override
-  ConsumerState<_AnnouncementSheet> createState() => _AnnouncementSheetState();
-}
-
-class _AnnouncementSheetState extends ConsumerState<_AnnouncementSheet> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final theme = Theme.of(context);
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.homeAddAnnouncement, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _controller,
-              autofocus: true,
-              minLines: 3,
-              maxLines: 6,
-              textInputAction: TextInputAction.newline,
-              decoration: InputDecoration(
-                hintText: l10n.homeAnnouncementHint,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(_controller.text),
-              child: Text(l10n.commonSave),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _SessionTile extends StatelessWidget {
   const _SessionTile({
     required this.slot,
     required this.studentName,
     required this.subjectName,
     required this.lesson,
-    required this.onMark,
+    required this.onTap,
+    required this.onQuickMark,
   });
 
   final RecurringSlot slot;
   final String studentName;
   final String subjectName;
   final LessonSession? lesson;
-  final ValueChanged<String> onMark;
+  final VoidCallback onTap;
+  final ValueChanged<String> onQuickMark;
 
   @override
   Widget build(BuildContext context) {
@@ -343,136 +426,176 @@ class _SessionTile extends StatelessWidget {
     final scheme = theme.colorScheme;
     final recordedLesson = lesson;
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHigh.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    final status = recordedLesson == null
+        ? null
+        : attendanceStyle(l10n, scheme, recordedLesson.attendance);
+
+    return Material(
+      color: scheme.surfaceContainerHigh.withValues(alpha: 0.4),
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                timeFromMinutes(slot.startMinutes),
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor:
+                        scheme.primary.withValues(alpha: 0.15),
+                    child: Text(
+                      _initialOf(studentName),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          studentName,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subjectName,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  if (status != null)
+                    StatusChip(label: status.label, color: status.color)
+                  else
+                    const Icon(Icons.touch_app_outlined,
+                        size: 18, color: Colors.grey),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  studentName,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleSmall,
-                ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.schedule,
+                      size: 16, color: scheme.onSurfaceVariant),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${timeFromMinutes(slot.startMinutes)} - '
+                    '${timeFromMinutes(slot.endMinutes)}',
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+                  const Spacer(),
+                  Icon(Icons.place_outlined,
+                      size: 16, color: scheme.onSurfaceVariant),
+                  const SizedBox(width: 6),
+                  Text(
+                    slot.location == 'student_home'
+                        ? l10n.studentsLocationHome
+                        : l10n.studentsLocationTeacher,
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+                ],
               ),
-              if (recordedLesson != null)
-                StatusChip(
-                  label: _attendanceLabel(l10n, recordedLesson.attendance),
-                  color: _attendanceColor(recordedLesson.attendance, scheme),
-                ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(
-                Icons.auto_stories_outlined,
-                size: 16,
-                color: scheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                subjectName,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: scheme.onSurfaceVariant),
-              ),
-              const Spacer(),
-              Icon(
-                Icons.place_outlined,
-                size: 16,
-                color: scheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                slot.location == 'student_home'
-                    ? l10n.studentsLocationHome
-                    : l10n.studentsLocationTeacher,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: scheme.onSurfaceVariant),
-              ),
-            ],
-          ),
-          if (recordedLesson == null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _MarkButton(
-                  label: l10n.homeMarkPresent,
-                  color: const Color(0xFF2E7D32),
-                  onTap: () => onMark('present'),
-                ),
-                const SizedBox(width: 8),
-                _MarkButton(
-                  label: l10n.homeMarkAbsent,
-                  color: scheme.error,
-                  onTap: () => onMark('absent'),
-                ),
-                const SizedBox(width: 8),
-                _MarkButton(
-                  label: l10n.homeMarkRescheduled,
-                  color: const Color(0xFFEF6C00),
-                  onTap: () => onMark('rescheduled'),
+              if (recordedLesson != null &&
+                  (recordedLesson.note?.isNotEmpty ??
+                      false)) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.sticky_note_2_outlined,
+                        size: 14, color: scheme.outline),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        recordedLesson.note!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: scheme.onSurfaceVariant),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-          ],
-        ],
+              if (recordedLesson == null) ...[
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 40,
+                  child: Row(
+                    children: [
+                      for (final state in kAttendanceStates) ...[
+                        Expanded(
+                          child: _QuickMarkButton(
+                            style: attendanceStyle(l10n, scheme, state),
+                            onTap: () => onQuickMark(state),
+                          ),
+                        ),
+                        if (state != kAttendanceStates.last)
+                          const SizedBox(width: 6),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  String _attendanceLabel(AppLocalizations l10n, String attendance) {
-    return switch (attendance) {
-      'present' => l10n.homeMarkPresent,
-      'absent' => l10n.homeMarkAbsent,
-      _ => l10n.homeMarkRescheduled,
-    };
-  }
-
-  Color _attendanceColor(String attendance, ColorScheme scheme) {
-    return switch (attendance) {
-      'present' => const Color(0xFF2E7D32),
-      'absent' => scheme.error,
-      _ => const Color(0xFFEF6C00),
-    };
+  String _initialOf(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      return '?';
+    }
+    return trimmed.characters.first;
   }
 }
 
-class _MarkButton extends StatelessWidget {
-  const _MarkButton({
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+class _QuickMarkButton extends StatelessWidget {
+  const _QuickMarkButton({required this.style, required this.onTap});
 
-  final String label;
-  final Color color;
+  final AttendanceStyle style;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: color,
-          side: BorderSide(color: color.withValues(alpha: 0.4)),
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          minimumSize: const Size(0, 36),
-        ),
-        child: Text(label, style: const TextStyle(fontSize: 13)),
+    return OutlinedButton(
+      onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: style.color,
+        side: BorderSide(color: style.color.withValues(alpha: 0.4)),
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+        minimumSize: const Size(0, 36),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(style.icon, size: 14),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              style.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 11),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -491,7 +614,7 @@ LessonSession? _lessonFor(
   return null;
 }
 
-Future<void> _markAttendance(
+Future<void> _quickMark(
   BuildContext context,
   WidgetRef ref,
   AppLocalizations l10n,
@@ -499,26 +622,69 @@ Future<void> _markAttendance(
   String date,
   String attendance,
 ) async {
+  final api = ref.read(apiProvider);
   final messenger = ScaffoldMessenger.of(context);
   try {
-    await ref.read(apiProvider).recordAttendance(
+    final id = await api.recordAttendance(
           studentId: slot.studentId,
           subjectId: slot.subjectId,
           slotId: slot.id,
           date: date,
           attendance: attendance,
-        );
+        ) ??
+        '';
     ref.invalidate(lessonsProvider);
     ref.invalidate(teacherNotificationsProvider);
     if (context.mounted) {
       messenger.showSnackBar(
-        SnackBar(content: Text(l10n.homeAttendanceSaved)),
+        SnackBar(
+          content: Text(l10n.homeAttendanceSaved),
+          duration: const Duration(seconds: 4),
+          action: SnackBarAction(
+            label: l10n.commonUndo,
+            onPressed: () async {
+              if (id.isEmpty) {
+                ref.invalidate(lessonsProvider);
+                return;
+              }
+              await api.deleteLesson(id);
+              ref.invalidate(lessonsProvider);
+              ref.invalidate(teacherNotificationsProvider);
+            },
+          ),
+        ),
       );
     }
   } catch (e) {
     if (context.mounted) {
       messenger.showSnackBar(SnackBar(content: Text(friendlyError(e, l10n))));
     }
+  }
+}
+
+/// Opens the shared session editor (status, topics, homework, note, undo).
+Future<void> _openDetail(
+  BuildContext context,
+  WidgetRef ref,
+  AppLocalizations l10n,
+  RecurringSlot slot,
+  String studentName,
+  String subjectName,
+  String date,
+) async {
+  final lessons = ref.read(lessonsProvider).valueOrNull;
+  final lesson = _lessonFor(lessons ?? const [], slot.id, date);
+  final result = await showSessionDetailSheet(
+    context,
+    slot: slot,
+    lesson: lesson,
+    studentName: studentName,
+    subjectName: subjectName,
+    date: date,
+  );
+  if (result != null) {
+    ref.invalidate(lessonsProvider);
+    ref.invalidate(teacherNotificationsProvider);
   }
 }
 

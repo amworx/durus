@@ -193,9 +193,17 @@ class _MonthlyReportScreenState extends ConsumerState<MonthlyReportScreen> {
                       color: Colors.red,
                     ),
                     StatusChip(
+                      label: '${l10n.portalLate} ${attendance.late}',
+                      color: Colors.orange,
+                    ),
+                    StatusChip(
                       label:
                           '${l10n.portalRescheduled} ${attendance.rescheduled}',
-                      color: Colors.orange,
+                      color: Colors.blueGrey,
+                    ),
+                    StatusChip(
+                      label: '${l10n.portalCancelled} ${attendance.cancelled}',
+                      color: Colors.grey,
                     ),
                   ],
                 ),
@@ -390,7 +398,9 @@ class _MonthlyReportScreenState extends ConsumerState<MonthlyReportScreen> {
       '${l10n.portalTotalSessions}: ${report.attendance.total}',
       '${l10n.portalPresent}: ${report.attendance.present}',
       '${l10n.portalAbsent}: ${report.attendance.absent}',
+      '${l10n.portalLate}: ${report.attendance.late}',
       '${l10n.portalRescheduled}: ${report.attendance.rescheduled}',
+      '${l10n.portalCancelled}: ${report.attendance.cancelled}',
       if (fee != null)
         '${l10n.feesAmount}: ${_numText(fee.amount)} • '
             '${l10n.feesPaid}: ${_numText(fee.paidAmount)} • '

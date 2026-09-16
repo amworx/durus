@@ -274,7 +274,9 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
     return switch (status) {
       'present' => l10n.portalPresent,
       'absent' => l10n.portalAbsent,
+      'late' => l10n.portalLate,
       'rescheduled' => l10n.portalRescheduled,
+      'cancelled' => l10n.portalCancelled,
       _ => status,
     };
   }
@@ -283,7 +285,9 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
     return switch (status) {
       'present' => scheme.primaryContainer,
       'absent' => scheme.errorContainer,
+      'late' => scheme.tertiaryContainer,
       'rescheduled' => scheme.tertiaryContainer,
+      'cancelled' => scheme.surfaceContainerHighest,
       _ => scheme.surfaceContainerHighest,
     };
   }
@@ -654,8 +658,18 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
             ),
             _metricRow(
               context,
+              l10n.portalLate,
+              _numLabel(attendance['late']),
+            ),
+            _metricRow(
+              context,
               l10n.portalRescheduled,
               _numLabel(attendance['rescheduled']),
+            ),
+            _metricRow(
+              context,
+              l10n.portalCancelled,
+              _numLabel(attendance['cancelled']),
             ),
             if (recent.isNotEmpty) ...[
               const SizedBox(height: 8),

@@ -84,6 +84,11 @@ final announcementsProvider = FutureProvider<List<Announcement>>((ref) async {
   return ref.read(apiProvider).announcements();
 });
 
+final notificationPrefsProvider = FutureProvider<Map<String, bool>>((ref) async {
+  ref.watch(authSessionProvider);
+  return ref.read(apiProvider).notificationPrefs();
+});
+
 final teachersProvider = FutureProvider<List<Profile>>((ref) async {
   ref.watch(authSessionProvider);
   return ref.read(apiProvider).teachers();

@@ -136,6 +136,12 @@ abstract class AppLocalizations {
   /// **'إغلاق'**
   String get commonClose;
 
+  /// No description provided for @commonUndo.
+  ///
+  /// In ar, this message translates to:
+  /// **'تراجع'**
+  String get commonUndo;
+
   /// No description provided for @commonSearch.
   ///
   /// In ar, this message translates to:
@@ -484,11 +490,23 @@ abstract class AppLocalizations {
   /// **'غائب'**
   String get homeMarkAbsent;
 
+  /// No description provided for @homeMarkLate.
+  ///
+  /// In ar, this message translates to:
+  /// **'متأخر'**
+  String get homeMarkLate;
+
   /// No description provided for @homeMarkRescheduled.
   ///
   /// In ar, this message translates to:
   /// **'مؤجّلة'**
   String get homeMarkRescheduled;
+
+  /// No description provided for @homeMarkCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغاة'**
+  String get homeMarkCancelled;
 
   /// No description provided for @homeStudent.
   ///
@@ -513,6 +531,36 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تم تسجيل الحضور'**
   String get homeAttendanceSaved;
+
+  /// No description provided for @homeTodayTotal.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإجمالي'**
+  String get homeTodayTotal;
+
+  /// No description provided for @homeTodayRecorded.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسجّلة'**
+  String get homeTodayRecorded;
+
+  /// No description provided for @homeTodayRemaining.
+  ///
+  /// In ar, this message translates to:
+  /// **'متبقية'**
+  String get homeTodayRemaining;
+
+  /// No description provided for @homeSessionSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حفظ الجلسة'**
+  String get homeSessionSaved;
+
+  /// No description provided for @homeAttendanceCleared.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم مسح التسجيل'**
+  String get homeAttendanceCleared;
 
   /// No description provided for @homeAnnouncements.
   ///
@@ -1234,6 +1282,90 @@ abstract class AppLocalizations {
   /// **'تم نشر الإعلان'**
   String get homeAnnouncementAdded;
 
+  /// No description provided for @sessionDetailTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفاصيل الجلسة'**
+  String get sessionDetailTitle;
+
+  /// No description provided for @sessionDetailAttendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحالة'**
+  String get sessionDetailAttendance;
+
+  /// No description provided for @sessionDetailTopics.
+  ///
+  /// In ar, this message translates to:
+  /// **'الموضوع المُنجز'**
+  String get sessionDetailTopics;
+
+  /// No description provided for @sessionDetailTopicsHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'مثال: درس الجمع'**
+  String get sessionDetailTopicsHint;
+
+  /// No description provided for @sessionDetailHomework.
+  ///
+  /// In ar, this message translates to:
+  /// **'الواجب'**
+  String get sessionDetailHomework;
+
+  /// No description provided for @sessionDetailHomeworkHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'مثال: حل التمارين 1-10'**
+  String get sessionDetailHomeworkHint;
+
+  /// No description provided for @sessionDetailNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة'**
+  String get sessionDetailNote;
+
+  /// No description provided for @sessionDetailNoteHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة عن الجلسة (اختياري)'**
+  String get sessionDetailNoteHint;
+
+  /// No description provided for @sessionDetailRescheduledTo.
+  ///
+  /// In ar, this message translates to:
+  /// **'مؤجّلة إلى'**
+  String get sessionDetailRescheduledTo;
+
+  /// No description provided for @sessionDetailPickDate.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر التاريخ'**
+  String get sessionDetailPickDate;
+
+  /// No description provided for @sessionDetailSave.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الجلسة'**
+  String get sessionDetailSave;
+
+  /// No description provided for @sessionDetailUndo.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف التسجيل'**
+  String get sessionDetailUndo;
+
+  /// No description provided for @sessionDetailUndoConfirmTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الجلسة'**
+  String get sessionDetailUndoConfirmTitle;
+
+  /// No description provided for @sessionDetailUndoConfirmMessage.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيتم حذف تسجيل هذه الجلسة بالكامل. هل أنت متأكد؟'**
+  String get sessionDetailUndoConfirmMessage;
+
   /// No description provided for @portalTitle.
   ///
   /// In ar, this message translates to:
@@ -1348,11 +1480,233 @@ abstract class AppLocalizations {
   /// **'غائب'**
   String get portalAbsent;
 
+  /// No description provided for @portalLate.
+  ///
+  /// In ar, this message translates to:
+  /// **'متأخر'**
+  String get portalLate;
+
   /// No description provided for @portalRescheduled.
   ///
   /// In ar, this message translates to:
   /// **'مؤجّلة'**
   String get portalRescheduled;
+
+  /// No description provided for @portalCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملغاة'**
+  String get portalCancelled;
+
+  /// No description provided for @announcementsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إدارة الإعلانات'**
+  String get announcementsTitle;
+
+  /// No description provided for @announcementsAdd.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة إعلان'**
+  String get announcementsAdd;
+
+  /// No description provided for @announcementsEdit.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الإعلان'**
+  String get announcementsEdit;
+
+  /// No description provided for @announcementsPublish.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشر'**
+  String get announcementsPublish;
+
+  /// No description provided for @announcementsUpdated.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحديث الإعلان'**
+  String get announcementsUpdated;
+
+  /// No description provided for @announcementsDeleteConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'هل تريد حذف هذا الإعلان؟'**
+  String get announcementsDeleteConfirm;
+
+  /// No description provided for @announcementsNoData.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد إعلانات بعد'**
+  String get announcementsNoData;
+
+  /// No description provided for @announcementsManageAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض الكل'**
+  String get announcementsManageAll;
+
+  /// No description provided for @announcementsAudience.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجمهور'**
+  String get announcementsAudience;
+
+  /// No description provided for @announcementsAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get announcementsAll;
+
+  /// No description provided for @announcementsTeachers.
+  ///
+  /// In ar, this message translates to:
+  /// **'المعلمون'**
+  String get announcementsTeachers;
+
+  /// No description provided for @announcementsParents.
+  ///
+  /// In ar, this message translates to:
+  /// **'أولياء الأمور'**
+  String get announcementsParents;
+
+  /// No description provided for @announcementsPinned.
+  ///
+  /// In ar, this message translates to:
+  /// **'مثبّت'**
+  String get announcementsPinned;
+
+  /// No description provided for @announcementsPinnedHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'يظهر في أعلى القائمة'**
+  String get announcementsPinnedHint;
+
+  /// No description provided for @announcementsPin.
+  ///
+  /// In ar, this message translates to:
+  /// **'تثبيت'**
+  String get announcementsPin;
+
+  /// No description provided for @announcementsUnpin.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء التثبيت'**
+  String get announcementsUnpin;
+
+  /// No description provided for @announcementsTitleLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'العنوان'**
+  String get announcementsTitleLabel;
+
+  /// No description provided for @announcementsTitleHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختياري — عنوان مختصر'**
+  String get announcementsTitleHint;
+
+  /// No description provided for @announcementsBodyLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'النص'**
+  String get announcementsBodyLabel;
+
+  /// No description provided for @announcementsBodyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب نص الإعلان هنا...'**
+  String get announcementsBodyHint;
+
+  /// No description provided for @announcementsExpiry.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنتهي'**
+  String get announcementsExpiry;
+
+  /// No description provided for @announcementsExpiryLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنتهي'**
+  String get announcementsExpiryLabel;
+
+  /// No description provided for @announcementsNoExpiry.
+  ///
+  /// In ar, this message translates to:
+  /// **'بدون انتهاء'**
+  String get announcementsNoExpiry;
+
+  /// No description provided for @announcementsPickDate.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر التاريخ'**
+  String get announcementsPickDate;
+
+  /// No description provided for @announcementsRemoveExpiry.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة تاريخ الانتهاء'**
+  String get announcementsRemoveExpiry;
+
+  /// No description provided for @notificationsCategoryAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get notificationsCategoryAll;
+
+  /// No description provided for @notificationsCategoryGeneral.
+  ///
+  /// In ar, this message translates to:
+  /// **'عام'**
+  String get notificationsCategoryGeneral;
+
+  /// No description provided for @notificationsCategoryAttendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحضور والملاحظات'**
+  String get notificationsCategoryAttendance;
+
+  /// No description provided for @notificationsCategoryTests.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاختبارات'**
+  String get notificationsCategoryTests;
+
+  /// No description provided for @notificationsCategoryFees.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأقساط والدفعات'**
+  String get notificationsCategoryFees;
+
+  /// No description provided for @notificationsCategoryAnnouncements.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعلانات'**
+  String get notificationsCategoryAnnouncements;
+
+  /// No description provided for @notificationsCategoryTeacher.
+  ///
+  /// In ar, this message translates to:
+  /// **'المعلمون'**
+  String get notificationsCategoryTeacher;
+
+  /// No description provided for @notificationsMarkRead.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديد كمقروء'**
+  String get notificationsMarkRead;
+
+  /// No description provided for @settingsNotifications.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإشعارات'**
+  String get settingsNotifications;
+
+  /// No description provided for @settingsNotificationsHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديد أنواع الإشعارات التي تصل إليك'**
+  String get settingsNotificationsHint;
 
   /// No description provided for @notificationsTitle.
   ///

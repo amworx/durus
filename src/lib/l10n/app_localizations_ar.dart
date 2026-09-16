@@ -30,6 +30,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonClose => 'إغلاق';
 
   @override
+  String get commonUndo => 'تراجع';
+
+  @override
   String get commonSearch => 'بحث';
 
   @override
@@ -207,7 +210,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeMarkAbsent => 'غائب';
 
   @override
+  String get homeMarkLate => 'متأخر';
+
+  @override
   String get homeMarkRescheduled => 'مؤجّلة';
+
+  @override
+  String get homeMarkCancelled => 'ملغاة';
 
   @override
   String get homeStudent => 'الطالب';
@@ -220,6 +229,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get homeAttendanceSaved => 'تم تسجيل الحضور';
+
+  @override
+  String get homeTodayTotal => 'الإجمالي';
+
+  @override
+  String get homeTodayRecorded => 'مسجّلة';
+
+  @override
+  String get homeTodayRemaining => 'متبقية';
+
+  @override
+  String get homeSessionSaved => 'تم حفظ الجلسة';
+
+  @override
+  String get homeAttendanceCleared => 'تم مسح التسجيل';
 
   @override
   String get homeAnnouncements => 'إعلانات';
@@ -592,6 +616,49 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeAnnouncementAdded => 'تم نشر الإعلان';
 
   @override
+  String get sessionDetailTitle => 'تفاصيل الجلسة';
+
+  @override
+  String get sessionDetailAttendance => 'الحالة';
+
+  @override
+  String get sessionDetailTopics => 'الموضوع المُنجز';
+
+  @override
+  String get sessionDetailTopicsHint => 'مثال: درس الجمع';
+
+  @override
+  String get sessionDetailHomework => 'الواجب';
+
+  @override
+  String get sessionDetailHomeworkHint => 'مثال: حل التمارين 1-10';
+
+  @override
+  String get sessionDetailNote => 'ملاحظة';
+
+  @override
+  String get sessionDetailNoteHint => 'ملاحظة عن الجلسة (اختياري)';
+
+  @override
+  String get sessionDetailRescheduledTo => 'مؤجّلة إلى';
+
+  @override
+  String get sessionDetailPickDate => 'اختر التاريخ';
+
+  @override
+  String get sessionDetailSave => 'تسجيل الجلسة';
+
+  @override
+  String get sessionDetailUndo => 'حذف التسجيل';
+
+  @override
+  String get sessionDetailUndoConfirmTitle => 'حذف الجلسة';
+
+  @override
+  String get sessionDetailUndoConfirmMessage =>
+      'سيتم حذف تسجيل هذه الجلسة بالكامل. هل أنت متأكد؟';
+
+  @override
   String get portalTitle => 'بوابة ولي الأمر';
 
   @override
@@ -649,7 +716,118 @@ class AppLocalizationsAr extends AppLocalizations {
   String get portalAbsent => 'غائب';
 
   @override
+  String get portalLate => 'متأخر';
+
+  @override
   String get portalRescheduled => 'مؤجّلة';
+
+  @override
+  String get portalCancelled => 'ملغاة';
+
+  @override
+  String get announcementsTitle => 'إدارة الإعلانات';
+
+  @override
+  String get announcementsAdd => 'إضافة إعلان';
+
+  @override
+  String get announcementsEdit => 'تعديل الإعلان';
+
+  @override
+  String get announcementsPublish => 'نشر';
+
+  @override
+  String get announcementsUpdated => 'تم تحديث الإعلان';
+
+  @override
+  String get announcementsDeleteConfirm => 'هل تريد حذف هذا الإعلان؟';
+
+  @override
+  String get announcementsNoData => 'لا توجد إعلانات بعد';
+
+  @override
+  String get announcementsManageAll => 'عرض الكل';
+
+  @override
+  String get announcementsAudience => 'الجمهور';
+
+  @override
+  String get announcementsAll => 'الكل';
+
+  @override
+  String get announcementsTeachers => 'المعلمون';
+
+  @override
+  String get announcementsParents => 'أولياء الأمور';
+
+  @override
+  String get announcementsPinned => 'مثبّت';
+
+  @override
+  String get announcementsPinnedHint => 'يظهر في أعلى القائمة';
+
+  @override
+  String get announcementsPin => 'تثبيت';
+
+  @override
+  String get announcementsUnpin => 'إلغاء التثبيت';
+
+  @override
+  String get announcementsTitleLabel => 'العنوان';
+
+  @override
+  String get announcementsTitleHint => 'اختياري — عنوان مختصر';
+
+  @override
+  String get announcementsBodyLabel => 'النص';
+
+  @override
+  String get announcementsBodyHint => 'اكتب نص الإعلان هنا...';
+
+  @override
+  String get announcementsExpiry => 'تنتهي';
+
+  @override
+  String get announcementsExpiryLabel => 'تنتهي';
+
+  @override
+  String get announcementsNoExpiry => 'بدون انتهاء';
+
+  @override
+  String get announcementsPickDate => 'اختر التاريخ';
+
+  @override
+  String get announcementsRemoveExpiry => 'إزالة تاريخ الانتهاء';
+
+  @override
+  String get notificationsCategoryAll => 'الكل';
+
+  @override
+  String get notificationsCategoryGeneral => 'عام';
+
+  @override
+  String get notificationsCategoryAttendance => 'الحضور والملاحظات';
+
+  @override
+  String get notificationsCategoryTests => 'الاختبارات';
+
+  @override
+  String get notificationsCategoryFees => 'الأقساط والدفعات';
+
+  @override
+  String get notificationsCategoryAnnouncements => 'الإعلانات';
+
+  @override
+  String get notificationsCategoryTeacher => 'المعلمون';
+
+  @override
+  String get notificationsMarkRead => 'تحديد كمقروء';
+
+  @override
+  String get settingsNotifications => 'الإشعارات';
+
+  @override
+  String get settingsNotificationsHint => 'تحديد أنواع الإشعارات التي تصل إليك';
 
   @override
   String get notificationsTitle => 'الإشعارات';

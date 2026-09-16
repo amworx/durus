@@ -49,6 +49,11 @@ class SettingsScreen extends ConsumerWidget {
                 title: l10n.settingsUpdates,
                 child: const _UpdatesSection(),
               ),
+              const SizedBox(height: 16),
+              SectionCard(
+                title: l10n.settingsNotifications,
+                child: const _NotificationPrefsSection(),
+              ),
               if (profile?.isManager ?? false) ...[
                 const SizedBox(height: 16),
                 SectionCard(
@@ -450,6 +455,77 @@ class _UpdatesSectionState extends ConsumerState<_UpdatesSection> {
         ],
       ],
     );
+  }
+}
+
+class _NotificationPrefsSection extends ConsumerStatefulWidget {
+  const _NotificationPrefsSection();
+
+  @override
+  ConsumerState<_NotificationPrefsSection> createState() =>
+      _NotificationPrefsSectionState();
+}
+
+class _NotificationPrefsSectionState
+    extends ConsumerState<_NotificationPrefsSection> {
+  static final _categories = <({List<String> keys, String Function(AppLocalizations) label})>[
+    (keys: ['general'], label: (l) => l.notificationsCategoryGeneral),
+    (keys: ['attendance', 'note'], label: (l) => l.notificationsCategoryAttendance),
+    (keys: ['test'], label: (l) => l.notificationsCategoryTests),
+    (keys: ['fee', 'payment'], label: (l) => l.notificationsCategoryFees),
+    (keys: ['announcement'], label: (l) => l.notificationsCategoryAnnouncements),
+    (keys: ['teacher'], label: (l) => l.notificationsCategoryTeacher),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final prefsAsync = ref.watch(notificationPrefsProvider);
+    final prefs = prefsAsync.valueOrNull ?? {};
+
+    return prefsAsync.when(
+      loading: () => const LoadingView(),
+      error: (_, _) => ErrorRetry(
+        message: l10n.commonError,
+        onRetry: () => ref.invalidate(notificationPrefsProvider),
+      ),
+      data: (_) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.settingsNotificationsHint,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 4),
+          for (final category in _categories) ...[
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(category.label(l10n)),
+              value: category.keys.every((k) => prefs[k] ?? true),
+              onChanged: (enabled) => _toggleCategory(category.keys, enabled),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _toggleCategory(List<String> keys, bool enabled) async {
+    final current = ref.read(notificationPrefsProvider).valueOrNull ?? {};
+    final next = Map<String, bool>.from(current);
+    for (final key in keys) {
+      next[key] = enabled;
+    }
+    try {
+      await ref.read(apiProvider).upsertNotificationPrefs(next);
+      ref.invalidate(notificationPrefsProvider);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.commonError)),
+        );
+      }
+    }
   }
 }
 

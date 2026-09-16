@@ -8,11 +8,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:durus/core/attendance.dart';
 import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
+import 'package:durus/widgets/session_detail_sheet.dart';
 import 'package:durus/widgets/widgets.dart';
 
 class ScheduleScreen extends ConsumerStatefulWidget {
@@ -178,7 +180,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   for (final slot in daySlots)
                     _slotRow(context, l10n, slot, students, subjects),
                   for (final lesson in dayLessons)
-                    _lessonRow(context, l10n, lesson, students, subjects),
+                    _lessonRow(context, l10n, lesson, students, subjects, slots),
                 ],
               ],
             ),
@@ -248,42 +250,84 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     LessonSession lesson,
     List<Student> students,
     List<Subject> subjects,
+    List<RecurringSlot> slots,
   ) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final student = _studentById(students, lesson.studentId);
     final subjectName = _subjectName(subjects, lesson.subjectId);
-    final (label, color) = _attendanceStyle(l10n, lesson.attendance);
+    final style = attendanceStyle(l10n, scheme, lesson.attendance);
     final detailParts = <String>[
       if (student != null) student.name,
       if (subjectName.isNotEmpty) subjectName,
     ];
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        children: [
-          Container(
-            width: 16,
-            height: 16,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.25),
-              shape: BoxShape.circle,
+    return InkWell(
+      onTap: () => _openLesson(
+        context,
+        l10n,
+        lesson,
+        student?.name ?? '',
+        subjectName,
+        slots,
+      ),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(
+          children: [
+            Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                color: style.color.withValues(alpha: 0.25),
+                shape: BoxShape.circle,
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              detailParts.isEmpty
-                  ? l10n.scheduleRecurringSlot
-                  : detailParts.join(' • '),
-              style: theme.textTheme.bodyMedium,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                detailParts.isEmpty
+                    ? l10n.scheduleRecurringSlot
+                    : detailParts.join(' • '),
+                style: theme.textTheme.bodyMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          StatusChip(label: label, color: color),
-        ],
+            StatusChip(label: style.label, color: style.color),
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _openLesson(
+    BuildContext context,
+    AppLocalizations l10n,
+    LessonSession lesson,
+    String studentName,
+    String subjectName,
+    List<RecurringSlot> slots,
+  ) async {
+    RecurringSlot? slot;
+    for (final s in slots) {
+      if (s.id == lesson.slotId) {
+        slot = s;
+        break;
+      }
+    }
+    final result = await showSessionDetailSheet(
+      context,
+      slot: slot,
+      lesson: lesson,
+      studentName: studentName,
+      subjectName: subjectName,
+      date: lesson.date,
+    );
+    if (result != null) {
+      ref.invalidate(lessonsProvider);
+      ref.invalidate(teacherNotificationsProvider);
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -332,15 +376,6 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       'student_home' => l10n.studentsLocationHome,
       'teacher' => l10n.studentsLocationTeacher,
       _ => location ?? '',
-    };
-  }
-
-  (String, Color) _attendanceStyle(AppLocalizations l10n, String attendance) {
-    return switch (attendance) {
-      'present' => (l10n.homeMarkPresent, Colors.green),
-      'absent' => (l10n.homeMarkAbsent, Colors.red),
-      'rescheduled' => (l10n.homeMarkRescheduled, Colors.orange),
-      _ => (attendance, Colors.blueGrey),
     };
   }
 }
