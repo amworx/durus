@@ -1132,11 +1132,23 @@ abstract class AppLocalizations {
   /// **'جاري تنزيل التحديث'**
   String get settingsDownloading;
 
-  /// No description provided for @settingsOpenUpdateManually.
+  /// No description provided for @settingsUpdateReadyToInstall.
   ///
   /// In ar, this message translates to:
-  /// **'اكتمل التنزيل، لكن تعذّر فتح المثبّت. افتح الملف من مدير الملفات للتثبيت، أو اسمح للتثبيت من مصادر خارجية في إعدادات النظام.'**
-  String get settingsOpenUpdateManually;
+  /// **'سيُفتح المثبّت الآن لإتمام تثبيت التحديث'**
+  String get settingsUpdateReadyToInstall;
+
+  /// Where an exported APK was saved, so the user can find it in the file manager.
+  ///
+  /// In ar, this message translates to:
+  /// **'حُفظ ملف التحديث في: {where}'**
+  String settingsUpdateSavedTo(String where);
+
+  /// No description provided for @settingsUpdateOpenFolder.
+  ///
+  /// In ar, this message translates to:
+  /// **'فتح المجلد'**
+  String get settingsUpdateOpenFolder;
 
   /// No description provided for @settingsUpdatesError.
   ///

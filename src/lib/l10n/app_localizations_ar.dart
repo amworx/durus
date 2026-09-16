@@ -538,8 +538,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsDownloading => 'جاري تنزيل التحديث';
 
   @override
-  String get settingsOpenUpdateManually =>
-      'اكتمل التنزيل، لكن تعذّر فتح المثبّت. افتح الملف من مدير الملفات للتثبيت، أو اسمح للتثبيت من مصادر خارجية في إعدادات النظام.';
+  String get settingsUpdateReadyToInstall =>
+      'سيُفتح المثبّت الآن لإتمام تثبيت التحديث';
+
+  @override
+  String settingsUpdateSavedTo(String where) {
+    return 'حُفظ ملف التحديث في: $where';
+  }
+
+  @override
+  String get settingsUpdateOpenFolder => 'فتح المجلد';
 
   @override
   String get settingsUpdatesError => 'تعذّر التحقق من التحديثات';

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- فسيفساء paper (#FAF8F4) — the app's default light background, reused
+    <!-- Paper (#FAF8F4) — the app's default light background, reused
          by the branded splash so the engine window and splash match. -->
     <color name="launch_background">#FAF8F4</color>
+    <!-- فسيفساء teal — the Durus brand color, used as the launcher icon
+         background (adaptive icon) and the splash logo. -->
+    <color name="ic_launcher_background">#0E7C66</color>
 </resources>

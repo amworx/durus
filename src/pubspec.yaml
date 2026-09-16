@@ -1,7 +1,7 @@
 name: durus
 description: "Durus (دروس) — private-lessons management: students, schedule, attendance, variable monthly fees, progress, parent portal."
 publish_to: 'none'
-version: 1.1.4+1
+version: 1.1.5+1
 
 environment:
   sdk: ^3.12.2

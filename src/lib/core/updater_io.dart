@@ -1,10 +1,13 @@
 // Durus — in-app updater, native (IO) implementation.
 //
 // Implements the updater facade for Android/desktop where dart:io is
-// available: downloads the APK into the app cache with dart:io HttpClient
-// (no `http` package dependency), reports progress, and hands the file to
-// the Android MainActivity MethodChannel (`durus/installer`) so the system
-// package installer can consume it via a FileProvider URI.
+// available: downloads the APK with dart:io HttpClient (no `http` package
+// dependency) into the app-private cache directory REPORTED by the native
+// channel (`MainActivity.getDownloadDir`), reports progress, and hands the
+// file to the `durus/installer` MethodChannel so the system package installer
+// can consume it via a FileProvider URI. If the installer cannot be opened,
+// the native side exports the APK to user-visible Downloads and the result
+// tells the UI where it went.
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -12,6 +15,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 import '../models/models.dart';
+import 'updater.dart' show InstallResult;
 
 const MethodChannel _installerChannel = MethodChannel('durus/installer');
 
@@ -45,6 +49,22 @@ Future<AppRelease?> fetchLatestGitHubRelease() async {
   }
 }
 
+/// Returns the app-private update directory from the native channel
+/// (`<cacheDir>/updates` on Android). Falls back to `Directory.systemTemp`
+/// when the channel is unavailable (desktop; rare) — note systemTemp is the
+/// ORIGINAL v1.1.4 bug source on Android and must not be relied on there.
+Future<String> _getDownloadDir() async {
+  try {
+    final dir = await _installerChannel.invokeMethod<String>('getDownloadDir');
+    if (dir != null && dir.isNotEmpty) return dir;
+  } on PlatformException {
+    // fall through
+  } on MissingPluginException {
+    // fall through
+  }
+  return '${Directory.systemTemp.path}${Platform.pathSeparator}updates';
+}
+
 /// Downloads [url] into `<cache>/updates/<fileName>` and reports progress to
 /// [onProgress] (`0..1`, finishing at `1.0`). Returns the absolute path.
 Future<String?> downloadApk({
@@ -52,7 +72,7 @@ Future<String?> downloadApk({
   required String fileName,
   required void Function(double progress) onProgress,
 }) async {
-  final dir = Directory('${Directory.systemTemp.path}${Platform.pathSeparator}updates');
+  final dir = Directory(await _getDownloadDir());
   await dir.create(recursive: true);
   final file = File('${dir.path}${Platform.pathSeparator}$fileName');
   final client = HttpClient();
@@ -92,15 +112,35 @@ Future<String?> downloadApk({
 }
 
 /// Launches the system package installer for [path] via the native channel.
-/// Returns false when the channel is unavailable or the intent failed.
-Future<bool> triggerApkInstall(String path) async {
+/// Returns an [InstallResult]: `installed` when the installer intent was
+/// launched, `exported` when the native side copied the APK to user-visible
+/// Downloads instead, or `failed` when neither worked.
+Future<InstallResult> triggerApkInstall(String path) async {
   try {
-    final ok =
-        await _installerChannel.invokeMethod<bool>('installApk', {'path': path});
-    return ok ?? false;
+    final result =
+        await _installerChannel.invokeMapMethod<String, dynamic>(
+      'installApk',
+      {'path': path},
+    );
+    final status = result?['status'] as String? ?? 'failed';
+    return InstallResult(
+      status: status,
+      message: result?['message'] as String?,
+    );
   } on PlatformException {
-    return false;
+    return const InstallResult(status: 'failed');
   } on MissingPluginException {
-    return false;
+    return const InstallResult(status: 'failed');
+  }
+}
+
+/// Opens the system Files/Downloads app (native side; no-op on failure).
+Future<void> openDownloadsFolder() async {
+  try {
+    await _installerChannel.invokeMethod('openDownloadsFolder');
+  } on PlatformException {
+    // best effort
+  } on MissingPluginException {
+    // best effort
   }
 }

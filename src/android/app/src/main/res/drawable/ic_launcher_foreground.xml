@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Durus adaptive launcher icon foreground: the graduation-cap mark (same
+     glyph as the splash logo) in white on the teal background. The vector uses
+     the 24-unit glyph coordinate space inside a 108dp canvas, scaled ~2.55x
+     and centered so the mark sits well inside the adaptive-icon safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <group
+      android:scaleX="2.55"
+      android:scaleY="2.55"
+      android:pivotX="12"
+      android:pivotY="12"
+      android:translateX="42"
+      android:translateY="42">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M5,13.18v4L12,21l7,-3.82v-4L12,17l-7,-3.82zM12,3L1,9l11,6 9,-4.91V17h2V9L12,3z"/>
+  </group>
+</vector>

@@ -202,7 +202,17 @@
   "settingsUpdateAvailable": "يتوفر إصدار جديد",
   "settingsDownloadUpdate": "تحميل الإصدار الجديد",
   "settingsDownloading": "جاري تنزيل التحديث",
-  "settingsOpenUpdateManually": "اكتمل التنزيل، لكن تعذّر فتح المثبّت. افتح الملف من مدير الملفات للتثبيت، أو اسمح للتثبيت من مصادر خارجية في إعدادات النظام.",
+  "settingsUpdateReadyToInstall": "سيُفتح المثبّت الآن لإتمام تثبيت التحديث",
+  "settingsUpdateSavedTo": "حُفظ ملف التحديث في: {where}",
+  "@settingsUpdateSavedTo": {
+    "description": "Where an exported APK was saved, so the user can find it in the file manager.",
+    "placeholders": {
+      "where": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsUpdateOpenFolder": "فتح المجلد",
   "settingsUpdatesError": "تعذّر التحقق من التحديثات",
   "settingsProfile": "الحساب",
   "settingsLogout": "تسجيل الخروج",

@@ -374,9 +374,26 @@ class _UpdatesSectionState extends ConsumerState<_UpdatesSection> {
         throw StateError('In-app download unsupported');
       }
       final launched = await triggerApkInstall(path);
-      if (!launched && mounted) {
+      if (!mounted) return;
+      if (launched.didLaunchInstaller) {
         messenger.showSnackBar(
-          SnackBar(content: Text(l10n.settingsOpenUpdateManually)),
+          SnackBar(content: Text(l10n.settingsUpdateReadyToInstall)),
+        );
+      } else if (launched.wasExported) {
+        // Installer couldn't be addressed — the APK was copied to Downloads.
+        final where = launched.message ?? 'Downloads';
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.settingsUpdateSavedTo(where)),
+            action: SnackBarAction(
+              label: l10n.settingsUpdateOpenFolder,
+              onPressed: () => openDownloadsFolder(),
+            ),
+          ),
+        );
+      } else {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.settingsUpdateReadyToInstall)),
         );
       }
     } catch (_) {
