@@ -1054,6 +1054,138 @@ abstract class AppLocalizations {
   /// **'اختر الطالب'**
   String get feesSelectStudent;
 
+  /// No description provided for @commonSelectAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحديد الكل'**
+  String get commonSelectAll;
+
+  /// No description provided for @bulkActions.
+  ///
+  /// In ar, this message translates to:
+  /// **'عمليات متعددة'**
+  String get bulkActions;
+
+  /// Count of selected items in bulk-operation mode
+  ///
+  /// In ar, this message translates to:
+  /// **'المحدد: {count}'**
+  String bulkSelected(int count);
+
+  /// No description provided for @bulkNoSelection.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يتم تحديد أي عنصر'**
+  String get bulkNoSelection;
+
+  /// No description provided for @bulkCompleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت العملية'**
+  String get bulkCompleted;
+
+  /// No description provided for @bulkDeleteTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف المحدد'**
+  String get bulkDeleteTitle;
+
+  /// Bulk delete confirmation with the exact count
+  ///
+  /// In ar, this message translates to:
+  /// **'سيتم حذف {count} عنصر. هل أنت متأكد؟'**
+  String bulkDeleteConfirm(int count);
+
+  /// No description provided for @bulkSetGrade.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الصف'**
+  String get bulkSetGrade;
+
+  /// No description provided for @bulkSetGradeTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصف الجديد للمحددين'**
+  String get bulkSetGradeTitle;
+
+  /// No description provided for @bulkAssignSubject.
+  ///
+  /// In ar, this message translates to:
+  /// **'إسناد مادة'**
+  String get bulkAssignSubject;
+
+  /// No description provided for @bulkAssignSubjectTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر المادة لإسنادها'**
+  String get bulkAssignSubjectTitle;
+
+  /// No description provided for @bulkExportAttendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصدير الحضور'**
+  String get bulkExportAttendance;
+
+  /// No description provided for @bulkShareLinks.
+  ///
+  /// In ar, this message translates to:
+  /// **'مشاركة روابط الأولياء'**
+  String get bulkShareLinks;
+
+  /// No description provided for @bulkMarkPaid.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسديد المحدد'**
+  String get bulkMarkPaid;
+
+  /// Bulk mark-paid confirmation with the exact count
+  ///
+  /// In ar, this message translates to:
+  /// **'تسديد المبلغ المتبقي لـ {count} قسط؟'**
+  String bulkMarkPaidConfirm(int count);
+
+  /// No description provided for @filterAllGrades.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل الصفوف'**
+  String get filterAllGrades;
+
+  /// No description provided for @filterAllSubjects.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل المواد'**
+  String get filterAllSubjects;
+
+  /// No description provided for @filterAllLocations.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل الأماكن'**
+  String get filterAllLocations;
+
+  /// No description provided for @filterAllMonths.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل الشهور'**
+  String get filterAllMonths;
+
+  /// No description provided for @filterAllStatus.
+  ///
+  /// In ar, this message translates to:
+  /// **'كل الحالات'**
+  String get filterAllStatus;
+
+  /// No description provided for @sortName.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم'**
+  String get sortName;
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأحدث'**
+  String get sortNewest;
+
   /// No description provided for @testsTitle.
   ///
   /// In ar, this message translates to:

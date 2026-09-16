@@ -49,7 +49,12 @@ class _FeesBody extends ConsumerStatefulWidget {
 
 class _FeesBodyState extends ConsumerState<_FeesBody> {
   static const String _allStudents = '_all';
+  static const String _allStatuses = '_all';
   String? _filterStudentId = _allStudents;
+  String? _filterMonth;   // null = all
+  String _filterStatus = _allStatuses; // '_all' | 'unpaid' | 'partial' | 'paid'
+  final Set<String> _selected = {};
+  bool get _selecting => _selected.isNotEmpty;
 
   void _openFeeForm(Fee fee) {
     Navigator.of(context).push(
@@ -87,6 +92,106 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
     }
   }
 
+  void _toggle(String id) => setState(() {
+        if (_selected.contains(id)) {
+          _selected.remove(id);
+        } else {
+          _selected.add(id);
+        }
+      });
+
+  void _selectAll(List<Fee> ids) => setState(() {
+        if (_selected.length == ids.length) {
+          _selected.clear();
+        } else {
+          _selected.addAll(ids.map((f) => f.id));
+        }
+      });
+
+  Future<void> _bulkDelete() async {
+    final l10n = context.l10n;
+    final confirmed = await confirmDialog(
+      context,
+      title: l10n.bulkDeleteTitle,
+      message: l10n.bulkDeleteConfirm(_selected.length),
+    );
+    if (!confirmed || !mounted) return;
+    try {
+      final DurusApi api = ref.read(apiProvider);
+      await api.deleteFees(_selected.toList());
+      _selected.clear();
+      ref.invalidate(feesProvider);
+      ref.invalidate(paymentsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.bulkCompleted)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkMarkPaid(List<Fee> allFees) async {
+    final l10n = context.l10n;
+    final entries = <({String feeId, String studentId, double remaining})>[];
+    for (final fee in allFees.where((f) => _selected.contains(f.id))) {
+      final rem = fee.amount - fee.paidAmount;
+      if (rem > 0) {
+        entries.add((
+          feeId: fee.id,
+          studentId: fee.studentId,
+          remaining: rem,
+        ));
+      }
+    }
+    if (entries.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.bulkNoSelection)),
+        );
+      }
+      return;
+    }
+    final confirmed = await confirmDialog(
+      context,
+      title: l10n.bulkMarkPaid,
+      message: l10n.bulkMarkPaidConfirm(entries.length),
+    );
+    if (!confirmed || !mounted) return;
+    try {
+      final DurusApi api = ref.read(apiProvider);
+      await api.markFeesPaid(entries);
+      _selected.clear();
+      ref.invalidate(feesProvider);
+      ref.invalidate(paymentsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.bulkCompleted)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+    }
+  }
+
+  List<String> _monthsOf(List<Fee> fees) {
+    final set = <String>{};
+    for (final fee in fees) {
+      final m = fee.month;
+      if (m.isNotEmpty) set.add(m);
+    }
+    return set.toList()..sort();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -96,9 +201,14 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
     final students = studentsAsync.value ?? const <Student>[];
     final fees = feesAsync.value ?? const <Fee>[];
     final filterId = _filterStudentId;
-    final filtered = (filterId == null || filterId == _allStudents)
-        ? fees
-        : fees.where((f) => f.studentId == filterId).toList();
+    final filtered = fees.where((f) {
+      if (filterId != null && filterId != _allStudents && f.studentId != filterId) {
+        return false;
+      }
+      if (_filterMonth != null && f.month != _filterMonth) return false;
+      if (_filterStatus != _allStatuses && f.status != _filterStatus) return false;
+      return true;
+    }).toList();
 
     num totalAmount = 0;
     num totalPaid = 0;
@@ -161,6 +271,55 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
             onChanged: (value) => setState(() => _filterStudentId = value),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String?>(
+                  initialValue: _filterMonth,
+                  isDense: true,
+                  decoration: InputDecoration(
+                    labelText: l10n.filterAllMonths,
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  items: [
+                    const DropdownMenuItem<String?>(value: null, child: Text('')),
+                    for (final m in _monthsOf(fees))
+                      DropdownMenuItem(value: m, child: Text(fmtMonthKey(m))),
+                  ],
+                  onChanged: (v) => setState(() => _filterMonth = v),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  initialValue: _filterStatus,
+                  isDense: true,
+                  decoration: InputDecoration(
+                    labelText: l10n.filterAllStatus,
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: _allStatuses,
+                      child: Text(l10n.scheduleAllStudents),
+                    ),
+                    for (final status in const ['unpaid', 'partial', 'paid'])
+                      DropdownMenuItem(
+                        value: status,
+                        child: Text(_feeStatus(l10n, status).label),
+                      ),
+                  ],
+                  onChanged: (value) =>
+                      setState(() => _filterStatus = value ?? _allStatuses),
+                ),
+              ),
+            ],
+          ),
+        ),
         Expanded(
           child: feesAsync.when(
             loading: () => const LoadingView(),
@@ -185,11 +344,18 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
                   itemCount: filtered.length,
                 separatorBuilder: (context, index) => const Divider(height: 1),
-                itemBuilder: (context, index) {
+itemBuilder: (context, index) {
                   final fee = filtered[index];
                   final studentName = _studentName(students, fee.studentId);
                   final status = _feeStatus(l10n, fee.status);
+                  final isSelected = _selected.contains(fee.id);
                   return ListTile(
+                    leading: _selecting
+                        ? Checkbox(
+                            value: isSelected,
+                            onChanged: (_) => _toggle(fee.id),
+                          )
+                        : null,
                     title: Row(
                       children: [
                         Expanded(
@@ -207,35 +373,63 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
                       '${l10n.feesAmount}: ${_fmtAmount(fee.amount)} • '
                       '${l10n.feesPaid}: ${_fmtAmount(fee.paidAmount)}',
                     ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.receipt_long_outlined),
-                          tooltip: l10n.feesAddPayment,
-                          onPressed: () => _openPayments(fee),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined),
-                          tooltip: l10n.commonEdit,
-                          onPressed: () => _openFeeForm(fee),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          tooltip: l10n.commonDelete,
-                          onPressed: () => _deleteFee(fee),
-                        ),
-                      ],
-                    ),
+                    trailing: _selecting
+                        ? null
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.receipt_long_outlined),
+                                tooltip: l10n.feesAddPayment,
+                                onPressed: () => _openPayments(fee),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined),
+                                tooltip: l10n.commonEdit,
+                                onPressed: () => _openFeeForm(fee),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline),
+                                tooltip: l10n.commonDelete,
+                                onPressed: () => _deleteFee(fee),
+                              ),
+                            ],
+                          ),
+                    selected: isSelected,
+                    selectedTileColor: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.25),
+                    onTap: _selecting
+                        ? () => _toggle(fee.id)
+                        : () => _openPayments(fee),
+                    onLongPress: _selecting ? null : () => _toggle(fee.id),
                   );
                 },
               ),
             );
           },
         ),
-      ),
-    ],
-  );
+        ),
+        if (_selecting)
+          SelectionBar(
+            count: _selected.length,
+            total: filtered.length,
+            onClose: () => setState(() => _selected.clear()),
+            onSelectAll: () => _selectAll(filtered),
+            actions: [
+              BulkAction(
+                icon: Icons.check_circle_outline,
+                label: l10n.bulkMarkPaid,
+                onTap: () => _bulkMarkPaid(fees),
+              ),
+              BulkAction(
+                icon: Icons.delete_outline,
+                label: l10n.commonDelete,
+                color: Theme.of(context).colorScheme.error,
+                onTap: _bulkDelete,
+              ),
+            ],
+          ),
+      ],
+    );
   }
 
   Widget _summaryItem(
@@ -371,8 +565,6 @@ class _FeeFormScreenState extends ConsumerState<FeeFormScreen> {
       if (mounted) {
         messenger.showSnackBar(SnackBar(content: Text(l10n.commonError)));
       }
-    } finally {
-      if (mounted) setState(() => _saving = false);
     }
   }
 

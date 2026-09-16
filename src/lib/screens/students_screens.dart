@@ -54,6 +54,13 @@ class _StudentsListBody extends ConsumerStatefulWidget {
 class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
+  // ── filters ──
+  String? _filterGrade;     // null = all
+  String? _filterSubjectId; // null = all
+  bool _sortNewest = false;
+  // ── selection mode ──
+  final Set<String> _selected = {};
+  bool get _selecting => _selected.isNotEmpty;
 
   @override
   void dispose() {
@@ -61,23 +68,247 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
     super.dispose();
   }
 
+  void _toggle(String id) => setState(() {
+        if (_selected.contains(id)) {
+          _selected.remove(id);
+        } else {
+          _selected.add(id);
+        }
+      });
+
+  void _selectAll(List<Student> ids) => setState(() {
+        if (_selected.length == ids.length) {
+          _selected.clear();
+        } else {
+          _selected.addAll(ids.map((s) => s.id));
+        }
+      });
+
+  // ── bulk helpers ──
+
+  Future<void> _bulkDelete(List<Student> students) async {
+    final l10n = context.l10n;
+    final ok = await confirmDialog(
+      context,
+      title: l10n.bulkDeleteTitle,
+      message: l10n.bulkDeleteConfirm(_selected.length),
+    );
+    if (!ok || !mounted) return;
+    try {
+      final api = ref.read(apiProvider);
+      await api.deleteStudents(_selected.toList());
+      _selected.clear();
+      ref.invalidate(studentsProvider);
+      ref.invalidate(studentSubjectRefsProvider);
+      ref.invalidate(slotsProvider);
+      ref.invalidate(lessonsProvider);
+      ref.invalidate(testsProvider);
+      ref.invalidate(notesProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.bulkCompleted)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkSetGrade() async {
+    final l10n = context.l10n;
+    final controller = TextEditingController();
+    final result = await showDialog<String?>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.bulkSetGradeTitle),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: l10n.studentsGrade,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
+            child: Text(l10n.commonSave),
+          ),
+        ],
+      ),
+    );
+    if (result == null || !mounted) return;
+    try {
+      final api = ref.read(apiProvider);
+      await api.updateStudentsGrade(
+        _selected.toList(),
+        result.isEmpty ? null : result,
+      );
+      _selected.clear();
+      ref.invalidate(studentsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.bulkCompleted)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkAssignSubject() async {
+    final l10n = context.l10n;
+    final subjects = ref.read(subjectsProvider).value ?? const <Subject>[];
+    if (subjects.isEmpty) return;
+    final picked = await showDialog<Subject?>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(l10n.bulkAssignSubjectTitle),
+        children: [
+          for (final s in subjects)
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(ctx).pop(s),
+              child: Text(s.displayLabel),
+            ),
+        ],
+      ),
+    );
+    if (picked == null || !mounted) return;
+    try {
+      final api = ref.read(apiProvider);
+      await api.assignSubjectToStudents(_selected.toList(), picked.id);
+      _selected.clear();
+      ref.invalidate(studentSubjectRefsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.bulkCompleted)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkShareLinks(List<Student> students) async {
+    final l10n = context.l10n;
+    final api = ref.read(apiProvider);
+    final selected = students.where((s) => _selected.contains(s.id)).toList();
+    final lines = <String>[];
+    for (final student in selected) {
+      final token = student.parentToken ?? await api.ensureParentToken(student.id);
+      lines.add('${student.name}  ${AppConfig.webBaseUrl}/#/portal/$token');
+    }
+    final text = lines.join('\n');
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.commonCopied)),
+    );
+    // Open WhatsApp with first parent phone if available
+    for (final student in selected) {
+      if (student.parentPhone != null && student.parentPhone!.trim().isNotEmpty) {
+        await openExternal(waChatLink(student.parentPhone!, text: text));
+        break;
+      }
+    }
+    ref.invalidate(studentsProvider); // tokens may have been created
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final studentsAsync = ref.watch(studentsProvider);
+    final subjectsAsync = ref.watch(subjectsProvider);
+    final refsAsync = ref.watch(studentSubjectRefsProvider);
+    final subjects = subjectsAsync.value ?? const <Subject>[];
+    final refs = refsAsync.value ?? const <StudentSubjectRef>[];
+
     return Column(
       children: [
+        // ── search + sort row ──
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: TextField(
-            controller: _searchController,
-            onChanged: (value) => setState(() => _query = value.trim()),
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
-              hintText: l10n.commonSearch,
-              isDense: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) => setState(() => _query = value.trim()),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: l10n.commonSearch,
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton.filledTonal(
+                icon: Icon(_sortNewest ? Icons.arrow_downward : Icons.sort_by_alpha),
+                tooltip: _sortNewest ? l10n.sortNewest : l10n.sortName,
+                onPressed: () => setState(() => _sortNewest = !_sortNewest),
+              ),
+            ],
+          ),
+        ),
+        // ── filter chips ──
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            children: [
+              // Grade filter
+              Expanded(
+                child: DropdownButtonFormField<String?>(
+                  initialValue: _filterGrade,
+                  isDense: true,
+                  decoration: InputDecoration(
+                    labelText: l10n.filterAllGrades,
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  items: [
+                    const DropdownMenuItem<String?>(value: null, child: Text('')),
+                    for (final g in _uniqueGrades(studentsAsync.value ?? const []))
+                      DropdownMenuItem(value: g, child: Text(g)),
+                  ],
+                  onChanged: (v) => setState(() => _filterGrade = v),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Subject filter
+              Expanded(
+                child: DropdownButtonFormField<String?>(
+                  initialValue: _filterSubjectId,
+                  isDense: true,
+                  decoration: InputDecoration(
+                    labelText: l10n.filterAllSubjects,
+                    isDense: true,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  items: [
+                    const DropdownMenuItem<String?>(value: null, child: Text('')),
+                    for (final s in subjects)
+                      DropdownMenuItem(value: s.id, child: Text(s.displayLabel, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                  ],
+                  onChanged: (v) => setState(() => _filterSubjectId = v),
+                ),
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -88,17 +319,29 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
               onRetry: () => ref.invalidate(studentsProvider),
             ),
             data: (students) {
-              final visible = _query.isEmpty
-                  ? students
-                  : students.where((s) => s.name.contains(_query)).toList();
+              // ── apply filters ──
+              final assignedIds = _filterSubjectId == null
+                  ? null
+                  : refs.where((r) => r.subjectId == _filterSubjectId).map((r) => r.studentId).toSet();
+              var visible = students.where((s) {
+                if (_filterGrade != null && (s.grade ?? '') != _filterGrade) return false;
+                if (assignedIds != null && !assignedIds.contains(s.id)) return false;
+                return true;
+              }).toList();
+              if (_query.isNotEmpty) {
+                visible = visible.where((s) => s.name.contains(_query)).toList();
+              }
+              if (_sortNewest) {
+                visible = visible.reversed.toList();
+              }
               if (visible.isEmpty) {
                 return RefreshableEmpty(
                   onRefresh: () => refreshSchoolData(ref),
                   empty: EmptyState(
-                    icon: _query.isEmpty
+                    icon: (_query.isEmpty && _filterGrade == null && _filterSubjectId == null)
                         ? Icons.group_outlined
                         : Icons.search_off,
-                    message: _query.isEmpty
+                    message: (_query.isEmpty && _filterGrade == null && _filterSubjectId == null)
                         ? l10n.studentsEmpty
                         : l10n.commonEmpty,
                   ),
@@ -110,32 +353,102 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
                   itemCount: visible.length,
-                separatorBuilder: (context, index) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final student = visible[index];
-                  return ListTile(
-                    leading: CircleAvatar(child: Text(_initial(student.name))),
-                    title: Text(student.name),
-                    subtitle: Text(
-                      _studentSubtitle(l10n, student),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit_outlined),
-                      tooltip: l10n.commonEdit,
-                      onPressed: () => _openStudentForm(context, student),
-                    ),
-                    onTap: () => _openStudentDetail(context, student.id),
-                  );
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final student = visible[index];
+                    final isSelected = _selected.contains(student.id);
+                    return ListTile(
+                      leading: _selecting
+                          ? Checkbox(
+                              value: isSelected,
+                              onChanged: (_) => _toggle(student.id),
+                            )
+                          : CircleAvatar(child: Text(_initial(student.name))),
+                      title: Text(student.name),
+                      subtitle: Text(
+                        _studentSubtitle(l10n, student),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: _selecting
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.edit_outlined),
+                              tooltip: l10n.commonEdit,
+                              onPressed: () => _openStudentForm(context, student),
+                            ),
+                      selected: isSelected,
+                      selectedTileColor: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.25),
+                      onTap: _selecting ? () => _toggle(student.id) : () => _openStudentDetail(context, student.id),
+                      onLongPress: _selecting ? null : () => _toggle(student.id),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+        // ── selection bar ──
+        if (_selecting)
+          SelectionBar(
+            count: _selected.length,
+            total: studentsAsync.value?.length ?? 0,
+            onClose: () => setState(() => _selected.clear()),
+            onSelectAll: () {
+              final current = ref.read(studentsProvider).value ?? const <Student>[];
+              // If filtering, select all visible only
+              final ids = current.where((s) {
+                if (_filterGrade != null && (s.grade ?? '') != _filterGrade) return false;
+                if (_filterSubjectId != null) {
+                  final assigned = refs.any((r) => r.studentId == s.id && r.subjectId == _filterSubjectId);
+                  if (!assigned) return false;
+                }
+                if (_query.isNotEmpty && !s.name.contains(_query)) return false;
+                return true;
+              }).toList();
+              _selectAll(ids);
+            },
+            actions: [
+              BulkAction(
+                icon: Icons.grade_outlined,
+                label: l10n.bulkSetGrade,
+                onTap: _bulkSetGrade,
+              ),
+              BulkAction(
+                icon: Icons.book_outlined,
+                label: l10n.bulkAssignSubject,
+                onTap: _bulkAssignSubject,
+              ),
+              BulkAction(
+                icon: Icons.share_outlined,
+                label: l10n.bulkShareLinks,
+                onTap: () {
+                  final students = ref.read(studentsProvider).value ?? const <Student>[];
+                  _bulkShareLinks(students);
                 },
               ),
-            );
-          },
-        ),
-      ),
-    ],
-  );
+              BulkAction(
+                icon: Icons.delete_outline,
+                label: l10n.commonDelete,
+                color: Theme.of(context).colorScheme.error,
+                onTap: () {
+                  final students = ref.read(studentsProvider).value ?? const <Student>[];
+                  _bulkDelete(students);
+                },
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  List<String> _uniqueGrades(List<Student> students) {
+    final set = <String>{};
+    for (final s in students) {
+      final g = s.grade;
+      if (g != null && g.isNotEmpty) set.add(g);
+    }
+    return set.toList()..sort();
   }
 }
 

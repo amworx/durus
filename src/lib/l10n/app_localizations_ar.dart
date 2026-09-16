@@ -498,6 +498,78 @@ class AppLocalizationsAr extends AppLocalizations {
   String get feesSelectStudent => 'اختر الطالب';
 
   @override
+  String get commonSelectAll => 'تحديد الكل';
+
+  @override
+  String get bulkActions => 'عمليات متعددة';
+
+  @override
+  String bulkSelected(int count) {
+    return 'المحدد: $count';
+  }
+
+  @override
+  String get bulkNoSelection => 'لم يتم تحديد أي عنصر';
+
+  @override
+  String get bulkCompleted => 'تمت العملية';
+
+  @override
+  String get bulkDeleteTitle => 'حذف المحدد';
+
+  @override
+  String bulkDeleteConfirm(int count) {
+    return 'سيتم حذف $count عنصر. هل أنت متأكد؟';
+  }
+
+  @override
+  String get bulkSetGrade => 'تعديل الصف';
+
+  @override
+  String get bulkSetGradeTitle => 'الصف الجديد للمحددين';
+
+  @override
+  String get bulkAssignSubject => 'إسناد مادة';
+
+  @override
+  String get bulkAssignSubjectTitle => 'اختر المادة لإسنادها';
+
+  @override
+  String get bulkExportAttendance => 'تصدير الحضور';
+
+  @override
+  String get bulkShareLinks => 'مشاركة روابط الأولياء';
+
+  @override
+  String get bulkMarkPaid => 'تسديد المحدد';
+
+  @override
+  String bulkMarkPaidConfirm(int count) {
+    return 'تسديد المبلغ المتبقي لـ $count قسط؟';
+  }
+
+  @override
+  String get filterAllGrades => 'كل الصفوف';
+
+  @override
+  String get filterAllSubjects => 'كل المواد';
+
+  @override
+  String get filterAllLocations => 'كل الأماكن';
+
+  @override
+  String get filterAllMonths => 'كل الشهور';
+
+  @override
+  String get filterAllStatus => 'كل الحالات';
+
+  @override
+  String get sortName => 'الاسم';
+
+  @override
+  String get sortNewest => 'الأحدث';
+
+  @override
   String get testsTitle => 'الاختبارات';
 
   @override

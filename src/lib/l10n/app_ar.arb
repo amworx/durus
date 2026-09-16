@@ -179,6 +179,53 @@
   "feesEmpty": "لا توجد أقساط بعد",
   "feesSelectStudent": "اختر الطالب",
 
+  "commonSelectAll": "تحديد الكل",
+  "bulkActions": "عمليات متعددة",
+  "bulkSelected": "المحدد: {count}",
+  "@bulkSelected": {
+    "description": "Count of selected items in bulk-operation mode",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkNoSelection": "لم يتم تحديد أي عنصر",
+  "bulkCompleted": "تمت العملية",
+  "bulkDeleteTitle": "حذف المحدد",
+  "bulkDeleteConfirm": "سيتم حذف {count} عنصر. هل أنت متأكد؟",
+  "@bulkDeleteConfirm": {
+    "description": "Bulk delete confirmation with the exact count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkSetGrade": "تعديل الصف",
+  "bulkSetGradeTitle": "الصف الجديد للمحددين",
+  "bulkAssignSubject": "إسناد مادة",
+  "bulkAssignSubjectTitle": "اختر المادة لإسنادها",
+  "bulkExportAttendance": "تصدير الحضور",
+  "bulkShareLinks": "مشاركة روابط الأولياء",
+  "bulkMarkPaid": "تسديد المحدد",
+  "bulkMarkPaidConfirm": "تسديد المبلغ المتبقي لـ {count} قسط؟",
+  "@bulkMarkPaidConfirm": {
+    "description": "Bulk mark-paid confirmation with the exact count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterAllGrades": "كل الصفوف",
+  "filterAllSubjects": "كل المواد",
+  "filterAllLocations": "كل الأماكن",
+  "filterAllMonths": "كل الشهور",
+  "filterAllStatus": "كل الحالات",
+  "sortName": "الاسم",
+  "sortNewest": "الأحدث",
+
   "testsTitle": "الاختبارات",
   "testsAddTitle": "إضافة اختبار",
   "testsEditTitle": "تعديل اختبار",

@@ -217,3 +217,125 @@ class RefreshableEmpty extends StatelessWidget {
     );
   }
 }
+
+/// One tappable action shown inside the [SelectionBar].
+class BulkAction {
+  const BulkAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.color,
+    this.enabled = true,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color? color;
+  final bool enabled;
+}
+
+/// Bottom bar shown while working with a multi-select list (bulk operations).
+/// Displays the current selection count plus actions (delete / set grade /
+/// assign subject / mark paid ...). Parent screens provide the actions and
+/// toggle visibility themselves.
+class SelectionBar extends StatelessWidget {
+  const SelectionBar({
+    super.key,
+    required this.count,
+    required this.total,
+    required this.onClose,
+    required this.actions,
+    this.onSelectAll,
+  });
+
+  final int count;
+  final int total;
+  final VoidCallback onClose;
+  final List<BulkAction> actions;
+  final VoidCallback? onSelectAll;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    return Material(
+      elevation: 8,
+      color: theme.colorScheme.surfaceContainerLow,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: l10n.commonClose,
+                onPressed: onClose,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  l10n.bulkSelected(count),
+                  style: theme.textTheme.titleSmall,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (onSelectAll != null)
+                IconButton(
+                  icon: Icon(
+                    count == total
+                        ? Icons.deselect
+                        : Icons.select_all,
+                  ),
+                  tooltip: l10n.commonSelectAll,
+                  onPressed: onSelectAll,
+                ),
+              const SizedBox(width: 4),
+              for (final action in actions)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 4),
+                  child: _SelectionActionChip(action: action),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectionActionChip extends StatelessWidget {
+  const _SelectionActionChip({required this.action});
+
+  final BulkAction action;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final fg = action.color ?? scheme.onSurfaceVariant;
+    return InkWell(
+      onTap: action.enabled ? action.onTap : null,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(action.icon, color: action.enabled ? fg : scheme.outlineVariant),
+            const SizedBox(height: 2),
+            Text(
+              action.label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: action.enabled ? fg : scheme.outlineVariant,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -723,6 +723,96 @@ class DurusApi {
     return null;
   }
 
+  // ---------- Bulk operations ----------
+
+  /// Deletes many students at once (RLS-scoped to the caller's school).
+  Future<void> deleteStudents(List<String> ids) async {
+    if (ids.isEmpty) return;
+    await _c.from('students').delete().inFilter('id', ids);
+  }
+
+  /// Updates the grade for many students (null clears the grade).
+  Future<void> updateStudentsGrade(List<String> ids, String? grade) async {
+    if (ids.isEmpty) return;
+    await _c.from('students').update({'grade': grade}).inFilter('id', ids);
+  }
+
+  /// Assigns a subject to many students at once (idempotent).
+  Future<void> assignSubjectToStudents(
+    List<String> studentIds,
+    String subjectId,
+  ) async {
+    if (studentIds.isEmpty) return;
+    final existing = await _c
+        .from('student_subjects')
+        .select('student_id')
+        .eq('subject_id', subjectId)
+        .inFilter('student_id', studentIds);
+    final existingIds = (existing as List<dynamic>)
+        .map((e) => (e as Map<String, dynamic>)['student_id'] as String)
+        .toSet();
+    final missing = studentIds.where((id) => !existingIds.contains(id)).toList();
+    if (missing.isEmpty) return;
+    await _c.from('student_subjects').insert(
+      missing.map((id) => {'student_id': id, 'subject_id': subjectId}).toList(),
+    );
+  }
+
+  /// Removes a subject from many students at once.
+  Future<void> removeSubjectFromStudents(
+    List<String> studentIds,
+    String subjectId,
+  ) async {
+    if (studentIds.isEmpty) return;
+    await _c
+        .from('student_subjects')
+        .delete()
+        .eq('subject_id', subjectId)
+        .inFilter('student_id', studentIds);
+  }
+
+  /// Deletes many subjects at once (RLS-scoped to the caller's school).
+  Future<void> deleteSubjects(List<String> ids) async {
+    if (ids.isEmpty) return;
+    await _c.from('subjects').delete().inFilter('id', ids);
+  }
+
+  /// Updates the grade for many subjects at once (null clears the grade).
+  Future<void> updateSubjectsGrade(List<String> ids, String? grade) async {
+    if (ids.isEmpty) return;
+    await _c.from('subjects').update({'grade': grade}).inFilter('id', ids);
+  }
+
+  /// Deletes many fees at once (RLS-scoped to the caller's school).
+  Future<void> deleteFees(List<String> ids) async {
+    if (ids.isEmpty) return;
+    await _c.from('fees').delete().inFilter('id', ids);
+  }
+
+  /// Registers a catch-up payment for the remaining balance of each fee in
+  /// [entries]. The `trg_refresh_fee` trigger updates paid_amount/status.
+  Future<void> markFeesPaid(
+    List<({String feeId, String studentId, double remaining})> entries, {
+    String method = 'cash',
+  }) async {
+    if (entries.isEmpty) return;
+    final school = await _schoolIdOrThrow();
+    final rows = <Map<String, dynamic>>[
+      for (final e in entries)
+        if (e.remaining > 0)
+          {
+            'school_id': school,
+            'fee_id': e.feeId,
+            'student_id': e.studentId,
+            'amount': e.remaining,
+            'paid_at': _isoToday(),
+            'method': method,
+          },
+    ];
+    if (rows.isEmpty) return;
+    await _c.from('payments').insert(rows);
+  }
+
   // ---------- Internal helpers ----------
 
   List<T> _mapList<T>(dynamic data, T Function(Map<String, dynamic>) fromJson) =>
