@@ -801,6 +801,24 @@ class AppLocalizationsAr extends AppLocalizations {
   String get portalAbsenceHistory => 'الأعذار المرسلة';
 
   @override
+  String get portalAbsenceNoSession => 'لا توجد حصة للطالب في هذا اليوم';
+
+  @override
+  String get portalTabHome => 'الرئيسية';
+
+  @override
+  String get portalTabAttendance => 'الحضور';
+
+  @override
+  String get portalTabSchedule => 'الجدول';
+
+  @override
+  String get portalTabFees => 'الرسوم';
+
+  @override
+  String get portalTabMore => 'المزيد';
+
+  @override
   String get portalConfirmRead => 'تأكيد القراءة';
 
   @override

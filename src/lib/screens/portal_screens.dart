@@ -137,6 +137,7 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
   DateTime _excuseDate = DateTime.now().add(const Duration(days: 1));
   final TextEditingController _excuseReasonCtrl = TextEditingController();
   bool _sendingExcuse = false;
+  int _tabIndex = 0;
   bool _loading = true;
   bool _error = false;
 
@@ -165,6 +166,7 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
       _family = const [];
       _excuses = const [];
       _receiptKeys = const {};
+      _tabIndex = 0;
       _load();
     }
   }
@@ -389,12 +391,36 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
       initialDate: _excuseDate,
       firstDate: today.subtract(const Duration(days: 30)),
       lastDate: today.add(const Duration(days: 90)),
+      selectableDayPredicate: _excuseSelectable,
     );
     if (picked != null && mounted) {
       setState(
         () => _excuseDate = DateTime(picked.year, picked.month, picked.day),
       );
     }
+  }
+
+  /// Date picker rule, mirroring the server guard: only days with a
+  /// recorded session or an active slot weekday are excusable.
+  bool _excuseSelectable(DateTime day) {
+    final data = _data;
+    if (data == null) return true;
+    final recent = <String>{
+      for (final r in _listOf(_mapOf(data['attendance'])['recent']))
+        if (r is Map<String, dynamic> && r['date'] is String)
+          r['date'] as String,
+    };
+    final weekdays = <int>{
+      for (final s in _listOf(data['schedule']))
+        if (s is Map<String, dynamic> && s['day_of_week'] is int)
+          s['day_of_week'] as int,
+    };
+    return isExcusableDay(
+      iso: isoDate(day),
+      weekday: day.weekday,
+      sessionDates: recent,
+      slotWeekdays: weekdays,
+    );
   }
 
   Future<void> _sendExcuse() async {
@@ -429,9 +455,12 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _sendingExcuse = false);
-      final msg = e.toString().contains('already_exists')
+      final err = e.toString();
+      final msg = err.contains('already_exists')
           ? l10n.portalAbsenceExists
-          : l10n.portalActionFailed;
+          : err.contains('no_session')
+              ? l10n.portalAbsenceNoSession
+              : l10n.portalActionFailed;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
@@ -601,33 +630,153 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
       appBar: AppBar(
         title: Text(studentName.isEmpty ? l10n.portalTitle : studentName),
       ),
-      body: RefreshIndicator(
-        onRefresh: _load,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 760),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (_family.length > 1) _familySwitcher(context),
-                    _headerSection(context, data),
-                    _notificationsSection(context),
-                    _absenceSection(context),
-                    _attendanceSection(context, attendance),
-                    _scheduleSection(context, schedule),
-                    _feeSection(context, fee),
-                    _statsSection(context, attendance, tests),
-                    _testsSection(context, tests),
-                    _notesSection(context, notes),
-                    _announcementsSection(context, announcements),
-                  ],
-                ),
+      body: IndexedStack(
+        index: _tabIndex,
+        children: [
+          _portalTab(children: [
+            if (_family.length > 1) _familySwitcher(context),
+            _headerSection(context, data),
+            _notificationsSection(context),
+            _announcementsSection(context, announcements),
+          ]),
+          _portalTab(children: [
+            _attendanceSection(context, attendance),
+            _statsSection(context, attendance, tests),
+            _absenceSection(context),
+          ]),
+          _portalTab(children: [
+            _scheduleSection(context, schedule),
+          ]),
+          _portalTab(children: [
+            _feeSection(context, fee),
+          ]),
+          _portalTab(children: [
+            _testsSection(context, tests),
+            _notesSection(context, notes),
+          ]),
+        ],
+      ),
+      bottomNavigationBar: _portalNavBar(context),
+    );
+  }
+
+  Widget _portalTab({required List<Widget> children}) {
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        children: [
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 760),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: children,
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Floating rounded bottom bar (Uiverse pill idiom, rebuilt natively):
+  /// the active destination expands into an icon + label pill.
+  Widget _portalNavBar(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final items = [
+      (Icons.home_outlined, Icons.home, l10n.portalTabHome),
+      (
+        Icons.fact_check_outlined,
+        Icons.fact_check,
+        l10n.portalTabAttendance
+      ),
+      (
+        Icons.calendar_month_outlined,
+        Icons.calendar_month,
+        l10n.portalTabSchedule
+      ),
+      (
+        Icons.receipt_long_outlined,
+        Icons.receipt_long,
+        l10n.portalTabFees
+      ),
+      (Icons.more_horiz, Icons.more_horiz, l10n.portalTabMore),
+    ];
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            for (var i = 0; i < items.length; i++)
+              _navDest(
+                selected: _tabIndex == i,
+                icon: _tabIndex == i ? items[i].$2 : items[i].$1,
+                label: items[i].$3,
+                onTap: () => setState(() => _tabIndex = i),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _navDest({
+    required bool selected,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: selected ? 14 : 10,
+          vertical: 8,
+        ),
+        decoration: BoxDecoration(
+          color: selected ? scheme.primaryContainer : Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 22,
+              color: selected
+                  ? scheme.onPrimaryContainer
+                  : scheme.onSurfaceVariant,
+            ),
+            if (selected) ...[
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: scheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                ),
+              ),
+            ],
           ],
         ),
       ),

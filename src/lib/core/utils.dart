@@ -24,6 +24,19 @@ String resolveFamilyId(List<String?> existing) {
   return makeUuid();
 }
 
+/// Portal excuse rule: a date is excusable only if the student has a
+/// recorded session on it or an active slot on its weekday. Pure so the
+/// date picker and the (mirrored) server guard stay in sync by design.
+bool isExcusableDay({
+  required String iso,
+  required int weekday,
+  required Set<String> sessionDates,
+  required Set<int> slotWeekdays,
+}) {
+  if (sessionDates.contains(iso)) return true;
+  return slotWeekdays.contains(weekday);
+}
+
 /// September-rollover helper: next school grade, or null when the grade
 /// is unknown (typo) or terminal (السادس graduates manually, never auto).
 String? promoteGrade(String grade) {

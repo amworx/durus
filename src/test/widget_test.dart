@@ -32,6 +32,36 @@ void main() {
       expect(promoteGrade(''), isNull);
     });
 
+    test('isExcusableDay needs a session or a slot weekday', () {
+      expect(
+        isExcusableDay(
+          iso: '2026-09-14',
+          weekday: DateTime.monday,
+          sessionDates: {'2026-09-14'},
+          slotWeekdays: const {2},
+        ),
+        isTrue,
+      );
+      expect(
+        isExcusableDay(
+          iso: '2026-09-15',
+          weekday: DateTime.tuesday,
+          sessionDates: const {'2026-09-14'},
+          slotWeekdays: const {2},
+        ),
+        isTrue,
+      );
+      expect(
+        isExcusableDay(
+          iso: '2026-09-16',
+          weekday: DateTime.wednesday,
+          sessionDates: const {'2026-09-14'},
+          slotWeekdays: const {2},
+        ),
+        isFalse,
+      );
+    });
+
     test('resolveFamilyId reuses first id else mints uuid', () {
       expect(resolveFamilyId(['f1', 'f2']), 'f1');
       expect(resolveFamilyId([null, '', 'f9']), 'f9');

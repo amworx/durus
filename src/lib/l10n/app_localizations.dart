@@ -1594,6 +1594,42 @@ abstract class AppLocalizations {
   /// **'الأعذار المرسلة'**
   String get portalAbsenceHistory;
 
+  /// No description provided for @portalAbsenceNoSession.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد حصة للطالب في هذا اليوم'**
+  String get portalAbsenceNoSession;
+
+  /// No description provided for @portalTabHome.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرئيسية'**
+  String get portalTabHome;
+
+  /// No description provided for @portalTabAttendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحضور'**
+  String get portalTabAttendance;
+
+  /// No description provided for @portalTabSchedule.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجدول'**
+  String get portalTabSchedule;
+
+  /// No description provided for @portalTabFees.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرسوم'**
+  String get portalTabFees;
+
+  /// No description provided for @portalTabMore.
+  ///
+  /// In ar, this message translates to:
+  /// **'المزيد'**
+  String get portalTabMore;
+
   /// No description provided for @portalConfirmRead.
   ///
   /// In ar, this message translates to:
