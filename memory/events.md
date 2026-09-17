@@ -877,6 +877,18 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - lessons: Prefer identities list over appMetadata provider for account-type decisions — metadata reflects signup method, identities reflect what exists now (linking-safe).
 - tags: build, auth, google-signin, profile, testing
 
+## EVT-20260917-0061
+- id: EVT-20260917-0061
+- timestamp: 2026-09-17
+- mode: BUILD
+- action: v1.1.17 shipped (security batch + Google sign-in)
+- summary: Full pipeline on user 'push': tests 45/45 → app_meta v127 migration via `supabase migration new` + db push (verified live 1.1.17 via anon REST) → feat commit (hardening + Google) + release commit (1.1.17+2 + migration) → tag v1.1.17 → pushed master+tags → web build (--base-href /durus/, Google flag) → gh-pages via temp clone preserving showcase/ (44 entries) + .nojekyll (inline -c identity, no config change) → draft release → 3 APKs uploaded --clobber → published. Verified: apk/page/site all HTTP 200, pages built, arm64 aapt2 2002/1.1.17 + client-ID string proof. Showed user live Google test passed pre-push. Leftover: local docs/ has 2 showcase mockups (schedule, topbar) not yet synced to gh-pages showcase/ — left untouched by preserve-rule, flag next time.
+- result: success — https://github.com/amworx/durus/releases/tag/v1.1.17
+- files: committed (61dbc4c feat + release); web on gh-pages 3f0ef6c
+- errors: temp clone had no git identity — used `git -c user.name/email` inline instead of touching config
+- lessons: (1) Always verify `gh release view --json isDraft,assets` after create — it can time out into a stray draft. (2) gh-pages temp-clone flow must exclude showcase/+.nojekyll from the wipe, and never set global git identity for it.
+- tags: build, release, deploy, github-pages, verification
+
 ## EVT-20260916-0043
 - id: EVT-20260916-0043
 - timestamp: 2026-09-16
