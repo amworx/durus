@@ -588,3 +588,63 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - errors: 2 scares, 0 ship-blockers after verification
 - lessons: (1) NEVER trust artifact sizes as a freshness proxy — grep the binary for a new string (UTF-16LE for Dart snapshots) + check versionName; sizes can coincide, bytes don't lie. (2) Always re-verify draft:false AFTER the final upload, never before — uploads can unpublish. (3) flutter clean wipes build/web too — rebuild web + republish gh-pages in the same run.
 - tags: release, v1.1.11, github, app_meta, storage, gh-pages, verification, publish
+
+## EVT-20260916-0028
+- id: EVT-20260916-0028
+- timestamp: 2026-09-16
+- mode: RESEARCH
+- action: student lifecycle analysis (finish/re-register/irregular payments)
+- summary: User asked what happens at course end, re-registration, and non-monthly/dropout payments. Findings: (1) No finish/archive concept exists — finished students stay live everywhere and timeless recurring slots render on the schedule forever until slots are deleted (sessions survive via slot set-null, good). Student delete cascades EVERYTHING incl. reports — nuclear, confirm dialog is the only gate. (2) Re-registration = keep the same row (history + parent token continuous); grade edit + subjects/slots/fees update; duplicates are the trap (no unique guard on name/phone, splits history). No year-rollover flow. (3) Fee engine: per-(student,month) rows, free amounts, payments attach to one fee, trigger recomputes paid/partial/unpaid, no cap, no carry-forward, no multi-month allocation, no write-off. Proposed: student status (active/paused/dropped/graduated), rollover helper, oldest-first allocation + waiver button; immediate zero-code waiver practice = method other + note. No code changed — awaiting build decision.
+- result: advisory — 3 proposals with recommendation (status + waiver first)
+- files: none (read-only analysis)
+- errors: 0
+- lessons: (1) Lifecycle questions are answered from FK on-delete clauses + trigger bodies, not UI — the schema IS the lifecycle spec. (2) Cascade-everything + no-archive means delete-student is data destruction, not cleanup — status flags must come before anyone learns this the hard way.
+- tags: research, lifecycle, students, fees, payments, cascade, advisory
+
+## EVT-20260916-0029
+- id: EVT-20260916-0029
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: student delete guard + lifecycle/grade/advance analysis
+- summary: User mandated: never hard-delete a student with ≥1 session (interactive workflow), handle grade edits carefully (mistake vs move), cover advance payments. Built the guard: single delete with sessions → blocking dialog (name + count) offering slots-only deletion (history kept); bulk delete partitions selection (blocked listed by name, only clean ones deleted). Guard data via provider cache with direct-API fallback; any load failure aborts fail-closed. Fixed self-inflicted analyzer errors (provider.future typing) by using explicit api.lessons()/slots() fallback + mounted guards — back to 8 pre-existing infos, 29/29 tests. Verified grade blast radius is SMALL: student.grade is display-only (lists, portal) + snapshotted into generated reports (past reports correctly keep old grade); sessions/tests/fees never reference it — the careful part is UX (mistake vs move → review subjects/slots whose own grade labels may no longer fit), not DB danger. Advance payments: future-month fee rows are creatable today (free-text YYYY-MM, no future block), so prepay works manually; missing pieces are discoverability + due-total pollution + no oldest-first allocation/credit pool (presented as options). Uncommitted.
+- result: success — delete guard live locally, verified; advance + grade-UX designs proposed, awaiting pick
+- files: src/lib/screens/students_screens.dart, src/lib/l10n/* (3) (not committed)
+- errors: 3 analyzer errors from provider.future misuse, fixed via explicit API fallback
+- lessons: (1) provider.future typing bites in handlers — prefer valueOrNull ?? explicit api call, which also fails closed on network error. (2) ConfirmDialog inflows: put if (!mounted) return after every await, not just after dialogs — the lint flags all post-gap context uses. (3) Check what a field really touches (grade = display + report snapshots) before building heavy machinery around assumed danger.
+- tags: build, delete-guard, students, sessions, cascade, l10n, grade, advance-payments
+
+## EVT-20260916-0030
+- id: EVT-20260916-0030
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: advance-payment polish (option i) — future months as prepayments
+- summary: User picked advance option (i). No schema change: summary totals now skip future-month rows unless the month filter targets them (prepayments no longer inflate dues); future rows carry a شهر مستقبلي chip; the fee form shows سيُحتسب كدفعة مقدمة live-hint when a future YYYY-MM is typed (controller listener). 2 l10n keys ×3 files. flutter analyze 0 errors (8 pre-existing infos), flutter test 29/29. Uncommitted. Grade reason-prompt (mistake vs move) still awaiting user decision.
+- result: success — prepay flow guided and honest, zero migration
+- files: src/lib/screens/fees_screens.dart, src/lib/l10n/* (3) (not committed)
+- errors: 0
+- lessons: (1) YYYY-MM strings compare lexicographically — month > nowMonth needs no date parsing. (2) Polish beats schema: the engine already supported prepay; only totals, labels, and one hint were missing.
+- tags: build, fees, advance-payments, prepay, l10n
+
+## EVT-20260916-0031
+- id: EVT-20260916-0031
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: reason-aware grade editing (mistake vs move)
+- summary: User approved the grade prompt. Student form now snapshots the initial grade; on save with a changed grade (edit only, never create) it asks سبب تغيير الصف: خطأ إدخال saves silently, انتقال صف saves then shows انتقل الطالب إلى {grade} — راجع مواده وحصصه الأسبوعية (messenger survives the pop). Cancel aborts the save. Bulk set-grade untouched (explicit admin batch). 5 l10n keys ×3 files. flutter analyze 0 errors (8 pre-existing infos), flutter test 29/29. Uncommitted.
+- result: success — grade edits are now reason-aware with zero schema change
+- files: src/lib/screens/students_screens.dart, src/lib/l10n/* (3) (not committed)
+- errors: 0
+- lessons: (1) When an edit-tool match fails twice, diff the exact bytes (single-line vs wrapped snackbar) instead of resending — formatting assumptions are the usual culprit. (2) Show the post-save nudge BEFORE pop: root ScaffoldMessenger outlives the route.
+- tags: build, students, grade, ux, l10n
+
+## EVT-20260916-0032
+- id: EVT-20260916-0032
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: release v1.1.12 (advance prepay + grade reason) end-to-end
+- summary: User said push. Pipeline, zero failures: tests 29/29 first; bump 1.1.11+1→1.1.12+1 + AppConfig; migration 20260916240000_app_meta_v122.sql pushed + REST-verified; APKs split-per-ABI + aapt2 1.1.12 + new-code binary proof upfront (سبب تغيير الصف at offset 1185986 — no repeat of the v1.1.11 size scare); 2 commits pushed (660d408 feat, 3ff206e release); web to gh-pages; draft → upload --clobber (v7a size visibly shifted +16KB this time) → publish verified draft:false + publishedAt AFTER upload; Storage upserts 3×200; asset 206 + Pages 200.
+- result: success — v1.1.12 live everywhere; ≤1.1.11 devices auto-detect on resume
+- files: feat + release commits above (pushed); memory below
+- errors: 0
+- lessons: (1) Binary string-search BEFORE uploading (not after a scare) is now the standard freshness proof alongside versionName. (2) Publish-then-verify-draft-status held again — no flip this time, but the check stays mandatory.
+- tags: release, v1.1.12, github, app_meta, storage, gh-pages, verification, publish
