@@ -685,6 +685,18 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - lessons: (1) Old-but-MIT + zero-deps packages are safe to adopt when version solving passes on the first try — verify with a widget test, not just analyze. (2) itemBuilder signature drift between README and code is real — optional-positional shim covers both. (3) Test failures in wrapper harnesses (unbounded constraints) are harness bugs until proven otherwise.
 - tags: build, onboarding, intro, concentric, rtl, l10n, mit
 
+## EVT-20260917-0049
+- id: EVT-20260917-0049
+- timestamp: 2026-09-17
+- mode: BUILD
+- action: release v1.1.15 (intro + portal chrome) — the missing-build fix
+- summary: User cleared app data and saw no intro — root cause was process, not code: phones ran v1.1.14 which predates the intro (committed, never built). Cut the release to fix it: tests 35/35 (code unchanged since green run, version-only delta); bump 1.1.14+1→1.1.15+1 + AppConfig; migration 20260916320000_app_meta_v125.sql pushed + REST-verified; APKs split-per-ABI + aapt2 1.1.15 + binary string proof upfront (دروسك الخاصة منظمة at offset 1374058 — the intro IS in this binary); 1 release commit pushed (89a61ef); web to gh-pages WITH showcase/ preservation (excluded from the wipe — protects the user's live concentric demo); draft → upload --clobber → publish verified draft:false + publishedAt AFTER upload; Storage 3×200; asset 206 + Pages 200. Note: flutter upgrade banner appeared — deliberately ignored (pinned 3.44.9 setup must not move).
+- result: success — v1.1.15 live everywhere; user can now clear data and WILL see the intro
+- files: 89a61ef (pushed); memory below
+- errors: 0
+- lessons: (1) "Feature not working on device" → first question is always "which build is on the device" — check versionName before debugging logic. (2) gh-pages publishes must preserve non-app paths (showcase/) — exclusion list, not blind wipe. (3) Never flutter upgrade on a pinned machine, no matter how loudly the banner suggests it.
+- tags: release, v1.1.15, github, app_meta, storage, gh-pages, verification, publish
+
 ## EVT-20260916-0045
 - id: EVT-20260916-0045
 - timestamp: 2026-09-16
