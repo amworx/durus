@@ -157,6 +157,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authResetButton => 'إرسال الرابط';
 
   @override
+  String get authGoogleButton => 'الدخول عبر Google';
+
+  @override
+  String get authGoogleOr => 'أو';
+
+  @override
+  String get authGoogleNotConfigured => 'الدخول عبر Google غير مفعّل بعد';
+
+  @override
   String get onboardingTitle => 'إعداد المركز';
 
   @override
@@ -894,6 +903,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get portalActionFailed => 'تعذّر تنفيذ الإجراء';
 
   @override
+  String get commonDuplicate => 'هذا السجل موجود مسبقًا';
+
+  @override
+  String get commonInvalidValue => 'قيمة غير صالحة';
+
+  @override
+  String get feesAmountInvalid => 'يجب أن يكون المبلغ أكبر من صفر';
+
+  @override
+  String get testsScoreInvalid => 'درجة غير صالحة';
+
+  @override
   String get introSkip => 'تخطي';
 
   @override
@@ -1186,6 +1207,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profilePasswordChanged => 'تم تغيير كلمة المرور';
+
+  @override
+  String get profilePasswordGoogleOnly =>
+      'حسابك مسجّل عبر Google — لا توجد كلمة مرور لتغييرها';
 
   @override
   String get profileInfo => 'معلومات الحساب';

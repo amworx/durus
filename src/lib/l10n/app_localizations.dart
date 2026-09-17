@@ -388,6 +388,24 @@ abstract class AppLocalizations {
   /// **'إرسال الرابط'**
   String get authResetButton;
 
+  /// No description provided for @authGoogleButton.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدخول عبر Google'**
+  String get authGoogleButton;
+
+  /// No description provided for @authGoogleOr.
+  ///
+  /// In ar, this message translates to:
+  /// **'أو'**
+  String get authGoogleOr;
+
+  /// No description provided for @authGoogleNotConfigured.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدخول عبر Google غير مفعّل بعد'**
+  String get authGoogleNotConfigured;
+
   /// No description provided for @onboardingTitle.
   ///
   /// In ar, this message translates to:
@@ -1768,6 +1786,30 @@ abstract class AppLocalizations {
   /// **'تعذّر تنفيذ الإجراء'**
   String get portalActionFailed;
 
+  /// No description provided for @commonDuplicate.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا السجل موجود مسبقًا'**
+  String get commonDuplicate;
+
+  /// No description provided for @commonInvalidValue.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيمة غير صالحة'**
+  String get commonInvalidValue;
+
+  /// No description provided for @feesAmountInvalid.
+  ///
+  /// In ar, this message translates to:
+  /// **'يجب أن يكون المبلغ أكبر من صفر'**
+  String get feesAmountInvalid;
+
+  /// No description provided for @testsScoreInvalid.
+  ///
+  /// In ar, this message translates to:
+  /// **'درجة غير صالحة'**
+  String get testsScoreInvalid;
+
   /// No description provided for @introSkip.
   ///
   /// In ar, this message translates to:
@@ -2337,6 +2379,12 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تم تغيير كلمة المرور'**
   String get profilePasswordChanged;
+
+  /// No description provided for @profilePasswordGoogleOnly.
+  ///
+  /// In ar, this message translates to:
+  /// **'حسابك مسجّل عبر Google — لا توجد كلمة مرور لتغييرها'**
+  String get profilePasswordGoogleOnly;
 
   /// No description provided for @profileInfo.
   ///

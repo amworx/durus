@@ -3,6 +3,44 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
+import 'package:durus/providers/providers.dart';
+
+/// Audience picker with the manager-only 'all' segment hidden from
+/// teachers (the server policy rejects it too). A teacher editing a
+/// pre-fix 'all' row still sees it selected once, and moving away is
+/// one tap; saving it unchanged surfaces a clear validation error.
+class _AudiencePicker extends ConsumerWidget {
+  const _AudiencePicker({required this.current, required this.onChanged});
+
+  final String current;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final isManager =
+        ref.watch(currentProfileProvider).valueOrNull?.isManager ?? false;
+    return SegmentedButton<String>(
+      segments: [
+        if (isManager || current == 'all')
+          ButtonSegment(
+            value: 'all',
+            label: Text(l10n.announcementsAll),
+          ),
+        ButtonSegment(
+          value: 'teachers',
+          label: Text(l10n.announcementsTeachers),
+        ),
+        ButtonSegment(
+          value: 'parents',
+          label: Text(l10n.announcementsParents),
+        ),
+      ],
+      selected: {current},
+      onSelectionChanged: (sel) => onChanged(sel.first),
+    );
+  }
+}
 
 /// Draft data returned from the announcement compose sheet.
 class AnnouncementDraft {
@@ -63,7 +101,12 @@ class _AnnouncementComposeSheetState
     final edit = widget.edit;
     _titleCtrl = TextEditingController(text: edit?.title ?? '');
     _bodyCtrl = TextEditingController(text: edit?.body ?? '');
-    _audience = edit?.audience ?? 'all';
+    // Non-managers never see the 'all' audience (server rejects it too):
+    // teachers announce to parents or fellow teachers only.
+    final isManager =
+        ref.read(currentProfileProvider).valueOrNull?.isManager ?? false;
+    final initial = edit?.audience ?? 'all';
+    _audience = (!isManager && initial == 'all') ? 'parents' : initial;
     _pinned = edit?.pinned ?? false;
     _expiresAt = edit?.expiresAt?.toIso8601String().substring(0, 10);
   }
@@ -170,27 +213,12 @@ class _AnnouncementComposeSheetState
             ),
             const SizedBox(height: 16),
 
-            // --- Audience ---
+            // --- Audience ('all' is manager-only, enforced server-side too) ---
             Text(l10n.announcementsAudience, style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
-            SegmentedButton<String>(
-              segments: [
-                ButtonSegment(
-                  value: 'all',
-                  label: Text(l10n.announcementsAll),
-                ),
-                ButtonSegment(
-                  value: 'teachers',
-                  label: Text(l10n.announcementsTeachers),
-                ),
-                ButtonSegment(
-                  value: 'parents',
-                  label: Text(l10n.announcementsParents),
-                ),
-              ],
-              selected: {_audience},
-              onSelectionChanged: (sel) =>
-                  setState(() => _audience = sel.first),
+            _AudiencePicker(
+              current: _audience,
+              onChanged: (v) => setState(() => _audience = v),
             ),
             const SizedBox(height: 16),
 

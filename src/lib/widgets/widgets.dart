@@ -183,8 +183,17 @@ class StatusChip extends StatelessWidget {
 }
 
 /// Maps an exception to a short user-facing message. Falls back to a fixed
-/// Arabic string when no localization instance is available.
+/// Arabic string when no localization instance is available. Postgres codes
+/// are matched by substring so constraint violations surface as guidance
+/// instead of a generic error (keeps this file dependency-free by design).
 String friendlyError(Object error, [AppLocalizations? l10n]) {
+  final text = error.toString();
+  if (text.contains('23505')) {
+    return l10n?.commonDuplicate ?? 'هذا السجل موجود مسبقًا';
+  }
+  if (text.contains('23514')) {
+    return l10n?.commonInvalidValue ?? 'قيمة غير صالحة';
+  }
   if (l10n != null) {
     return l10n.commonError;
   }

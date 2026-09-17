@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:durus/core/avatar_url.dart';
+import 'package:durus/core/google_auth.dart';
 import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
@@ -560,6 +561,16 @@ class _AuthTabState extends ConsumerState<_AuthTab> {
     final l10n = context.l10n;
     final sessionEmail =
         Supabase.instance.client.auth.currentUser?.email ?? widget.profile.email;
+    // Google-only accounts have no password; the re-sign-in inside
+    // updatePassword would only ever fail for them — say so upfront.
+    // An account linked to BOTH keeps the form (it does have a password).
+    final user = Supabase.instance.client.auth.currentUser;
+    final showPwForm = showPasswordForm(
+      identityProviders: [
+        for (final i in user?.identities ?? const []) i.provider,
+      ],
+      appProvider: user?.appMetadata['provider'] as String?,
+    );
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -615,39 +626,46 @@ class _AuthTabState extends ConsumerState<_AuthTab> {
         ),
         SectionCard(
           title: l10n.profileChangePassword,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _PasswordField(
-                controller: _curPwCtrl,
-                label: l10n.profilePasswordCurrent,
-                obscure: _obscureCur,
-                onToggle: () =>
-                    setState(() => _obscureCur = !_obscureCur),
-              ),
-              const SizedBox(height: 12),
-              _PasswordField(
-                controller: _newPwCtrl,
-                label: l10n.profilePasswordNew,
-                obscure: _obscureNew,
-                onToggle: () =>
-                    setState(() => _obscureNew = !_obscureNew),
-              ),
-              const SizedBox(height: 12),
-              _PasswordField(
-                controller: _confirmPwCtrl,
-                label: l10n.profilePasswordConfirm,
-                obscure: _obscureConfirm,
-                onToggle: () => setState(
-                    () => _obscureConfirm = !_obscureConfirm),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: _changingPw ? null : _changePassword,
-                child: Text(l10n.profileChangePassword),
-              ),
-            ],
-          ),
+          child: showPwForm
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _PasswordField(
+                      controller: _curPwCtrl,
+                      label: l10n.profilePasswordCurrent,
+                      obscure: _obscureCur,
+                      onToggle: () =>
+                          setState(() => _obscureCur = !_obscureCur),
+                    ),
+                    const SizedBox(height: 12),
+                    _PasswordField(
+                      controller: _newPwCtrl,
+                      label: l10n.profilePasswordNew,
+                      obscure: _obscureNew,
+                      onToggle: () =>
+                          setState(() => _obscureNew = !_obscureNew),
+                    ),
+                    const SizedBox(height: 12),
+                    _PasswordField(
+                      controller: _confirmPwCtrl,
+                      label: l10n.profilePasswordConfirm,
+                      obscure: _obscureConfirm,
+                      onToggle: () => setState(
+                          () => _obscureConfirm = !_obscureConfirm),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: _changingPw ? null : _changePassword,
+                      child: Text(l10n.profileChangePassword),
+                    ),
+                  ],
+                )
+              : Text(
+                  l10n.profilePasswordGoogleOnly,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
         ),
       ],
     );

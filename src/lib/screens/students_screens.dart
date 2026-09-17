@@ -3176,9 +3176,11 @@ class _TestSheetState extends ConsumerState<_TestSheet> {
                           if (value == null || value.trim().isEmpty) {
                             return l10n.commonRequired;
                           }
-                          return double.tryParse(value.trim()) == null
-                              ? l10n.commonError
-                              : null;
+                          final score = double.tryParse(value.trim());
+                          if (score == null || score < 0) {
+                            return l10n.testsScoreInvalid;
+                          }
+                          return null;
                         },
                       ),
                     ),
@@ -3197,9 +3199,11 @@ class _TestSheetState extends ConsumerState<_TestSheet> {
                           if (value == null || value.trim().isEmpty) {
                             return l10n.commonRequired;
                           }
-                          return double.tryParse(value.trim()) == null
-                              ? l10n.commonError
-                              : null;
+                          final maxScore = double.tryParse(value.trim());
+                          if (maxScore == null || maxScore <= 0) {
+                            return l10n.testsScoreInvalid;
+                          }
+                          return null;
                         },
                       ),
                     ),

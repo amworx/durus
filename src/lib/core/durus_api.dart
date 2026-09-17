@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/models.dart';
 import 'db.dart';
+import 'google_auth.dart';
 import 'updater.dart';
 import 'utils.dart';
 
@@ -28,6 +30,46 @@ class DurusApi {
   /// whether the account exists (no user enumeration).
   Future<void> resetPassword(String email) =>
       _c.auth.resetPasswordForEmail(email);
+
+  /// Google sign-in alongside email/password. On web it uses the Supabase
+  /// OAuth redirect (the AuthGate picks up the session automatically); on
+  /// native it runs the system account picker and exchanges the ID token
+  /// for a Supabase session. [googleWebClientId] is the public OAuth web
+  /// client ID (`--dart-define=GOOGLE_WEB_CLIENT_ID=...`).
+  ///
+  /// Returns true on success, false when the user cancelled (stay quiet).
+  /// Throws [StateError] (`google_not_configured`) when no client ID was
+  /// supplied, and [StateError] (`google_no_id_token`) when Google returned
+  /// no ID token. The [nativeSignIn]/[webSignIn] hooks exist for tests.
+  Future<bool> signInWithGoogle({
+    required String googleWebClientId,
+    Future<GoogleAuthTokens?> Function(String clientId)? nativeSignIn,
+    Future<bool> Function()? webSignIn,
+  }) async {
+    if (!isGoogleClientIdConfigured(googleWebClientId)) {
+      throw StateError('google_not_configured');
+    }
+    if (kIsWeb) {
+      final fn =
+          webSignIn ?? () => _c.auth.signInWithOAuth(OAuthProvider.google);
+      return fn();
+    }
+    final tokens =
+        await (nativeSignIn ?? defaultNativeGoogleSignIn)(googleWebClientId);
+    if (tokens == null) {
+      return false;
+    }
+    final idToken = tokens.idToken;
+    if (idToken == null || idToken.isEmpty) {
+      throw StateError('google_no_id_token');
+    }
+    await _c.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+      accessToken: tokens.accessToken,
+    );
+    return true;
+  }
 
   Future<void> signOut() => _c.auth.signOut();
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:durus/core/durus_api.dart';
+import 'package:durus/core/google_auth.dart';
 import 'package:durus/core/links.dart';
 import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/app_localizations.dart';
@@ -93,6 +95,31 @@ void main() {
         ),
         isFalse,
       );
+      expect(
+        isExcusableDay(
+          iso: '2026-09-16',
+          weekday: DateTime.wednesday,
+          sessionDates: const {},
+          slotWeekdays: const {},
+        ),
+        isFalse,
+      );
+    });
+
+    test('waNumber degrades safely on garbage input', () {
+      expect(waNumber(''), '');
+      expect(waNumber('abc-def'), '');
+      expect(waNumber('+963 999 123 456'), '963999123456');
+      expect(waNumber('00963999123456'), '963999123456');
+      expect(waNumber('0999123456'), '963999123456');
+    });
+
+    test('fmtMonthKey never throws, echoes garbage back', () {
+      expect(fmtMonthKey('2026-09'), 'سبتمبر 2026');
+      expect(fmtMonthKey('junk'), 'junk');
+      expect(fmtMonthKey('2026-13'), '2026-13');
+      expect(fmtMonthKey(''), '');
+      expect(fmtMonthKey('2026-9'), 'سبتمبر 2026');
     });
 
     test('resolveFamilyId reuses first id else mints uuid', () {
@@ -462,6 +489,91 @@ void main() {
       expect(l10n.authResetDialogTitle, isNotEmpty);
       expect(l10n.authResetSent, isNotEmpty);
       expect(l10n.authResetButton, isNotEmpty);
+    });
+
+    testWidgets('google auth l10n keys resolve to non-empty Arabic text',
+        (tester) async {
+      late AppLocalizations l10n;
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ar'),
+        home: Builder(
+          builder: (context) {
+            l10n = AppLocalizations.of(context);
+            return const SizedBox();
+          },
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(l10n.authGoogleButton, isNotEmpty);
+      expect(l10n.authGoogleOr, isNotEmpty);
+      expect(l10n.authGoogleNotConfigured, isNotEmpty);
+    });
+  });
+
+  group('google auth', () {
+    test('isGoogleClientIdConfigured rejects empty/blank ids', () {
+      expect(isGoogleClientIdConfigured(''), isFalse);
+      expect(isGoogleClientIdConfigured('   '), isFalse);
+      expect(
+        isGoogleClientIdConfigured('123-abc.apps.googleusercontent.com'),
+        isTrue,
+      );
+    });
+
+    test('signInWithGoogle fails closed without a client id', () {
+      expect(
+        DurusApi().signInWithGoogle(googleWebClientId: '  '),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            'google_not_configured',
+          ),
+        ),
+      );
+    });
+
+    test('signInWithGoogle cancellation returns false quietly', () async {
+      final ok = await DurusApi().signInWithGoogle(
+        googleWebClientId: 'test.apps.googleusercontent.com',
+        nativeSignIn: (_) async => null,
+      );
+      expect(ok, isFalse);
+    });
+
+    test('showPasswordForm hides the form only for password-less accounts',
+        () {
+      // Pure Google account — no password to change.
+      expect(
+        showPasswordForm(identityProviders: const ['google']),
+        isFalse,
+      );
+      // Classic email account.
+      expect(
+        showPasswordForm(identityProviders: const ['email']),
+        isTrue,
+      );
+      // Linked both ways — a password exists, keep the form.
+      expect(
+        showPasswordForm(
+            identityProviders: const ['google', 'email']),
+        isTrue,
+      );
+      // Missing identity list — fall back to the app metadata provider.
+      expect(
+        showPasswordForm(
+            identityProviders: const [], appProvider: 'google'),
+        isFalse,
+      );
+      expect(
+        showPasswordForm(
+            identityProviders: const [], appProvider: 'email'),
+        isTrue,
+      );
+      // Unknown state — fail open to the historical behavior.
+      expect(showPasswordForm(identityProviders: const []), isTrue);
     });
   });
 }

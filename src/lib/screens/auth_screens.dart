@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
+import 'package:durus/core/config.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/widgets/widgets.dart';
 
@@ -119,7 +120,147 @@ String _authErrorText(AuthException e, AppLocalizations l10n) {
   if (m.contains('already registered') || m.contains('already exists')) {
     return l10n.authUserExists;
   }
+  if (m.contains('provider is not enabled') ||
+      m.contains('Unsupported provider')) {
+    return l10n.authGoogleNotConfigured;
+  }
   return l10n.commonError;
+}
+
+/// Google sign-in button shared by the sign-in and sign-up forms. The OAuth
+/// flow creates the account when needed, so one button serves both modes.
+/// Cancellation stays quiet; misconfiguration explains itself in Arabic
+/// instead of failing. [formBusy] disables the button while the password
+/// form works, and [onBusyChanged] lets the parent disable its own submit
+/// while Google is in flight.
+class _GoogleSignInButton extends ConsumerStatefulWidget {
+  const _GoogleSignInButton({
+    required this.formBusy,
+    required this.onBusyChanged,
+  });
+
+  final bool formBusy;
+  final ValueChanged<bool> onBusyChanged;
+
+  @override
+  ConsumerState<_GoogleSignInButton> createState() =>
+      _GoogleSignInButtonState();
+}
+
+class _GoogleSignInButtonState extends ConsumerState<_GoogleSignInButton> {
+  bool _busy = false;
+
+  Future<void> _run() async {
+    if (_busy || widget.formBusy) {
+      return;
+    }
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    if (!AppConfig.isGoogleConfigured) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.authGoogleNotConfigured)),
+      );
+      return;
+    }
+    setState(() => _busy = true);
+    widget.onBusyChanged(true);
+    try {
+      await ref.read(apiProvider).signInWithGoogle(
+            googleWebClientId: AppConfig.googleWebClientId,
+          );
+      // Success transitions via the AuthGate; cancellation returns false
+      // quietly — no snackbar either way.
+    } on StateError catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              e.message == 'google_not_configured'
+                  ? l10n.authGoogleNotConfigured
+                  : l10n.commonError,
+            ),
+          ),
+        );
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(_authErrorText(e, l10n))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(friendlyError(e, l10n))));
+      }
+    } finally {
+      widget.onBusyChanged(false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final disabled = _busy || widget.formBusy;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const Expanded(child: Divider()),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                l10n.authGoogleOr,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            const Expanded(child: Divider()),
+          ],
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton(
+          onPressed: disabled ? null : _run,
+          child: _busy
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: theme.colorScheme.primary),
+                      ),
+                      child: Text(
+                        'G',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(l10n.authGoogleButton),
+                  ],
+                ),
+        ),
+      ],
+    );
+  }
 }
 
 class _SignInBody extends ConsumerStatefulWidget {
@@ -137,6 +278,7 @@ class _SignInBodyState extends ConsumerState<_SignInBody> {
   final _passwordController = TextEditingController();
   bool _obscure = true;
   bool _submitting = false;
+  bool _googleBusy = false;
 
   static final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
@@ -311,13 +453,14 @@ class _SignInBodyState extends ConsumerState<_SignInBody> {
           Align(
             alignment: AlignmentDirectional.centerEnd,
             child: TextButton(
-              onPressed: _submitting ? null : _forgotPassword,
+              onPressed:
+                  (_submitting || _googleBusy) ? null : _forgotPassword,
               child: Text(l10n.authForgotPassword),
             ),
           ),
           const SizedBox(height: 4),
           FilledButton(
-            onPressed: _submitting ? null : _submit,
+            onPressed: (_submitting || _googleBusy) ? null : _submit,
             child: _submitting
                 ? const SizedBox(
                     width: 20,
@@ -327,8 +470,16 @@ class _SignInBodyState extends ConsumerState<_SignInBody> {
                 : Text(l10n.authSignInButton),
           ),
           const SizedBox(height: 8),
+          _GoogleSignInButton(
+            formBusy: _submitting,
+            onBusyChanged: (v) {
+              if (mounted) setState(() => _googleBusy = v);
+            },
+          ),
+          const SizedBox(height: 8),
           TextButton(
-            onPressed: _submitting ? null : widget.onSwitch,
+            onPressed:
+                (_submitting || _googleBusy) ? null : widget.onSwitch,
             child: Text(l10n.authNoAccount),
           ),
         ],
@@ -353,6 +504,7 @@ class _SignUpBodyState extends ConsumerState<_SignUpBody> {
   final _passwordController = TextEditingController();
   bool _obscure = true;
   bool _submitting = false;
+  bool _googleBusy = false;
 
   static final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
@@ -485,7 +637,7 @@ class _SignUpBodyState extends ConsumerState<_SignUpBody> {
           ),
           const SizedBox(height: 24),
           FilledButton(
-            onPressed: _submitting ? null : _submit,
+            onPressed: (_submitting || _googleBusy) ? null : _submit,
             child: _submitting
                 ? const SizedBox(
                     width: 20,
@@ -495,8 +647,15 @@ class _SignUpBodyState extends ConsumerState<_SignUpBody> {
                 : Text(l10n.authSignUpButton),
           ),
           const SizedBox(height: 8),
+          _GoogleSignInButton(
+            formBusy: _submitting,
+            onBusyChanged: (v) {
+              if (mounted) setState(() => _googleBusy = v);
+            },
+          ),
+          const SizedBox(height: 8),
           TextButton(
-            onPressed: _submitting ? null : widget.onSwitch,
+            onPressed: (_submitting || _googleBusy) ? null : widget.onSwitch,
             child: Text(l10n.authHaveAccount),
           ),
         ],

@@ -789,9 +789,11 @@ class _FeeFormScreenState extends ConsumerState<FeeFormScreen> {
                 if (value == null || value.trim().isEmpty) {
                   return l10n.commonRequired;
                 }
-                return double.tryParse(value.trim()) == null
-                    ? l10n.commonError
-                    : null;
+                final amount = double.tryParse(value.trim());
+                if (amount == null || amount <= 0) {
+                  return l10n.feesAmountInvalid;
+                }
+                return null;
               },
             ),
             const SizedBox(height: 16),
