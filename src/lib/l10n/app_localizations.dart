@@ -1540,6 +1540,12 @@ abstract class AppLocalizations {
   /// **'الأبناء'**
   String get portalFamilyChildren;
 
+  /// No description provided for @portalFamilyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اضغط للتبديل بين الأبناء'**
+  String get portalFamilyHint;
+
   /// No description provided for @portalAbsenceTitle.
   ///
   /// In ar, this message translates to:
@@ -1647,6 +1653,54 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تعذّر تنفيذ الإجراء'**
   String get portalActionFailed;
+
+  /// No description provided for @introSkip.
+  ///
+  /// In ar, this message translates to:
+  /// **'تخطي'**
+  String get introSkip;
+
+  /// No description provided for @introStart.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابدأ'**
+  String get introStart;
+
+  /// No description provided for @introTitle1.
+  ///
+  /// In ar, this message translates to:
+  /// **'دروسك الخاصة منظمة'**
+  String get introTitle1;
+
+  /// No description provided for @introSub1.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلابك وموادك وجدولك الأسبوعي في مكان واحد'**
+  String get introSub1;
+
+  /// No description provided for @introTitle2.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحضور بضغطة'**
+  String get introTitle2;
+
+  /// No description provided for @introSub2.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجّل الحضور والغياب والتأخير وتابع تقارير كل طالب'**
+  String get introSub2;
+
+  /// No description provided for @introTitle3.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرسوم وبوابة الأهل'**
+  String get introTitle3;
+
+  /// No description provided for @introSub3.
+  ///
+  /// In ar, this message translates to:
+  /// **'أقساط مرنة وإيصالات، والأهل يتابعون عبر رابط آمن'**
+  String get introSub3;
 
   /// No description provided for @feesFutureMonth.
   ///

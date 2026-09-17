@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/providers/providers.dart';
+import 'package:durus/widgets/teacher_avatar.dart';
 import 'package:durus/widgets/widgets.dart';
 
 /// Parent portal entry: the parent pastes the PIN link token and is taken to
@@ -159,14 +162,14 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
   void didUpdateWidget(PortalHomeScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Child switcher navigates to the same route with another token —
-    // reload everything instead of showing stale data.
+    // reload everything but stay on the current tab (comparing two
+    // children tab-by-tab is the point of a persistent switcher).
     if (oldWidget.token != widget.token) {
       _data = null;
       _notifMap = const {};
       _family = const [];
       _excuses = const [];
       _receiptKeys = const {};
-      _tabIndex = 0;
       _load();
     }
   }
@@ -535,51 +538,152 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
     return ((present / total) * 100).round();
   }
 
-  /// ClassDojo-style child switcher for linked siblings. Each child keeps
-  /// its own token (no privilege change) — tapping navigates to that
-  /// child's portal view, which reloads via didUpdateWidget.
+  /// Cycle switcher for linked siblings (confirmed mockup 3): a card that
+  /// flips to the next child on tap, with tappable dots for direct jumps.
+  /// Each child keeps its own token — switching navigates and reloads.
   Widget _familySwitcher(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final currentId = _stringOf(_mapOf(_data?['student'])['id']);
+    var currentIndex = 0;
+    for (var i = 0; i < _family.length; i++) {
+      if (_stringOf(_family[i]['id']) == currentId && currentId.isNotEmpty) {
+        currentIndex = i;
+      }
+    }
+    final current = _family[currentIndex];
+    final name = _stringOf(current['name']);
+    final grade = _stringOf(current['grade']);
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            l10n.portalFamilyChildren,
-            style: theme.textTheme.labelLarge,
+          GestureDetector(
+            onTap: () {
+              if (_family.length < 2) return;
+              _goChild(_family[(currentIndex + 1) % _family.length]);
+            },
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              transitionBuilder: _flipTransition,
+              child: Container(
+                key: ValueKey<String>(_stringOf(current['id'])),
+                padding: const EdgeInsets.all(14),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [
+                      Color(0xFF0A3B2E),
+                      Color(0xFF0E7C66),
+                      Color(0xFF12A083),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x550E7C66),
+                      blurRadius: 18,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    TeacherAvatar(
+                      seed: _stringOf(current['id']),
+                      fallbackLabel: name,
+                      size: 52,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          if (grade.isNotEmpty)
+                            Text(
+                              grade,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.swap_horiz,
+                      color: Colors.white70,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              for (final sib in _family) _familyChip(context, sib),
+              for (var i = 0; i < _family.length; i++)
+                GestureDetector(
+                  onTap: () => _goChild(_family[i]),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: i == currentIndex ? 22 : 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: i == currentIndex
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.outlineVariant,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
             ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.portalFamilyHint,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _familyChip(BuildContext context, Map<String, dynamic> sib) {
-    final token = sib['token'];
-    final selected = token is String && token == widget.token;
-    final name = _stringOf(sib['name']);
-    final grade = _stringOf(sib['grade']);
-    return ChoiceChip(
-      label: Text(grade.isEmpty ? name : '$name • $grade'),
-      selected: selected,
-      avatar: CircleAvatar(
-        child: Text(name.isEmpty ? '?' : name.characters.first),
-      ),
-      onSelected: (_) {
-        if (token is String && token.isNotEmpty && !selected) {
-          context.go('/portal/$token');
-        }
-      },
+  Widget _flipTransition(Widget child, Animation<double> animation) {
+    final rotate = Tween<double>(begin: math.pi / 2, end: 0).animate(
+      CurvedAnimation(parent: animation, curve: Curves.easeOut),
     );
+    return AnimatedBuilder(
+      animation: rotate,
+      child: child,
+      builder: (context, child) => Transform(
+        transform: Matrix4.rotationY(rotate.value),
+        alignment: Alignment.center,
+        child: child,
+      ),
+    );
+  }
+
+  void _goChild(Map<String, dynamic> sib) {
+    final token = sib['token'];
+    if (token is String && token.isNotEmpty && token != widget.token) {
+      context.go('/portal/$token');
+    }
   }
 
   // ---------- build ----------
@@ -630,11 +734,18 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
       appBar: AppBar(
         title: Text(studentName.isEmpty ? l10n.portalTitle : studentName),
       ),
-      body: IndexedStack(
+      body: Column(
+        children: [
+          if (_family.length > 1)
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: _familySwitcher(context),
+            ),
+          Expanded(
+            child: IndexedStack(
         index: _tabIndex,
         children: [
           _portalTab(children: [
-            if (_family.length > 1) _familySwitcher(context),
             _headerSection(context, data),
             _notificationsSection(context),
             _announcementsSection(context, announcements),
@@ -655,6 +766,9 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
             _notesSection(context, notes),
           ]),
         ],
+          ),
+        ),
+      ],
       ),
       bottomNavigationBar: _portalNavBar(context),
     );
@@ -708,15 +822,16 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
     return SafeArea(
       child: Container(
         margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(24),
+          color: scheme.surface,
+          border: Border.all(color: scheme.outlineVariant),
+          borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.16),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -753,8 +868,17 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
           vertical: 8,
         ),
         decoration: BoxDecoration(
-          color: selected ? scheme.primaryContainer : Colors.transparent,
+          color: selected ? scheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(999),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: scheme.primary.withValues(alpha: 0.45),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -763,7 +887,7 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
               icon,
               size: 22,
               color: selected
-                  ? scheme.onPrimaryContainer
+                  ? scheme.onPrimary
                   : scheme.onSurfaceVariant,
             ),
             if (selected) ...[
@@ -771,7 +895,7 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  color: scheme.onPrimaryContainer,
+                  color: scheme.onPrimary,
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
                 ),

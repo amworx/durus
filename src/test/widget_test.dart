@@ -5,6 +5,7 @@ import 'package:durus/core/links.dart';
 import 'package:durus/core/utils.dart';
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/models/models.dart';
+import 'package:durus/screens/intro_screen.dart';
 import 'package:durus/widgets/widgets.dart';
 
 void main() {
@@ -338,6 +339,25 @@ void main() {
       ));
       expect(find.text('العنوان'), findsOneWidget);
       expect(find.text('المحتوى'), findsOneWidget);
+    });
+
+    testWidgets('IntroScreen shows first page and skip calls onDone',
+        (tester) async {
+      var done = false;
+      // NOTE: no SingleChildScrollView here — ConcentricPageView needs
+      // bounded constraints, exactly like the full-screen real usage.
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ar'),
+        home: Scaffold(body: IntroScreen(onDone: () => done = true)),
+      ));
+      await tester.pump();
+      expect(find.text('دروسك الخاصة منظمة'), findsOneWidget);
+      expect(find.text('تخطي'), findsOneWidget);
+      await tester.tap(find.text('تخطي'));
+      await tester.pump();
+      expect(done, isTrue);
     });
 
     testWidgets('auth reset l10n keys resolve to non-empty Arabic text',

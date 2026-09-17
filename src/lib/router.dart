@@ -7,6 +7,7 @@ import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/screens/auth_screens.dart';
 import 'package:durus/screens/home_shell.dart';
+import 'package:durus/screens/intro_screen.dart';
 import 'package:durus/screens/onboarding_screens.dart';
 import 'package:durus/screens/portal_screens.dart';
 import 'package:durus/widgets/widgets.dart';
@@ -16,7 +17,7 @@ final GoRouter appRouter = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const AuthGate(),
+      builder: (context, state) => const IntroGate(),
     ),
     GoRoute(
       path: '/portal',
@@ -30,6 +31,35 @@ final GoRouter appRouter = GoRouter(
   ],
   errorBuilder: (context, state) => const _NotFoundScreen(),
 );
+
+/// Decides whether the first-run intro still needs to be shown. The flag
+/// lives in SharedPreferences (per install, not per account) so a fresh
+/// install always greets once, then never again — no router changes needed
+/// because the gate swaps its own child after completion.
+class IntroGate extends ConsumerStatefulWidget {
+  const IntroGate({super.key});
+
+  @override
+  ConsumerState<IntroGate> createState() => _IntroGateState();
+}
+
+class _IntroGateState extends ConsumerState<IntroGate> {
+  static const _seenKey = 'intro_seen';
+  bool _dismissed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final seen =
+        ref.watch(sharedPrefsProvider).getBool(_seenKey) ?? _dismissed;
+    if (seen) return const AuthGate();
+    return IntroScreen(onDone: _complete);
+  }
+
+  Future<void> _complete() async {
+    await ref.read(sharedPrefsProvider).setBool(_seenKey, true);
+    if (mounted) setState(() => _dismissed = true);
+  }
+}
 
 /// Decides what the root route shows based on session + onboarding state:
 /// sign-in -> first-launch wizard -> home shell.

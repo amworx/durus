@@ -774,6 +774,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get portalFamilyChildren => 'الأبناء';
 
   @override
+  String get portalFamilyHint => 'اضغط للتبديل بين الأبناء';
+
+  @override
   String get portalAbsenceTitle => 'الإبلاغ عن غياب';
 
   @override
@@ -826,6 +829,30 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get portalActionFailed => 'تعذّر تنفيذ الإجراء';
+
+  @override
+  String get introSkip => 'تخطي';
+
+  @override
+  String get introStart => 'ابدأ';
+
+  @override
+  String get introTitle1 => 'دروسك الخاصة منظمة';
+
+  @override
+  String get introSub1 => 'طلابك وموادك وجدولك الأسبوعي في مكان واحد';
+
+  @override
+  String get introTitle2 => 'الحضور بضغطة';
+
+  @override
+  String get introSub2 => 'سجّل الحضور والغياب والتأخير وتابع تقارير كل طالب';
+
+  @override
+  String get introTitle3 => 'الرسوم وبوابة الأهل';
+
+  @override
+  String get introSub3 => 'أقساط مرنة وإيصالات، والأهل يتابعون عبر رابط آمن';
 
   @override
   String get feesFutureMonth => 'شهر مستقبلي';
