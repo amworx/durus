@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:," />
+<title>دروس — شاشة التعريف: 5 لوحات ألوان متباينة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #FAF8F4;
+    --ink: #14213D;
+    --muted: #6F7A8C;
+    --teal: #0E7C66;
+    --teal-container: #DFF3EC;
+    --ember: #E8622B;
+    --border: #ECEAE3;
+    --white: #fff;
+    --radius: 26px;
+    --font: 'Zain', 'Noto Sans Arabic', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--paper); color: var(--ink); line-height: 1.6; padding-bottom: 90px; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+  .hero { background: linear-gradient(160deg, #0A3B2E 0%, #0E7C66 60%, #12A083 100%); color: #fff; border-radius: 0 0 40px 40px; padding: 48px 0 56px; margin-bottom: -24px; }
+  .hero .tag { display: inline-block; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 700; color: #E6F6F1; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(28px, 5vw, 46px); font-weight: 800; line-height: 1.25; margin-bottom: 10px; }
+  .hero p.sub { font-size: clamp(15px, 2vw, 19px); opacity: .92; max-width: 860px; }
+  .hero .meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero .meta span { background: rgba(255,255,255,.12); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 700; }
+
+  .problem { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 30px; margin-bottom: 40px; box-shadow: 0 6px 24px rgba(20,33,61,.05); }
+  .problem h2 { font-size: 24px; font-weight: 800; margin-bottom: 12px; color: var(--teal); }
+  .problem p { font-size: 17px; color: #33415F; max-width: 940px; }
+  .problem ul { margin-top: 14px; padding-right: 20px; display: grid; gap: 6px; }
+  .problem li { font-size: 16px; color: #33415F; }
+  .problem li b { color: var(--ember); }
+
+  #choiceBanner { position: sticky; top: 12px; z-index: 50; display: none; background: var(--ink); color: #fff; border-radius: 999px; padding: 12px 22px; box-shadow: 0 10px 30px rgba(20,33,61,.35); justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 18px; }
+  #choiceBanner.show { display: flex; }
+  #choiceBanner button { background: var(--ember); color: #fff; border: 0; border-radius: 999px; padding: 6px 18px; font-family: var(--font); font-size: 15px; font-weight: 700; cursor: pointer; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; }
+  .option { background: var(--white); border: 1px solid var(--border); border-radius: 28px; padding: 22px; box-shadow: 0 6px 24px rgba(20,33,61,.05); }
+  .option.selected { outline: 3px solid var(--teal); outline-offset: 3px; }
+  .option h3 { font-size: 21px; font-weight: 800; }
+  .option .kind { display: inline-block; font-size: 12px; font-weight: 700; color: var(--teal); background: var(--teal-container); border-radius: 999px; padding: 2px 12px; margin: 6px 0 8px; }
+  .option p.desc { font-size: 15px; color: #33415F; margin-bottom: 8px; }
+  .swatches { display: flex; gap: 6px; margin: 8px 0 4px; }
+  .swatches span { width: 34px; height: 22px; border-radius: 7px; border: 1px solid rgba(0,0,0,.15); }
+  .choosebtn { display: block; width: 100%; margin-top: 12px; border: 0; border-radius: 16px; padding: 11px; font-family: var(--font); font-size: 16px; font-weight: 800; cursor: pointer; background: var(--ink); color: #fff; }
+  .option.selected .choosebtn { background: var(--teal); }
+
+  .phone { max-width: 340px; margin: 14px auto 4px; background: #fff; border: 10px solid #101828; border-radius: 44px; overflow: hidden; box-shadow: 0 18px 50px rgba(20,33,61,.18); }
+  .notch { height: 24px; background: #101828; display: flex; justify-content: center; align-items: flex-start; }
+  .notch span { width: 110px; height: 18px; background: #101828; border-radius: 0 0 14px 14px; position: relative; }
+  .notch span::after { content: ''; position: absolute; top: 4px; inset-inline-start: 12px; width: 8px; height: 8px; border-radius: 50%; background: #2A3B5C; }
+  .screen { height: 560px; position: relative; }
+  .ipreview { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; transition: background-color .45s ease; position: relative; }
+  .idots { display: flex; gap: 6px; margin-bottom: 18px; }
+  .idot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: .35; border: 0; padding: 0; cursor: pointer; }
+  .idot.on { opacity: 1; width: 22px; border-radius: 999px; }
+  .iicon { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 44px; margin-bottom: 20px; }
+  .ititle { font-size: 24px; font-weight: 800; line-height: 1.4; margin-bottom: 10px; }
+  .isub { font-size: 15px; line-height: 1.8; opacity: .85; max-width: 260px; }
+  .ibtns { position: absolute; bottom: 26px; inset-inline: 24px; display: flex; gap: 10px; }
+  .ibtns button { flex: 1; border: 0; border-radius: 14px; padding: 11px; font-family: var(--font); font-size: 15px; font-weight: 800; cursor: pointer; }
+  .toast { position: absolute; bottom: 18px; right: 50%; transform: translate(50%, 20px); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 999px; font-size: 14px; font-weight: 700; opacity: 0; transition: .25s; pointer-events: none; z-index: 60; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translate(50%, 0); }
+
+  .cmpwrap { margin-top: 44px; }
+  .cmpwrap h2 { font-size: 24px; font-weight: 800; margin-bottom: 14px; color: var(--teal); }
+  table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; font-size: 15px; }
+  table.cmp th { background: var(--ink); color: #fff; padding: 12px 14px; text-align: right; font-weight: 800; }
+  table.cmp td { padding: 12px 14px; border-top: 1px solid var(--border); vertical-align: top; color: #33415F; }
+  table.cmp tr td:first-child { font-weight: 800; color: var(--ink); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">ألوان شاشة التعريف — تباين بين الشاشات</span>
+    <h1>شاشة التعريف: 5 لوحات ألوان متباينة</h1>
+    <p class="sub">المشكلة: الشاشتان الأولى والثانية خضراوان داكنتان متشابهتان. كل لوحة أدناه تعطي كل شاشة من الثلاث هوية لونية مستقلة — تنقّل بين الصفحات داخل كل هاتف وقارن الإحساس.</p>
+    <div class="meta"><span>5 لوحات تفاعلية</span><span>نفس المحتوى والخط</span><span>عربي RTL</span></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="problem">
+    <h2>كيف تقارن؟</h2>
+    <p>كل هاتف يعرض نفس شاشات التعريف الثلاث (التنظيم / الحضور / الرسوم والبوابة) بألوان مختلفة. استخدم <b>التالي</b> للتنقل و<b>النقاط</b> للقفز — لاحظ لحظة الانتقال بين شاشة وأخرى: هل تشعر بتغيّر واضح؟</p>
+    <ul>
+      <li>التباين المطلوب <b>بين الشاشات</b> وليس داخل الشاشة الواحدة</li>
+      <li>كل اللوحات من عائلة دروس (تركوازي / كحلي / عنّابي / كهرماني / ورقي)</li>
+      <li>النصوص الكبيرة العريضة تتحمل تباينًا متوسطًا؛ الصغيرة تحتاج تباينًا عاليًا</li>
+    </ul>
+  </div>
+
+  <div id="choiceBanner"><span>اختيارك: <b id="bannerName"></b></span><span><button onclick="clearChoice()">تراجع</button></span></div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="cmpwrap">
+    <h2>جدول المقارنة</h2>
+    <table class="cmp">
+      <tr><th>اللوحة</th><th>الشاشات</th><th>نقاط القوة</th><th>المقايضة</th></tr>
+      <tr><td>1 — الناري</td><td>تركوازي / عنّابي / كحلي (نص أبيض)</td><td>أقصى تباين؛ ثلاث هويات صارخة</td><td>صاخب — قد يبدو أقل جدّية</td></tr>
+      <tr><td>2 — الذهبي</td><td>غابي / كهرماني (نص كحلي) / تركوازي</td><td>الشاشة الوسطى المضيئة فاصل مبهج</td><td>الكهرماني أقل فخامة من الغامق</td></tr>
+      <tr><td>3 — التصاعدي</td><td>ورقي / عنّابي / غابي (فاتح ← داكن)</td><td>تصاعد درامي نحو الشعار؛ بداية هادئة</td><td>البداية الفاتحة أقل إبهارًا</td></tr>
+      <tr><td>4 — البحري</td><td>صنوبري / أكوا (نص كحلي) / عنّابي</td><td>عائلة خضراء-زرقاء متماسكة ومتباينة</td><td>الأكوا وسط أقل جرأة من الكهرماني</td></tr>
+      <tr><td>5 — النعناعي</td><td>كحلي / نعناعي فاتح (نص كحلي) / عنّابي</td><td>أنظف تباين فاتح/داكن بالتناوب</td><td>النعناعي قد يبدو سريريًا</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  var PAGES = [
+    { icon: '🏫', title: 'دروسك الخاصة منظمة', sub: 'طلابك وموادك وجدولك الأسبوعي في مكان واحد' },
+    { icon: '🧾', title: 'الحضور بضغطة', sub: 'سجّل الحضور والغياب والتأخير وتابع تقارير كل طالب' },
+    { icon: '👨‍👩‍👧', title: 'الرسوم وبوابة الأهل', sub: 'أقساط مرنة وإيصالات، والأهل يتابعون عبر رابط آمن' }
+  ];
+  var PALETTES = [
+    { id: 'opt1', name: '1 — الناري', kind: 'أقصى تباين: 3 هويات صارخة', desc: 'تركوازي ثم عنّابي ناري ثم كحلي — كل شاشة لون مشبع مختلف تمامًا.', pages: [
+      { bg: '#0E7C66', fg: '#FFFFFF' },
+      { bg: '#E8622B', fg: '#FFFFFF' },
+      { bg: '#14213D', fg: '#FFFFFF' } ] },
+    { id: 'opt2', name: '2 — الذهبي', kind: 'فاصل مضيء في الوسط', desc: 'غابة داكنة، ثم كهرماني ساطع بنص كحلي، ثم عودة للتركوازي.', pages: [
+      { bg: '#0A3B2E', fg: '#FFFFFF' },
+      { bg: '#F9A825', fg: '#14213D' },
+      { bg: '#0E7C66', fg: '#FFFFFF' } ] },
+    { id: 'opt3', name: '3 — التصاعدي', kind: 'من الفاتح إلى الداكن', desc: 'يبدأ بورقي هادئ، يشتد بالعنّابي، وينتهي بغابة داكنة فاخرة.', pages: [
+      { bg: '#FAF8F4', fg: '#14213D' },
+      { bg: '#E8622B', fg: '#FFFFFF' },
+      { bg: '#0A3B2E', fg: '#FFFFFF' } ] },
+    { id: 'opt4', name: '4 — البحري', kind: 'عائلة خضراء-زرقاء', desc: 'صنوبري عميق، ثم أكوا منعشة بنص كحلي، ثم عنّابي ختامي.', pages: [
+      { bg: '#06382E', fg: '#FFFFFF' },
+      { bg: '#12A083', fg: '#0A3B2E' },
+      { bg: '#E8622B', fg: '#FFFFFF' } ] },
+    { id: 'opt5', name: '5 — النعناعي', kind: 'تناوب فاتح/داكن', desc: 'كحلي، ثم نعناعي فاتح بنص كحلي، ثم عنّابي — أنظف إيقاع تباين.', pages: [
+      { bg: '#14213D', fg: '#FFFFFF' },
+      { bg: '#DFF3EC', fg: '#0A3B2E' },
+      { bg: '#E8622B', fg: '#FFFFFF' } ] }
+  ];
+  var CUR = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+  function sce(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function buildGrid() {
+    var html = '';
+    PALETTES.forEach(function (pl, idx) {
+      var n = idx + 1;
+      var sw = pl.pages.map(function (pg) {
+        return '<span style="background:' + pg.bg + '"></span>';
+      }).join('');
+      html += '<div class="option" id="' + pl.id + '" data-name="' + esc(pl.name) + '">'
+        + '<h3>' + esc(pl.name) + '</h3>'
+        + '<span class="kind">' + esc(pl.kind) + '</span>'
+        + '<p class="desc">' + esc(pl.desc) + '</p>'
+        + '<div class="swatches">' + sw + '</div>'
+        + '<div class="phone"><div class="notch"><span></span></div>'
+        + '<div class="screen"><div class="ipreview" id="prev' + n + '"></div>'
+        + '<div class="toast" id="toast' + n + '"></div></div></div>'
+        + '<button class="choosebtn" onclick="choose(\'' + pl.id + '\')">اختيار هذه اللوحة</button></div>';
+    });
+    sce('grid').innerHTML = html;
+    for (var n = 1; n <= 5; n++) renderPhone(n);
+  }
+
+  function renderPhone(n) {
+    var pl = PALETTES[n - 1];
+    var pg = pl.pages[CUR[n]];
+    var dots = '';
+    for (var i = 0; i < 3; i++) {
+      dots += '<button class="idot' + (i === CUR[n] ? ' on' : '') + '" style="color:' + pg.fg + '" onclick="goPhone(' + n + ',' + i + ')"></button>';
+    }
+    var last = CUR[n] === 2;
+    sce('prev' + n).style.backgroundColor = pg.bg;
+    sce('prev' + n).style.color = pg.fg;
+    sce('prev' + n).innerHTML =
+      '<div class="idots">' + dots + '</div>'
+      + '<div class="iicon" style="background:' + pg.fg + ';color:' + pg.bg + '">' + PAGES[CUR[n]].icon + '</div>'
+      + '<div class="ititle" style="color:' + pg.fg + '">' + esc(PAGES[CUR[n]].title) + '</div>'
+      + '<div class="isub" style="color:' + pg.fg + '">' + esc(PAGES[CUR[n]].sub) + '</div>'
+      + '<div class="ibtns"><button style="background:transparent;color:' + pg.fg + ';border:1.5px solid ' + pg.fg + '" onclick="skipPhone(' + n + ')">تخطي</button>'
+      + '<button style="background:' + pg.fg + ';color:' + pg.bg + '" onclick="nextPhone(' + n + ')">' + (last ? 'ابدأ' : 'التالي') + '</button></div>';
+  }
+
+  function nextPhone(n) {
+    if (CUR[n] < 2) { CUR[n]++; renderPhone(n); }
+    else { toast(n, 'ابدأ (تجريبي)'); }
+  }
+  function goPhone(n, i) { CUR[n] = i; renderPhone(n); }
+  function skipPhone(n) { toast(n, 'تخطي (تجريبي)'); }
+
+  function toast(id, msg) {
+    var el = sce('toast' + id);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove('show'); }, 1600);
+  }
+
+  function choose(id) {
+    document.querySelectorAll('.option').forEach(function (c) { c.classList.remove('selected'); });
+    var card = document.getElementById(id);
+    card.classList.add('selected');
+    sce('bannerName').textContent = card.dataset.name;
+    sce('choiceBanner').classList.add('show');
+    try { localStorage.setItem('durus-intro-design-choice', id); } catch (e) {}
+    sce('choiceBanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function clearChoice() {
+    document.querySelectorAll('.option').forEach(function (c) { c.classList.remove('selected'); });
+    sce('choiceBanner').classList.remove('show');
+    try { localStorage.removeItem('durus-intro-design-choice'); } catch (e) {}
+  }
+  (function init() {
+    buildGrid();
+    try {
+      var saved = localStorage.getItem('durus-intro-design-choice');
+      if (saved && document.getElementById(saved)) choose(saved);
+    } catch (e) {}
+  })();
+</script>
+</body>
+</html>

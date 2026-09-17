@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:," />
+<title>دروس — بوابة الأهل: 5 تصاميم (الشريط + المبدّل)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #FAF8F4;
+    --ink: #14213D;
+    --muted: #6F7A8C;
+    --teal: #0E7C66;
+    --teal-container: #DFF3EC;
+    --on-teal-container: #0A3B2E;
+    --ember: #E8622B;
+    --border: #ECEAE3;
+    --outline: #E7E2D6;
+    --white: #fff;
+    --radius: 26px;
+    --font: 'Zain', 'Noto Sans Arabic', sans-serif;
+    --green: #2E7D32;
+    --green-bg: #E4F2E4;
+    --slate-bg: #ECEFF1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--paper); color: var(--ink); line-height: 1.6; padding-bottom: 90px; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  .hero { background: linear-gradient(160deg, #0A3B2E 0%, #0E7C66 60%, #12A083 100%); color: #fff; border-radius: 0 0 40px 40px; padding: 48px 0 56px; margin-bottom: -24px; }
+  .hero .tag { display: inline-block; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 700; color: #E6F6F1; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(28px, 5vw, 46px); font-weight: 800; line-height: 1.25; margin-bottom: 10px; }
+  .hero p.sub { font-size: clamp(15px, 2vw, 19px); opacity: .92; max-width: 860px; }
+  .hero .meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero .meta span { background: rgba(255,255,255,.12); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 700; }
+
+  .problem { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 30px; margin-bottom: 40px; box-shadow: 0 6px 24px rgba(20,33,61,.05); }
+  .problem h2 { font-size: 24px; font-weight: 800; margin-bottom: 12px; color: var(--teal); }
+  .problem p { font-size: 17px; color: #33415F; max-width: 940px; }
+  .problem ul { margin-top: 14px; padding-right: 20px; display: grid; gap: 6px; }
+  .problem li { font-size: 16px; color: #33415F; }
+  .problem li b { color: var(--ember); }
+
+  #choiceBanner { position: sticky; top: 12px; z-index: 50; display: none; background: var(--ink); color: #fff; border-radius: 999px; padding: 12px 22px; box-shadow: 0 10px 30px rgba(20,33,61,.35); justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 18px; }
+  #choiceBanner.show { display: flex; }
+  #choiceBanner button { background: var(--ember); color: #fff; border: 0; border-radius: 999px; padding: 6px 18px; font-family: var(--font); font-size: 15px; font-weight: 700; cursor: pointer; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 28px; }
+  .option { background: var(--white); border: 1px solid var(--border); border-radius: 28px; padding: 22px; box-shadow: 0 6px 24px rgba(20,33,61,.05); }
+  .option.selected { outline: 3px solid var(--teal); outline-offset: 3px; }
+  .option h3 { font-size: 21px; font-weight: 800; }
+  .option .kind { display: inline-block; font-size: 12px; font-weight: 700; color: var(--teal); background: var(--teal-container); border-radius: 999px; padding: 2px 12px; margin: 6px 0 8px; }
+  .option p.desc { font-size: 15px; color: #33415F; margin-bottom: 8px; }
+  .option ul.sig { padding-right: 18px; margin-bottom: 6px; display: grid; gap: 3px; }
+  .option ul.sig li { font-size: 14px; color: var(--muted); }
+  .choosebtn { display: block; width: 100%; margin-top: 12px; border: 0; border-radius: 16px; padding: 11px; font-family: var(--font); font-size: 16px; font-weight: 800; cursor: pointer; background: var(--ink); color: #fff; }
+  .option.selected .choosebtn { background: var(--teal); }
+
+  .phone { max-width: 360px; margin: 14px auto 4px; background: #fff; border: 10px solid #101828; border-radius: 44px; overflow: hidden; box-shadow: 0 18px 50px rgba(20,33,61,.18); }
+  .notch { height: 24px; background: #101828; display: flex; justify-content: center; align-items: flex-start; }
+  .notch span { width: 110px; height: 18px; background: #101828; border-radius: 0 0 14px 14px; position: relative; }
+  .notch span::after { content: ''; position: absolute; top: 4px; inset-inline-start: 12px; width: 8px; height: 8px; border-radius: 50%; background: #2A3B5C; }
+  .screen { height: 620px; overflow-y: auto; background: var(--paper); position: relative; scrollbar-width: thin; display: flex; flex-direction: column; }
+  .screen::-webkit-scrollbar { width: 5px; }
+  .screen::-webkit-scrollbar-thumb { background: #C9C4B4; border-radius: 4px; }
+  .sbody { flex: 1; overflow-y: auto; padding: 16px 14px 12px; scrollbar-width: thin; }
+  .toast { position: absolute; bottom: 96px; right: 50%; transform: translate(50%, 20px); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 999px; font-size: 14px; font-weight: 700; opacity: 0; transition: .25s; pointer-events: none; z-index: 60; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translate(50%, 0); }
+
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 16px; margin-bottom: 12px; }
+  .card h4 { font-size: 15px; font-weight: 800; margin-bottom: 10px; }
+  .muted { font-size: 13px; color: var(--muted); }
+  .btn { display: block; width: 100%; border: 0; border-radius: 16px; padding: 12px; font-family: var(--font); font-size: 16px; font-weight: 800; cursor: pointer; }
+  .btn-p { background: var(--teal); color: #fff; }
+  .kv { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed var(--outline); font-size: 14px; }
+  .kv:last-child { border-bottom: 0; }
+  .kv > span { color: var(--muted); }
+  .kv > b { font-weight: 700; }
+  .badge-a { display: inline-flex; align-items: center; gap: 7px; background: var(--green-bg); color: var(--green); font-size: 12px; font-weight: 800; border-radius: 999px; padding: 4px 12px; }
+  .badge-a .pdot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; position: relative; flex: none; }
+  .badge-a .pdot::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid currentColor; animation: ping 1.6s ease-out infinite; }
+  @keyframes ping { 0% { transform: scale(.5); opacity: .9; } 100% { transform: scale(1.5); opacity: 0; } }
+
+  .avring { background: conic-gradient(from 210deg, #0E7C66, #12A083, #E8622B, #0E7C66); border-radius: 50%; padding: 3px; box-shadow: 0 6px 18px rgba(14,124,102,.35); flex: none; }
+  .avwrap { position: relative; border-radius: 50%; overflow: hidden; background: var(--teal-container); display: flex; align-items: center; justify-content: center; color: var(--on-teal-container); font-weight: 800; width: 100%; height: 100%; }
+  .avwrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  .seg { display: flex; background: var(--slate-bg); border-radius: 999px; padding: 4px; gap: 4px; margin-bottom: 10px; }
+  .seg button { flex: 1; border: 0; background: transparent; font-family: var(--font); font-weight: 700; font-size: 12px; padding: 7px 2px; border-radius: 999px; cursor: pointer; color: var(--muted); }
+  .seg button.on { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+
+  /* ── mockup 1: card dock bottom bar ── */
+  .dock { margin: 0 12px 12px; background: #fff; border: 1px solid var(--border); border-radius: 22px; box-shadow: 0 12px 32px rgba(20,33,61,.16); padding: 8px; display: flex; justify-content: space-around; }
+  .dk { border: 0; background: transparent; font-family: var(--font); cursor: pointer; display: flex; align-items: center; gap: 0; padding: 8px 10px; border-radius: 999px; transition: all .25s; color: var(--muted); font-size: 20px; }
+  .dk span { font-size: 12px; font-weight: 800; max-width: 0; overflow: hidden; white-space: nowrap; transition: max-width .25s, margin .25s; margin-inline-start: 0; }
+  .dk.on { background: var(--teal); color: #fff; box-shadow: 0 6px 16px rgba(14,124,102,.45); }
+  .dk.on span { max-width: 70px; margin-inline-start: 6px; }
+
+  /* ── mockup 2: flip-switch child selector ── */
+  .flipsw { perspective: 700px; margin-bottom: 12px; cursor: pointer; }
+  .flip-inner { position: relative; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.4,1.4,.6,1); }
+  .flip-inner.flipped { transform: rotateY(180deg); }
+  .face { backface-visibility: hidden; -webkit-backface-visibility: hidden; background: linear-gradient(150deg, #0A3B2E, #0E7C66 70%, #12A083); border-radius: 20px; padding: 14px 16px; color: #fff; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 26px rgba(14,124,102,.35); }
+  .face.back { position: absolute; inset: 0; transform: rotateY(180deg); }
+  .face .who { flex: 1; }
+  .face .who b { display: block; font-size: 17px; font-weight: 800; }
+  .face .who span { font-size: 12px; opacity: .85; }
+  .face .flipic { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4); display: flex; align-items: center; justify-content: center; font-size: 15px; flex: none; }
+  .flip-hint { text-align: center; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .dots { display: flex; justify-content: center; gap: 6px; margin: 8px 0 2px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; border: 0; background: #C9C4B4; cursor: pointer; padding: 0; transition: all .25s; }
+  .dot.on { background: var(--teal); width: 22px; border-radius: 999px; }
+  .picklist { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+  .picklist button { display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); color: #fff; border-radius: 14px; padding: 6px 10px; font-family: var(--font); font-size: 14px; font-weight: 700; cursor: pointer; text-align: right; }
+  .picklist button .who2 { flex: 1; }
+  .picklist button small { display: block; font-size: 11px; font-weight: 400; opacity: .85; }
+  .picklist .pav { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-weight: 800; flex: none; }
+  .flip-tall { min-height: 178px; }
+  .flip-tall .face { min-height: 178px; }
+  .flip-tall .face.front { justify-content: center; }
+  .miniflip { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 10px 12px; margin-bottom: 4px; cursor: pointer; }
+  .miniflip b { font-size: 16px; font-weight: 800; display: block; }
+  .miniflip .go { width: 30px; height: 30px; border-radius: 50%; background: var(--teal-container); color: var(--on-teal-container); display: flex; align-items: center; justify-content: center; font-weight: 800; flex: none; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+  .slide { animation: slideIn .3s ease-out; }
+
+  .cmpwrap { margin-top: 44px; }
+  .cmpwrap h2 { font-size: 24px; font-weight: 800; margin-bottom: 14px; color: var(--teal); }
+  table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; font-size: 15px; }
+  table.cmp th { background: var(--ink); color: #fff; padding: 12px 14px; text-align: right; font-weight: 800; }
+  table.cmp td { padding: 12px 14px; border-top: 1px solid var(--border); vertical-align: top; color: #33415F; }
+  table.cmp tr td:first-child { font-weight: 800; color: var(--ink); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">كروم البوابة — الشريط + المبدّل</span>
+    <h1>بوابة الأهل: 5 تصاميم للشريط والمبدّل</h1>
+    <p class="sub">تصميمان تفاعليان لهيكل البوابة: الأول يستبدل الشريط السفلي بشريط بطاقة عائم (Card)، والثاني يستبدل رقائق الأبناء بمفتاح قلّاب (Flip Switch) يقلب بين الطفلين. ملاحظة أمانة: موقع Uiverse يحجب الجلب الآلي (403) فأُعيد بناء روح التصميمين محليًا — والصق كودهما هنا لدقة البكسل.</p>
+    <div class="meta"><span>5 تصاميم تفاعلية</span><span>صور Avatune حقيقية</span><span>حل سؤال 3+ أطفال</span><span>عربي RTL</span></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="problem">
+    <h2>ماذا نختبر؟</h2>
+    <p>الهيكل الحالي يعمل لكنه عادي: شريط سفلي مسطح ورقائق أبناء صغيرة. التصميمان المختاران من Uiverse (مكتبة مفتوحة MIT): <b>بطاقة (Card)</b> كشريط سفلي عائم فاخر، و<b>مفتاح قلّاب (Flip Switch)</b> كمبدّل بين الطفلين — مثالي لعائلة بطفلين (قلبة واحدة = الطفل الآخر). البيانات تجريبية: سارة خالد ولين يوسف.</p>
+    <ul>
+      <li>التصميم 1 يختبر: <b>شريط البطاقة</b> فقط (المبدّل الحالي يبقى للمقارنة)</li>
+      <li>التصميم 2 يختبر: <b>مفتاح القلب</b> فقط (الشريط الحالي يبقى للمقارنة)</li>
+      <li>يمكن دمجهما معًا بعد الاختيار — صوّت لكل تغيير على حدة</li>
+    </ul>
+    <p style="margin-top:12px;">تحديث — التصاميم <b>3–5</b> تدمج الشريط والمفتاح معًا وتجيب عن سؤال <b>3 أطفال فأكثر</b> (انضم كريم حداد للتجربة): <b>3</b> قلبة دورية + نقاط قفز مباشر (التوصية)، <b>4</b> القلبة تكشف قائمة كاملة، <b>5</b> المفتاح مصغّرًا في الترويسة.</p>
+  </div>
+
+  <div id="choiceBanner"><span>اختيارك: <b id="bannerName"></b></span><span><button onclick="clearChoice()">تراجع</button></span></div>
+
+  <div class="grid">
+
+    <!-- ══════════ 1 · شريط البطاقة ══════════ -->
+    <div class="option" id="opt1" data-name="1 — شريط البطاقة">
+      <h3>1 — شريط البطاقة</h3>
+      <span class="kind">Card كشريط سفلي عائم</span>
+      <p class="desc">بطاقة بيضاء عائمة بظل فاخر؛ الزر النشط يتمدد لحبة خضراء (أيقونة + اسم القسم) والبقية أيقونات صامتة. جرّب التنقل بين الأقسام الخمسة.</p>
+      <ul class="sig"><li>إحساس فاخر يليق بالبوابة</li><li>التسميات تظهر عند الحاجة فقط</li><li>يأخذ مساحة عمودية أكبر قليلًا</li></ul>
+      <div class="phone"><div class="notch"><span></span></div>
+        <div class="screen" id="1">
+          <div class="sbody">
+            <div class="card" style="display:flex;align-items:center;gap:12px;">
+              <div class="avring" style="width:52px;height:52px;"><div class="avwrap" data-avwrap="1"><div class="avfb" style="font-size:20px">س</div><img data-av="1" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=sara-k&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+              <div style="flex:1;">
+                <div id="nm1" style="font-size:17px;font-weight:800;">سارة خالد</div>
+                <div class="muted">الثاني • عربي ورياضيات</div>
+              </div>
+              <span class="badge-a"><span class="pdot"></span>مفعّل</span>
+            </div>
+            <div class="seg" data-seg="1">
+              <button class="on">سارة خالد</button>
+              <button onclick="toast(1,'مبدّل الرقائق الحالي — للمقارنة فقط')">لين يوسف</button>
+            </div>
+            <div id="pane-1"></div>
+          </div>
+          <div class="dock" id="dock1">
+            <button class="dk on" onclick="ptab(1,0,this)">🏠<span>الرئيسية</span></button>
+            <button class="dk" onclick="ptab(1,1,this)">🧾<span>الحضور</span></button>
+            <button class="dk" onclick="ptab(1,2,this)">🗓<span>الجدول</span></button>
+            <button class="dk" onclick="ptab(1,3,this)">💰<span>الرسوم</span></button>
+            <button class="dk" onclick="ptab(1,4,this)">⋯<span>المزيد</span></button>
+          </div>
+          <div class="toast" id="toast1"></div>
+        </div>
+      </div>
+      <button class="choosebtn" onclick="choose('opt1')">اختيار هذا التصميم</button>
+    </div>
+
+    <!-- ══════════ 2 · مفتاح القلب ══════════ -->
+    <div class="option" id="opt2" data-name="2 — مفتاح القلب">
+      <h3>2 — مفتاح القلب</h3>
+      <span class="kind">Flip Switch كمبدّل أبناء</span>
+      <p class="desc">بطاقة خضراء تنقلب بتأثير ثلاثي الأبعاد بين الطفلين — ضغطة واحدة تقلب سارة إلى لين مع كل بياناتها. الشريط السفلي الحالي يبقى للمقارنة.</p>
+      <ul class="sig"><li>التبديل ممتع وواضح — ضغطة = الطفل الآخر</li><li>الصورة والاسم والصف في وجه واحد كبير</li><li>مثالي لطفلين؛ يُستبدل بقائمة عند 3+</li></ul>
+      <div class="phone"><div class="notch"><span></span></div>
+        <div class="screen" id="2">
+          <div class="sbody">
+            <div class="flipsw" onclick="flipChild(2)">
+              <div class="flip-inner" id="flipInner2">
+                <div class="face front">
+                  <div class="avring" style="width:52px;height:52px;background:#fff;padding:2px;"><div class="avwrap" data-avwrap="2"><div class="avfb" style="font-size:20px">س</div><img data-av="2" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=sara-k&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+                  <div class="who"><b>سارة خالد</b><span>الثاني • عربي ورياضيات</span></div>
+                  <div class="flipic">⇄</div>
+                </div>
+                <div class="face back">
+                  <div class="avring" style="width:52px;height:52px;background:#fff;padding:2px;"><div class="avwrap" data-avwrap="2"><div class="avfb" style="font-size:20px">ل</div><img data-av="2" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=lin-y&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+                  <div class="who"><b>لين يوسف</b><span>الثاني • عربي وعلوم</span></div>
+                  <div class="flipic">⇄</div>
+                </div>
+              </div>
+            </div>
+            <div class="flip-hint">اضغط البطاقة للتبديل بين الأبناء</div>
+            <div id="pane-2" style="margin-top:10px;"></div>
+          </div>
+          <div class="seg" data-seg="2" style="margin:0 12px 12px;">
+            <button class="on">الرئيسية</button>
+            <button onclick="toast(2,'الشريط الحالي — للمقارنة فقط')">الحضور</button>
+            <button onclick="toast(2,'الشريط الحالي — للمقارنة فقط')">المزيد</button>
+          </div>
+          <div class="toast" id="toast2"></div>
+        </div>
+      </div>
+      <button class="choosebtn" onclick="choose('opt2')">اختيار هذا التصميم</button>
+    </div>
+
+    <!-- ══════════ 3 · الدوار بالنقاط ══════════ -->
+    <div class="option" id="opt3" data-name="3 — الدوار بالنقاط">
+      <h3>3 — الدوار بالنقاط</h3>
+      <span class="kind">دمج + N أطفال: قلبة دورية</span>
+      <p class="desc">شريط البطاقة + مفتاح يقلب للطفل التالي (سارة ← لين ← كريم ← …) والنقاط تقفز لأي طفل مباشرة. يتوسع لأي عدد أطفال.</p>
+      <ul class="sig"><li>يحافظ على القلبة المحبوبة</li><li>النقاط = وصول مباشر قابل للنقر</li><li>الوصول للثالث يحتاج ضغطتين متتاليتين</li></ul>
+      <div class="phone"><div class="notch"><span></span></div>
+        <div class="screen" id="3">
+          <div class="sbody">
+            <div class="flipsw" onclick="cycleKid(3)">
+              <div class="flip-inner" id="flipInner3">
+                <div class="face front" id="faceA3"></div>
+                <div class="face back" id="faceB3"></div>
+              </div>
+            </div>
+            <div class="dots" id="dots3"></div>
+            <div id="pane-3"></div>
+          </div>
+          <div class="dock" id="dock3">
+            <button class="dk on" onclick="ptab(3,0,this)">🏠<span>الرئيسية</span></button>
+            <button class="dk" onclick="ptab(3,1,this)">🧾<span>الحضور</span></button>
+            <button class="dk" onclick="ptab(3,2,this)">🗓<span>الجدول</span></button>
+            <button class="dk" onclick="ptab(3,3,this)">💰<span>الرسوم</span></button>
+            <button class="dk" onclick="ptab(3,4,this)">⋯<span>المزيد</span></button>
+          </div>
+          <div class="toast" id="toast3"></div>
+        </div>
+      </div>
+      <button class="choosebtn" onclick="choose('opt3')">اختيار هذا التصميم</button>
+    </div>
+
+    <!-- ══════════ 4 · القلب إلى قائمة ══════════ -->
+    <div class="option" id="opt4" data-name="4 — القلب إلى قائمة">
+      <h3>4 — القلب إلى قائمة</h3>
+      <span class="kind">دمج + N أطفال: القلبة تكشف القائمة</span>
+      <p class="desc">شريط البطاقة + مفتاح قلّاب: الضغط يقلب البطاقة ليكشف قائمة الأبناء الكاملة — اختر أي طفل مباشرة مهما كان العدد.</p>
+      <ul class="sig"><li>وصول مباشر لأي عدد أطفال</li><li>يحافظ على لحظة القلبة الممتعة</li><li>خطوة إضافية (فتح ثم اختيار)</li></ul>
+      <div class="phone"><div class="notch"><span></span></div>
+        <div class="screen" id="4">
+          <div class="sbody">
+            <div class="flipsw" onclick="flipList(4)">
+              <div class="flip-inner flip-tall" id="flipInner4">
+                <div class="face front" id="faceA4"></div>
+                <div class="face back"><div class="picklist">
+                  <button onclick="pickKid(4,0,event)"><span class="pav">س</span><span class="who2">سارة خالد<small>الثاني</small></span></button>
+                  <button onclick="pickKid(4,1,event)"><span class="pav">ل</span><span class="who2">لين يوسف<small>الثاني</small></span></button>
+                  <button onclick="pickKid(4,2,event)"><span class="pav">ك</span><span class="who2">كريم حداد<small>الخامس</small></span></button>
+                </div></div>
+              </div>
+            </div>
+            <div class="flip-hint">اضغط للكشف عن القائمة ثم اختر الطفل</div>
+            <div id="pane-4" style="margin-top:10px;"></div>
+          </div>
+          <div class="dock" id="dock4">
+            <button class="dk on" onclick="ptab(4,0,this)">🏠<span>الرئيسية</span></button>
+            <button class="dk" onclick="ptab(4,1,this)">🧾<span>الحضور</span></button>
+            <button class="dk" onclick="ptab(4,2,this)">🗓<span>الجدول</span></button>
+            <button class="dk" onclick="ptab(4,3,this)">💰<span>الرسوم</span></button>
+            <button class="dk" onclick="ptab(4,4,this)">⋯<span>المزيد</span></button>
+          </div>
+          <div class="toast" id="toast4"></div>
+        </div>
+      </div>
+      <button class="choosebtn" onclick="choose('opt4')">اختيار هذا التصميم</button>
+    </div>
+
+    <!-- ══════════ 5 · المبدّل المصغر ══════════ -->
+    <div class="option" id="opt5" data-name="5 — المبدّل المصغر">
+      <h3>5 — المبدّل المصغر</h3>
+      <span class="kind">دمج + N أطفال: مفتاح مدمج</span>
+      <p class="desc">شريط البطاقة + مفتاح قلب مصغّر في الترويسة (صورة + اسم + نقاط): ضغطة تدوّر الأبناء بانزلاقة ناعمة — أقصى مساحة للمحتوى.</p>
+      <ul class="sig"><li>أخف وزنًا وأسرع تنقلًا</li><li>النقاط للقفز المباشر</li><li>هوية الطفل أصغر حجمًا</li></ul>
+      <div class="phone"><div class="notch"><span></span></div>
+        <div class="screen" id="5">
+          <div class="sbody">
+            <div class="miniflip" onclick="cycleKid(5)">
+              <div class="avring" style="width:42px;height:42px;"><div class="avwrap" id="miniav5"><div class="avfb" style="font-size:16px">س</div></div></div>
+              <div style="flex:1" id="mslide5"><b id="mnm5">سارة خالد</b><div class="muted" id="msub5">الثاني • عربي ورياضيات</div></div>
+              <div class="go">⇄</div>
+            </div>
+            <div class="dots" id="dots5"></div>
+            <div id="pane-5"></div>
+          </div>
+          <div class="dock" id="dock5">
+            <button class="dk on" onclick="ptab(5,0,this)">🏠<span>الرئيسية</span></button>
+            <button class="dk" onclick="ptab(5,1,this)">🧾<span>الحضور</span></button>
+            <button class="dk" onclick="ptab(5,2,this)">🗓<span>الجدول</span></button>
+            <button class="dk" onclick="ptab(5,3,this)">💰<span>الرسوم</span></button>
+            <button class="dk" onclick="ptab(5,4,this)">⋯<span>المزيد</span></button>
+          </div>
+          <div class="toast" id="toast5"></div>
+        </div>
+      </div>
+      <button class="choosebtn" onclick="choose('opt5')">اختيار هذا التصميم</button>
+    </div>
+
+  </div><!-- /grid -->
+
+  <div class="cmpwrap">
+    <h2>جدول المقارنة</h2>
+    <table class="cmp">
+      <tr><th>التصميم</th><th>يختبر</th><th>نقاط القوة</th><th>المقايضة</th></tr>
+      <tr><td>1 — شريط البطاقة</td><td>Card كشريط سفلي عائم يتمدد للنشط</td><td>فخامة ووضوح؛ التسميات عند الحاجة</td><td>مساحة عمودية أكبر قليلًا</td></tr>
+      <tr><td>2 — مفتاح القلب</td><td>Flip Switch يقلب بين الطفلين</td><td>تبديل ممتع بضغطة؛ هوية كبيرة للطفل</td><td>مثالي لطفلين فقط — 3+ يحتاج قائمة</td></tr>
+      <tr><td>الدمج</td><td>الشريط + المفتاح معًا</td><td>أفضل الاثنين</td><td>يُقرر بعد التصويت المنفصل</td></tr>
+      <tr><td>3 — الدوار بالنقاط</td><td>قلبة دورية سارة←لين←كريم + نقاط قفز</td><td>يتوسع لأي عدد؛ وصول مباشر بالنقاط</td><td>الوصول للثالث يحتاج ضغطتين</td></tr>
+      <tr><td>4 — القلب إلى قائمة</td><td>القلبة تكشف قائمة الأبناء الكاملة</td><td>وصول مباشر لأي عدد؛ يحافظ على القلبة</td><td>خطوة إضافية (فتح ثم اختيار)</td></tr>
+      <tr><td>5 — المبدّل المصغر</td><td>مفتاح مدمج في الترويسة + نقاط</td><td>أقصى مساحة للمحتوى؛ سريع</td><td>هوية الطفل أصغر حجمًا</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  var KIDS = {
+    1: [
+      { nm: 'سارة خالد', sub: 'الثاني • عربي ورياضيات', att: '92%', fee: 'مسدد جزئيًا 25000/50000', next: 'الثلاثاء 10:00 — عربي' },
+      { nm: 'لين يوسف', sub: 'الثاني • عربي وعلوم', att: '100%', fee: 'مسدد بالكامل', next: 'الخميس 09:30 — عربي' }
+    ],
+    2: [
+      { nm: 'سارة خالد', sub: 'الثاني • عربي ورياضيات', att: '92%', fee: 'مسدد جزئيًا 25000/50000', next: 'الثلاثاء 10:00 — عربي' },
+      { nm: 'لين يوسف', sub: 'الثاني • عربي وعلوم', att: '100%', fee: 'مسدد بالكامل', next: 'الخميس 09:30 — عربي' }
+    ],
+    3: [
+      { nm: 'سارة خالد', sub: 'الثاني • عربي ورياضيات', att: '92%', fee: 'مسدد جزئيًا 25000/50000', next: 'الثلاثاء 10:00 — عربي', seed: 'sara-k', init: 'س' },
+      { nm: 'لين يوسف', sub: 'الثاني • عربي وعلوم', att: '100%', fee: 'مسدد بالكامل', next: 'الخميس 09:30 — عربي', seed: 'lin-y', init: 'ل' },
+      { nm: 'كريم حداد', sub: 'الخامس • علوم ورياضيات', att: '85%', fee: 'مستحق 45000', next: 'الجمعة 16:00 — علوم', seed: 'karim-h', init: 'ك' }
+    ],
+    4: [
+      { nm: 'سارة خالد', sub: 'الثاني • عربي ورياضيات', att: '92%', fee: 'مسدد جزئيًا 25000/50000', next: 'الثلاثاء 10:00 — عربي', seed: 'sara-k', init: 'س' },
+      { nm: 'لين يوسف', sub: 'الثاني • عربي وعلوم', att: '100%', fee: 'مسدد بالكامل', next: 'الخميس 09:30 — عربي', seed: 'lin-y', init: 'ل' },
+      { nm: 'كريم حداد', sub: 'الخامس • علوم ورياضيات', att: '85%', fee: 'مستحق 45000', next: 'الجمعة 16:00 — علوم', seed: 'karim-h', init: 'ك' }
+    ],
+    5: [
+      { nm: 'سارة خالد', sub: 'الثاني • عربي ورياضيات', att: '92%', fee: 'مسدد جزئيًا 25000/50000', next: 'الثلاثاء 10:00 — عربي', seed: 'sara-k', init: 'س' },
+      { nm: 'لين يوسف', sub: 'الثاني • عربي وعلوم', att: '100%', fee: 'مسدد بالكامل', next: 'الخميس 09:30 — عربي', seed: 'lin-y', init: 'ل' },
+      { nm: 'كريم حداد', sub: 'الخامس • علوم ورياضيات', att: '85%', fee: 'مستحق 45000', next: 'الجمعة 16:00 — علوم', seed: 'karim-h', init: 'ك' }
+    ]
+  };
+  var CUR = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  var TABS = ['الرئيسية', 'الحضور', 'الجدول', 'الرسوم', 'المزيد'];
+  var TABHTML = [
+    '<div class="card"><h4>نسبة الحضور</h4><div style="font-size:30px;font-weight:800;color:var(--teal)">{att}</div><div class="muted">آخر 30 يومًا</div></div><div class="card"><div class="kv"><span>الجلسة القادمة</span><b>{next}</b></div><div class="kv"><span>القسط الحالي</span><b>{fee}</b></div></div><button class="btn btn-p" onclick="toast({p},\'إرسال عذر غياب (تجريبي)\')">الإبلاغ عن غياب</button>',
+    '<div class="card"><h4>الحضور التفصيلي</h4><div class="kv"><span>حاضر</span><b>11</b></div><div class="kv"><span>غائب</span><b>1</b></div><div class="kv"><span>متأخر</span><b>0</b></div></div>',
+    '<div class="card"><h4>الحصص الأسبوعية</h4><div class="kv"><span>الثلاثاء</span><b>10:00 — عربي</b></div><div class="kv"><span>الخميس</span><b>17:00 — عربي</b></div></div>',
+    '<div class="card"><h4>قسط سبتمبر</h4><div class="kv"><span>المبلغ</span><b>50000</b></div><div class="kv"><span>المدفوع</span><b>{paid}</b></div></div>',
+    '<div class="card"><h4>آخر اختبار</h4><div class="kv"><span>إملاء</span><b>20/20 ممتاز</b></div></div><div class="card"><h4>ملاحظة المعلم</h4><div class="muted">مستوى ممتاز — حافظي على المراجعة اليومية.</div></div>'
+  ];
+  var PAID = { 1: ['25000', '50000'], 2: ['25000', '50000'], 3: ['25000', '50000', '45000'], 4: ['25000', '50000', '45000'], 5: ['25000', '50000', '45000'] };
+
+  function sce(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  function toast(id, msg) {
+    var el = sce('toast' + id);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove('show'); }, 1600);
+  }
+
+  function paneHtml(p, tab) {
+    var k = KIDS[p][CUR[p]];
+    return TABHTML[tab]
+      .replace('{att}', k.att)
+      .replace('{fee}', k.fee)
+      .replace('{next}', k.next)
+      .replace('{paid}', PAID[p][CUR[p]])
+      .replace('{p}', p);
+  }
+  function renderPane(p) {
+    var el = sce('pane-' + p);
+    if (el) el.innerHTML = paneHtml(p, CURTAB[p] || 0);
+  }
+  var CURTAB = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  var FLIPROT = { 3: 0 };
+
+  function ptab(p, tab, btn) {
+    CURTAB[p] = tab;
+    var dock = sce('dock' + p);
+    if (dock) dock.querySelectorAll('.dk').forEach(function (b) { b.classList.remove('on'); });
+    if (btn) btn.classList.add('on');
+    renderPane(p);
+    toast(p, TABS[tab]);
+  }
+
+  function flipChild(p) {
+    var inner = sce('flipInner' + p);
+    if (!inner) return;
+    CUR[p] = CUR[p] === 0 ? 1 : 0;
+    inner.classList.toggle('flipped', CUR[p] === 1);
+    setTimeout(function () { renderPane(p); }, 260);
+    var k = KIDS[p][CUR[p]];
+    toast(p, 'الآن: ' + k.nm);
+  }
+
+  function faceHtml(p, k) {
+    return '<div class="avring" style="width:52px;height:52px;"><div class="avwrap"><div class="avfb" style="font-size:20px">' + k.init + '</div><img src="https://www.avatune.dev/api/svg/?theme=fatin-verse&seed=' + k.seed + '&size=200" alt="" onerror="this.remove()" /></div></div><div class="who"><b>' + esc(k.nm) + '</b><span>' + esc(k.sub) + '</span></div><div class="flipic">⇄</div>';
+  }
+  function miniAvHtml(k) {
+    return '<div class="avfb" style="font-size:16px">' + k.init + '</div><img src="https://www.avatune.dev/api/svg/?theme=fatin-verse&seed=' + k.seed + '&size=200" alt="" onerror="this.remove()" />';
+  }
+  function dotsHtml(p) {
+    var h = '';
+    for (var i = 0; i < KIDS[p].length; i++) {
+      h += '<button class="dot' + (i === CUR[p] ? ' on' : '') + '" onclick="jumpKid(' + p + ',' + i + ')"></button>';
+    }
+    return h;
+  }
+  function updateDots(p) {
+    var d = sce('dots' + p);
+    if (d) d.innerHTML = dotsHtml(p);
+  }
+  function refreshChrome(p) {
+    var k = KIDS[p][CUR[p]];
+    var fA = sce('faceA' + p), fB = sce('faceB' + p);
+    if (fA) fA.innerHTML = faceHtml(p, k);
+    if (fB && p !== 4) fB.innerHTML = faceHtml(p, k);
+    var mnm = sce('mnm' + p);
+    if (mnm) {
+      mnm.textContent = k.nm;
+      sce('msub' + p).textContent = k.sub;
+      sce('miniav' + p).innerHTML = miniAvHtml(k);
+    }
+    updateDots(p);
+  }
+  function cycleKid(p) {
+    var nx = (CUR[p] + 1) % KIDS[p].length;
+    var inner = sce('flipInner' + p);
+    if (inner) {
+      var hid = ((FLIPROT[p] / 180) % 2 === 0) ? 'B' : 'A';
+      var f = sce('face' + hid + p);
+      if (f) f.innerHTML = faceHtml(p, KIDS[p][nx]);
+      FLIPROT[p] += 180;
+      inner.style.transform = 'rotateY(' + FLIPROT[p] + 'deg)';
+    }
+    CUR[p] = nx;
+    refreshChrome(p);
+    setTimeout(function () { renderPane(p); }, inner ? 260 : 0);
+    toast(p, 'الآن: ' + KIDS[p][nx].nm);
+    var ms = sce('mslide' + p);
+    if (ms) { ms.classList.remove('slide'); void ms.offsetWidth; ms.classList.add('slide'); }
+  }
+  function jumpKid(p, i) {
+    if (i === CUR[p]) return;
+    CUR[p] = i;
+    refreshChrome(p);
+    renderPane(p);
+    toast(p, 'الآن: ' + KIDS[p][i].nm);
+  }
+  function flipList(p) {
+    var el = sce('flipInner' + p);
+    if (el) el.classList.toggle('flipped');
+  }
+  function pickKid(p, i, ev) {
+    if (ev) ev.stopPropagation();
+    CUR[p] = i;
+    var a = sce('faceA' + p);
+    if (a) a.innerHTML = faceHtml(p, KIDS[p][i]);
+    var el = sce('flipInner' + p);
+    if (el) el.classList.remove('flipped');
+    renderPane(p);
+    toast(p, 'الآن: ' + KIDS[p][i].nm);
+  }
+  function initFaces() {
+    [3, 4].forEach(function (p) {
+      var a = sce('faceA' + p), b = sce('faceB' + p);
+      if (a) a.innerHTML = faceHtml(p, KIDS[p][0]);
+      if (b && p === 3) b.innerHTML = faceHtml(p, KIDS[p][1]);
+    });
+    var m = sce('miniav5');
+    if (m) m.innerHTML = miniAvHtml(KIDS[5][0]);
+  }
+  function choose(id) {
+    document.querySelectorAll('.option').forEach(function (c) { c.classList.remove('selected'); });
+    var card = document.getElementById(id);
+    card.classList.add('selected');
+    sce('bannerName').textContent = card.dataset.name;
+    sce('choiceBanner').classList.add('show');
+    try { localStorage.setItem('durus-portal-chrome-choice', id); } catch (e) {}
+    sce('choiceBanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function clearChoice() {
+    document.querySelectorAll('.option').forEach(function (c) { c.classList.remove('selected'); });
+    sce('choiceBanner').classList.remove('show');
+    try { localStorage.removeItem('durus-portal-chrome-choice'); } catch (e) {}
+  }
+  (function init() {
+    initFaces();
+    renderPane(1);
+    renderPane(2);
+    renderPane(3);
+    renderPane(4);
+    renderPane(5);
+    updateDots(3);
+    updateDots(5);
+    try {
+      var saved = localStorage.getItem('durus-portal-chrome-choice');
+      if (saved && document.getElementById(saved)) choose(saved);
+    } catch (e) {}
+  })();
+</script>
+</body>
+</html>

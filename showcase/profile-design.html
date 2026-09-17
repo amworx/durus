@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:," />
+<title>دروس — الملف الشخصي: 4 تصاميم مدمجة (بيانات + دخول + صورة رمزية)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #FAF8F4;
+    --ink: #14213D;
+    --muted: #6F7A8C;
+    --teal: #0E7C66;
+    --teal-container: #DFF3EC;
+    --on-teal-container: #0A3B2E;
+    --ember: #E8622B;
+    --border: #ECEAE3;
+    --outline: #E7E2D6;
+    --white: #fff;
+    --radius: 26px;
+    --font: 'Zain', 'Noto Sans Arabic', sans-serif;
+    --green: #2E7D32;
+    --green-bg: #E4F2E4;
+    --red: #B3382C;
+    --red-bg: #FBE3E3;
+    --amber: #B7791F;
+    --amber-bg: #FFF3D6;
+    --slate-bg: #ECEFF1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--paper); color: var(--ink); line-height: 1.6; padding-bottom: 90px; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── header ── */
+  .hero { background: linear-gradient(160deg, #0A3B2E 0%, #0E7C66 60%, #12A083 100%); color: #fff; border-radius: 0 0 40px 40px; padding: 48px 0 56px; margin-bottom: -24px; }
+  .hero .tag { display: inline-block; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 700; color: #E6F6F1; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(30px, 5vw, 52px); font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+  .hero p.sub { font-size: clamp(16px, 2vw, 20px); opacity: .92; max-width: 860px; font-weight: 400; }
+  .hero .meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero .meta span { background: rgba(255,255,255,.12); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 700; }
+
+  /* ── problem card ── */
+  .problem { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 30px; margin-bottom: 40px; box-shadow: 0 6px 24px rgba(20,33,61,.05); }
+  .problem h2 { font-size: 24px; font-weight: 800; margin-bottom: 12px; color: var(--teal); }
+  .problem p { font-size: 17px; color: #33415F; max-width: 940px; }
+  .problem ul { margin-top: 14px; padding-right: 20px; display: grid; gap: 6px; }
+  .problem li { font-size: 16px; color: #33415F; }
+  .problem li b { color: var(--ember); }
+
+  /* ── choice banner ── */
+  #choiceBanner { position: sticky; top: 12px; z-index: 50; display: none; background: var(--ink); color: #fff; border-radius: 999px; padding: 12px 22px; box-shadow: 0 10px 30px rgba(20,33,61,.35); justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 18px; }
+  #choiceBanner.show { display: flex; }
+  #choiceBanner button { background: var(--ember); color: #fff; border: 0; border-radius: 999px; padding: 6px 18px; font-family: var(--font); font-size: 15px; font-weight: 700; cursor: pointer; }
+
+  /* ── options grid ── */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 28px; }
+  .option { background: var(--white); border: 1px solid var(--border); border-radius: 28px; padding: 22px; box-shadow: 0 6px 24px rgba(20,33,61,.05); }
+  .option.selected { outline: 3px solid var(--teal); outline-offset: 3px; }
+  .option h3 { font-size: 21px; font-weight: 800; }
+  .option .kind { display: inline-block; font-size: 12px; font-weight: 700; color: var(--teal); background: var(--teal-container); border-radius: 999px; padding: 2px 12px; margin: 6px 0 8px; }
+  .option p.desc { font-size: 15px; color: #33415F; margin-bottom: 8px; }
+  .option ul.sig { padding-right: 18px; margin-bottom: 6px; display: grid; gap: 3px; }
+  .option ul.sig li { font-size: 14px; color: var(--muted); }
+  .choosebtn { display: block; width: 100%; margin-top: 12px; border: 0; border-radius: 16px; padding: 11px; font-family: var(--font); font-size: 16px; font-weight: 800; cursor: pointer; background: var(--ink); color: #fff; }
+  .option.selected .choosebtn { background: var(--teal); }
+
+  /* ── phone frame ── */
+  .phone { max-width: 360px; margin: 14px auto 4px; background: #fff; border: 10px solid #101828; border-radius: 44px; overflow: hidden; box-shadow: 0 18px 50px rgba(20,33,61,.18); }
+  .notch { height: 24px; background: #101828; display: flex; justify-content: center; align-items: flex-start; }
+  .notch span { width: 110px; height: 18px; background: #101828; border-radius: 0 0 14px 14px; position: relative; }
+  .notch span::after { content: ''; position: absolute; top: 4px; inset-inline-start: 12px; width: 8px; height: 8px; border-radius: 50%; background: #2A3B5C; }
+  .screen { height: 620px; overflow-y: auto; background: var(--paper); position: relative; scrollbar-width: thin; }
+  .screen::-webkit-scrollbar { width: 5px; }
+  .screen::-webkit-scrollbar-thumb { background: #C9C4B4; border-radius: 4px; }
+  .spad { padding: 16px 14px 84px; }
+  .toast { position: absolute; bottom: 18px; right: 50%; transform: translate(50%, 20px); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 999px; font-size: 14px; font-weight: 700; opacity: 0; transition: .25s; pointer-events: none; z-index: 60; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translate(50%, 0); }
+
+  /* ── shared controls ── */
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 16px; margin-bottom: 12px; }
+  .card h4 { font-size: 15px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .field { margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+  .field input, .field textarea { width: 100%; font-family: var(--font); font-size: 15px; border: 1.5px solid var(--outline); border-radius: 14px; padding: 10px 12px; background: #fff; color: var(--ink); }
+  .field input:focus, .field textarea:focus { border-color: var(--teal); outline: none; }
+  .field textarea { min-height: 70px; resize: vertical; }
+  .field .count { text-align: left; font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .passwrap { position: relative; }
+  .passwrap .eye { position: absolute; top: 50%; inset-inline-end: 10px; transform: translateY(-50%); border: 0; background: none; font-size: 17px; cursor: pointer; }
+  .passwrap input { padding-inline-end: 40px; }
+  .btn { display: block; width: 100%; border: 0; border-radius: 16px; padding: 12px; font-family: var(--font); font-size: 16px; font-weight: 800; cursor: pointer; }
+  .btn-p { background: var(--teal); color: #fff; }
+  .btn-o { background: #fff; border: 1.5px solid var(--outline); color: var(--ink); margin-top: 8px; }
+  .btn-d { background: var(--red-bg); color: var(--red); }
+  .btn-sm { font-size: 14px; padding: 9px; border-radius: 12px; }
+  .seg { display: flex; background: var(--slate-bg); border-radius: 999px; padding: 4px; gap: 4px; margin-bottom: 10px; }
+  .seg button { flex: 1; border: 0; background: transparent; font-family: var(--font); font-weight: 700; font-size: 13px; padding: 8px 2px; border-radius: 999px; cursor: pointer; color: var(--muted); }
+  .seg button.on { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+  .icon { width: 34px; height: 34px; border-radius: 12px; background: var(--teal-container); color: var(--on-teal-container); display: inline-flex; align-items: center; justify-content: center; font-size: 16px; flex: none; }
+  .note { font-size: 12.5px; color: var(--muted); background: var(--slate-bg); border-radius: 12px; padding: 8px 12px; margin-top: 8px; }
+  .note.ok { background: var(--green-bg); color: var(--green); font-weight: 700; }
+  [hidden] { display: none !important; }
+  .kv { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--outline); font-size: 14px; }
+  .kv:last-child { border-bottom: 0; }
+  .kv > span { color: var(--muted); }
+  .kv > b { font-weight: 700; text-align: left; }
+
+  /* ── avatar: gradient ring + glow + fallback ── */
+  .avring { background: conic-gradient(from 210deg, #0E7C66, #12A083, #E8622B, #0E7C66); border-radius: 50%; padding: 3px; box-shadow: 0 6px 18px rgba(14,124,102,.35); flex: none; }
+  .avwrap { position: relative; border-radius: 50%; overflow: hidden; background: var(--teal-container); display: flex; align-items: center; justify-content: center; color: var(--on-teal-container); font-weight: 800; width: 100%; height: 100%; }
+  .avwrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  /* ── Eldora-style animated badge (pulsing dot) ── */
+  .badge-a { display: inline-flex; align-items: center; gap: 7px; background: var(--green-bg); color: var(--green); font-size: 12px; font-weight: 800; border-radius: 999px; padding: 4px 12px; }
+  .badge-a .pdot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; position: relative; flex: none; }
+  .badge-a .pdot::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid currentColor; animation: ping 1.6s ease-out infinite; }
+  @keyframes ping { 0% { transform: scale(.5); opacity: .9; } 100% { transform: scale(1.5); opacity: 0; } }
+  .badge-w { background: rgba(255,255,255,.16); color: #fff; border: 1px solid rgba(255,255,255,.35); }
+  .badge-grey { background: var(--slate-bg); color: var(--muted); }
+  .badge-grey .pdot::after { animation: none; opacity: 0; }
+
+  /* ── stats row (Mantine card) ── */
+  .stats { display: flex; background: #fff; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 12px; }
+  .stat { flex: 1; text-align: center; padding: 12px 4px; }
+  .stat + .stat { border-inline-start: 1px solid var(--border); }
+  .stat b { display: block; font-size: 20px; font-weight: 800; }
+  .stat span { font-size: 12px; color: var(--muted); }
+
+  /* ── accordions ── */
+  details.acc { background: #fff; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 10px; overflow: hidden; }
+  details.acc summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 13px 14px; font-weight: 800; font-size: 15px; }
+  details.acc summary::-webkit-details-marker { display: none; }
+  details.acc summary .chev { margin-inline-start: auto; color: var(--muted); font-size: 18px; line-height: 1; transition: transform .2s; }
+  details.acc[open] summary .chev { transform: rotate(180deg); }
+  .acc-body { padding: 12px 14px 14px; border-top: 1px dashed var(--outline); }
+  .mini-tag { font-size: 11px; background: var(--slate-bg); color: var(--muted); border-radius: 999px; padding: 2px 10px; font-weight: 700; }
+
+  /* ── design 4 hero ── */
+  .hero-grad { background: linear-gradient(150deg, #0A3B2E, #0E7C66 65%, #12A083); color: #fff; border-radius: 0 0 28px 28px; padding: 24px 18px 22px; text-align: center; position: relative; overflow: hidden; }
+  .hero-grad::before, .hero-grad::after { content: ''; position: absolute; border-radius: 50%; border: 2px solid rgba(255,255,255,.14); }
+  .hero-grad::before { width: 190px; height: 190px; top: -70px; inset-inline-start: -60px; }
+  .hero-grad::after { width: 130px; height: 130px; bottom: -50px; inset-inline-end: -40px; }
+  .hero-grad .avring { margin: 0 auto; box-shadow: 0 8px 26px rgba(0,0,0,.3); }
+  .hero-grad h2 { font-size: 22px; font-weight: 800; margin-top: 10px; }
+  .hero-grad .em { font-size: 13px; opacity: .85; }
+  .hero-chips { display: flex; justify-content: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .chip-w { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 999px; padding: 5px 14px; font-size: 13px; font-weight: 800; }
+  .savefloat { position: sticky; bottom: 12px; margin: 4px 14px 0; box-shadow: 0 10px 26px rgba(14,124,102,.4); }
+
+  /* ── comparison table ── */
+  .cmpwrap { margin-top: 44px; }
+  .cmpwrap h2 { font-size: 24px; font-weight: 800; margin-bottom: 14px; color: var(--teal); }
+  table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; font-size: 15px; }
+  table.cmp th { background: var(--ink); color: #fff; padding: 12px 14px; text-align: right; font-weight: 800; }
+  table.cmp td { padding: 12px 14px; border-top: 1px solid var(--border); vertical-align: top; color: #33415F; }
+  table.cmp tr td:first-child { font-weight: 800; color: var(--ink); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">obra — واجهة واحدة لكل بيانات المعلم</span>
+    <h1>الملف الشخصي: 4 تصاميم مدمجة</h1>
+    <p class="sub">إعادة بناء كاملة: تحرير الاسم والنبذة والهاتف + بيانات الدخول (تغيير البريد مع تأكيد، تغيير كلمة المرور) + صورة رمزية مولّدة تلقائيًا من Avatune مع منتقٍ للستايل — بدل نافذة «الاسم فقط» والصورة الحرفية الحالية.</p>
+    <div class="meta"><span>4 تصاميم تفاعلية</span><span>صور Avatune حقيقية عبر API</span><span>شارة نابضة (Eldora)</span><span>اختيار جنس الشخصية</span><span>عربي RTL</span></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="problem">
+    <h2>لماذا نعيد البناء؟</h2>
+    <p>نافذة اليوم تفتح من الصورة لكنها تحرر <b>الاسم فقط</b>، والصورة مجرد حرف أول بخلفية باهتة. المعلم يحتاج كل بياناته في مكان واحد: الاسم، النبذة، الهاتف، البريد، كلمة المرور، وصورة لائقة تُولَّد له تلقائيًا. الصور في الهواتف أدناه <b>حقيقية</b> — تُجلب مباشرة من Avatune API (seed ثابت لكل هاتف)، وجرّب منتقي الستايل وزر التبديل لترى التوليد التلقائي يعمل.</p>
+    <ul>
+      <li>البيانات القابلة للتحرير: <b>الاسم، النبذة، الهاتف، البريد (مع رابط تأكيد)، كلمة المرور، ستايل الصورة، جنس الشخصية</b></li>
+      <li>للقراءة فقط: <b>الدور، المدرسة، الحالة، عضو منذ</b> (يتحكم بها المدير والنظام)</li>
+      <li>البيانات التجريبية: أ. أحمد الحسن — ahmed.hassan@example.com — 12 طالبًا / 48 جلسة / 5 مواد</li>
+    </ul>
+  </div>
+
+  <div id="choiceBanner"><span>اختيارك: <b id="bannerName"></b></span><span><button onclick="clearChoice()">تراجع</button></span></div>
+
+  <div class="grid">
+
+    <!-- opt1–opt5 removed — only the merged mockups (now 1–3) are kept -->
+
+    <!-- ══════════ 6 · البطاقة + تبويبات (دمج 1+3) ══════════ -->
+    <div class="option" id="opt6" data-name="1 — البطاقة + تبويبات">
+      <h3>1 — البطاقة + تبويبات</h3>
+      <span class="kind">التصميم الأساس المعتمد</span>
+      <p class="desc">التصميم الأساس: غلاف + صورة كبيرة + إحصائيات، وتحتها تبويبات البيانات / الدخول / الصورة — واختيار جنس الشخصية داخل تبويب الصورة فقط.</p>
+      <ul class="sig"><li>أفخم رأس + نماذج قصيرة</li><li>الجنس مع المعاينة في تبويب الصورة</li><li>أطول من 3 وأقصر من 1</li></ul>
+      <div class="phone"><div class="notch"><span></span></div>
+        <div class="screen" id="6">
+          <div style="height:96px;background:linear-gradient(140deg,#0A3B2E,#0E7C66 70%,#12A083);border-radius:0 0 24px 24px;"></div>
+          <div class="spad" style="padding-top:0;">
+            <div style="display:flex;justify-content:center;margin-top:-42px;">
+              <div class="avring" style="width:84px;height:84px;"><div class="avwrap" data-avwrap="6"><div class="avfb" style="font-size:32px">أ</div><img data-av="6" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=ahmad-6&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+            </div>
+            <h2 id="nm6" style="text-align:center;font-size:20px;font-weight:800;margin-top:8px;">أ. أحمد الحسن</h2>
+            <div style="text-align:center;font-size:13px;color:var(--muted);">ahmed.hassan@example.com • مدرّس</div>
+            <div style="text-align:center;margin-top:8px;"><span class="badge-a"><span class="pdot"></span>حساب مفعّل</span></div>
+            <div class="stats" style="margin-top:12px;">
+              <div class="stat"><b>12</b><span>طالب</span></div>
+              <div class="stat"><b>48</b><span>جلسة هذا الشهر</span></div>
+              <div class="stat"><b>5</b><span>مواد</span></div>
+            </div>
+            <div class="seg" data-seg="6">
+              <button class="on" onclick="tab(6,'data',this)">البيانات</button>
+              <button onclick="tab(6,'auth',this)">الدخول</button>
+              <button onclick="tab(6,'avatar',this)">الصورة</button>
+            </div>
+            <div id="tab-6-data">
+              <div class="card">
+                <div class="field"><label>الاسم الكامل</label><input value="أ. أحمد الحسن" oninput="setName(6,this.value)" /></div>
+                <div class="field"><label>رقم الهاتف</label><input value="+963 933 123 456" dir="ltr" style="text-align:right;" /></div>
+                <div class="field"><label>نبذة</label><textarea maxlength="160" oninput="bioCount(6,this)">مدرّس رياضيات للمرحلة الابتدائية — خبرة 8 سنوات.</textarea><div class="count"><span id="bioCount6">46</span>/160</div></div>
+              </div>
+            </div>
+            <div id="tab-6-auth" hidden>
+              <div class="card">
+                <h4><span class="icon">📧</span> تغيير البريد</h4>
+                <div class="field"><label>البريد الجديد</label><input placeholder="name@mail.com" dir="ltr" style="text-align:right;" /></div>
+                <button class="btn btn-o btn-sm" onclick="emailSave(6)">إرسال رابط التأكيد</button>
+                <div class="note ok" id="emNote6" hidden>أُرسل رابط التأكيد إلى بريدك الجديد — لن يتبدل الدخول حتى التأكيد.</div>
+              </div>
+              <div class="card">
+                <h4><span class="icon">🔒</span> تغيير كلمة المرور</h4>
+                <div class="field"><label>الحالية</label><div class="passwrap"><input type="password" id="pw6a" /><button class="eye" onclick="passToggle('pw6a',this)">👁</button></div></div>
+                <div class="field"><label>الجديدة</label><div class="passwrap"><input type="password" id="pw6b" /><button class="eye" onclick="passToggle('pw6b',this)">👁</button></div></div>
+                <button class="btn btn-o btn-sm" onclick="passSave(6)">تغيير كلمة المرور</button>
+              </div>
+            </div>
+            <div id="tab-6-avatar" hidden>
+              <div class="card" style="text-align:center;">
+                <div style="display:flex;justify-content:center;margin-bottom:10px;">
+                  <div class="avring" style="width:110px;height:110px;"><div class="avwrap" data-avwrap="6"><div class="avfb" style="font-size:42px">أ</div><img data-av="6" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=ahmad-6&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+                </div>
+                <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;">جنس الشخصية</div>
+                <div class="seg" data-gseg="6">
+                  <button onclick="setGender(6,'m',this)">ذكر</button>
+                  <button onclick="setGender(6,'f',this)">أنثى</button>
+                </div>
+                <div style="height:8px"></div>
+                <div class="seg" data-seg="6">
+                  <button class="on" onclick="setTheme(6,'fatin-verse',this)">فاتن</button>
+                  <button onclick="setTheme(6,'yanliu',this)">يانليو</button>
+                  <button onclick="setTheme(6,'micah',this)">مايكا</button>
+                </div>
+                <button class="btn btn-o btn-sm" onclick="shuffleSeed(6)">🎲 صورة جديدة عشوائية</button>
+                <div class="note">الستايل الحالي: <b id="thTag6">فاتن</b> — اختيار الجنس يبدّل لشخصية الرجل / المرأة تلقائيًا.</div>
+              </div>
+            </div>
+            <button class="btn btn-p" onclick="saveAll(6)">حفظ التعديلات</button>
+          </div>
+          <div class="toast" id="toast6"></div>
+        </div>
+      </div>
+      <button class="choosebtn" onclick="choose('opt6')">اختيار هذا التصميم</button>
+    </div>
+
+    <!-- ══════════ 9 · بطل أخضر + تبويبات ══════════ -->
+    <div class="option" id="opt9" data-name="2 — بطل أخضر + تبويبات">
+      <h3>2 — بطل أخضر + تبويبات</h3>
+      <span class="kind">تنويعة عن الأساس: رأس بطل أخضر</span>
+      <p class="desc">نفس هيكل الأساس لكن الرأس بطل أخضر متدرج كهوية الجدول الجديد — الصورة متوهجة بالأبيض والاسم والإحصائيات فوق الأخضر.</p>
+      <ul class="sig"><li>اتساق مع شاشة الجدول</li><li>الجنس في تبويب الصورة فقط</li><li>البطل يأخذ مساحة أكبر</li></ul>
+      <div class="phone"><div class="notch"><span></span></div>
+        <div class="screen" id="9">
+          <div class="hero-grad">
+            <div class="avring" style="width:80px;height:80px;"><div class="avwrap" data-avwrap="9"><div class="avfb" style="font-size:30px">أ</div><img data-av="9" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=ahmad-9&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+            <h2 id="nm9">أ. أحمد الحسن</h2>
+            <div class="em">ahmed.hassan@example.com • مدرّس</div>
+            <div style="margin-top:8px;"><span class="badge-a badge-w"><span class="pdot"></span>حساب مفعّل</span></div>
+            <div class="hero-chips"><span class="chip-w">12 طالب</span><span class="chip-w">48 جلسة</span><span class="chip-w">5 مواد</span></div>
+          </div>
+          <div class="spad" style="padding-top:12px;">
+            <div class="seg" data-seg="9">
+              <button class="on" onclick="tab(9,'data',this)">البيانات</button>
+              <button onclick="tab(9,'auth',this)">الدخول</button>
+              <button onclick="tab(9,'avatar',this)">الصورة</button>
+            </div>
+            <div id="tab-9-data">
+              <div class="card">
+                <div class="field"><label>الاسم الكامل</label><input value="أ. أحمد الحسن" oninput="setName(9,this.value)" /></div>
+                <div class="field"><label>رقم الهاتف</label><input value="+963 933 123 456" dir="ltr" style="text-align:right;" /></div>
+                <div class="field"><label>نبذة</label><textarea maxlength="160" oninput="bioCount(9,this)">مدرّس رياضيات للمرحلة الابتدائية — خبرة 8 سنوات.</textarea><div class="count"><span id="bioCount9">46</span>/160</div></div>
+              </div>
+              <div class="card">
+                <div class="kv"><span>الدور</span><b>مدرّس</b></div>
+                <div class="kv"><span>المدرسة</span><b>مدرسة الأمل</b></div>
+                <div class="kv"><span>الحالة</span><b style="color:var(--green)">مفعّل</b></div>
+                <div class="kv"><span>عضو منذ</span><b>أيلول 2026</b></div>
+              </div>
+            </div>
+            <div id="tab-9-auth" hidden>
+              <div class="card">
+                <h4><span class="icon">📧</span> تغيير البريد</h4>
+                <div class="field"><label>البريد الجديد</label><input placeholder="name@mail.com" dir="ltr" style="text-align:right;" /></div>
+                <button class="btn btn-o btn-sm" onclick="emailSave(9)">إرسال رابط التأكيد</button>
+                <div class="note ok" id="emNote9" hidden>أُرسل رابط التأكيد إلى بريدك الجديد — لن يتبدل الدخول حتى التأكيد.</div>
+              </div>
+              <div class="card">
+                <h4><span class="icon">🔒</span> تغيير كلمة المرور</h4>
+                <div class="field"><label>الحالية</label><div class="passwrap"><input type="password" id="pw9a" /><button class="eye" onclick="passToggle('pw9a',this)">👁</button></div></div>
+                <div class="field"><label>الجديدة</label><div class="passwrap"><input type="password" id="pw9b" /><button class="eye" onclick="passToggle('pw9b',this)">👁</button></div></div>
+                <button class="btn btn-o btn-sm" onclick="passSave(9)">تغيير كلمة المرور</button>
+              </div>
+            </div>
+            <div id="tab-9-avatar" hidden>
+              <div class="card" style="text-align:center;">
+                <div style="display:flex;justify-content:center;margin-bottom:10px;">
+                  <div class="avring" style="width:110px;height:110px;"><div class="avwrap" data-avwrap="9"><div class="avfb" style="font-size:42px">أ</div><img data-av="9" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=ahmad-9&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+                </div>
+                <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;">جنس الشخصية</div>
+                <div class="seg" data-gseg="9">
+                  <button onclick="setGender(9,'m',this)">ذكر</button>
+                  <button onclick="setGender(9,'f',this)">أنثى</button>
+                </div>
+                <div style="height:8px"></div>
+                <div class="seg" data-seg="9">
+                  <button class="on" onclick="setTheme(9,'fatin-verse',this)">فاتن</button>
+                  <button onclick="setTheme(9,'yanliu',this)">يانليو</button>
+                  <button onclick="setTheme(9,'micah',this)">مايكا</button>
+                </div>
+                <button class="btn btn-o btn-sm" onclick="shuffleSeed(9)">🎲 صورة جديدة عشوائية</button>
+                <div class="note">الستايل الحالي: <b id="thTag9">فاتن</b> — تُولَّد تلقائيًا من معرّف حسابك.</div>
+              </div>
+            </div>
+            <button class="btn btn-p" onclick="saveAll(9)">حفظ التعديلات</button>
+          </div>
+          <div class="toast" id="toast9"></div>
+        </div>
+      </div>
+      <button class="choosebtn" onclick="choose('opt9')">اختيار هذا التصميم</button>
+    </div>
+
+    <!-- ══════════ 10 · رأس أفقي + تبويبات ══════════ -->
+    <div class="option" id="opt10" data-name="3 — رأس أفقي + تبويبات">
+      <h3>3 — رأس أفقي + تبويبات</h3>
+      <span class="kind">تنويعة عن الأساس: رأس أفقي مدمج</span>
+      <p class="desc">بدل الغلاف: بطاقة رأس أفقية (الصورة بجانب الاسم والشارة) ثم شريط الإحصائيات والتبويبات — نفس المحتوى بمساحة أقل.</p>
+      <ul class="sig"><li>الأكثر إحكامًا — لا غلاف</li><li>الجنس في تبويب الصورة فقط</li><li>الصورة أصغر في الرأس</li></ul>
+      <div class="phone"><div class="notch"><span></span></div>
+        <div class="screen" id="10">
+          <div class="spad">
+            <div class="card" style="display:flex;align-items:center;gap:12px;">
+              <div class="avring" style="width:60px;height:60px;"><div class="avwrap" data-avwrap="10"><div class="avfb" style="font-size:24px">أ</div><img data-av="10" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=ahmad-10&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+              <div style="flex:1;">
+                <div id="nm10" style="font-size:18px;font-weight:800;">أ. أحمد الحسن</div>
+                <div style="font-size:12.5px;color:var(--muted);">ahmed.hassan@example.com • مدرّس</div>
+              </div>
+              <span class="badge-a"><span class="pdot"></span>مفعّل</span>
+            </div>
+            <div class="stats">
+              <div class="stat"><b>12</b><span>طالب</span></div>
+              <div class="stat"><b>48</b><span>جلسة هذا الشهر</span></div>
+              <div class="stat"><b>5</b><span>مواد</span></div>
+            </div>
+            <div class="seg" data-seg="10">
+              <button class="on" onclick="tab(10,'data',this)">البيانات</button>
+              <button onclick="tab(10,'auth',this)">الدخول</button>
+              <button onclick="tab(10,'avatar',this)">الصورة</button>
+            </div>
+            <div id="tab-10-data">
+              <div class="card">
+                <div class="field"><label>الاسم الكامل</label><input value="أ. أحمد الحسن" oninput="setName(10,this.value)" /></div>
+                <div class="field"><label>رقم الهاتف</label><input value="+963 933 123 456" dir="ltr" style="text-align:right;" /></div>
+                <div class="field"><label>نبذة</label><textarea maxlength="160" oninput="bioCount(10,this)">مدرّس رياضيات للمرحلة الابتدائية — خبرة 8 سنوات.</textarea><div class="count"><span id="bioCount10">46</span>/160</div></div>
+              </div>
+              <div class="card">
+                <div class="kv"><span>الدور</span><b>مدرّس</b></div>
+                <div class="kv"><span>المدرسة</span><b>مدرسة الأمل</b></div>
+                <div class="kv"><span>عضو منذ</span><b>أيلول 2026</b></div>
+              </div>
+            </div>
+            <div id="tab-10-auth" hidden>
+              <div class="card">
+                <h4><span class="icon">📧</span> تغيير البريد</h4>
+                <div class="field"><label>البريد الجديد</label><input placeholder="name@mail.com" dir="ltr" style="text-align:right;" /></div>
+                <button class="btn btn-o btn-sm" onclick="emailSave(10)">إرسال رابط التأكيد</button>
+                <div class="note ok" id="emNote10" hidden>أُرسل رابط التأكيد إلى بريدك الجديد — لن يتبدل الدخول حتى التأكيد.</div>
+              </div>
+              <div class="card">
+                <h4><span class="icon">🔒</span> تغيير كلمة المرور</h4>
+                <div class="field"><label>الحالية</label><div class="passwrap"><input type="password" id="pw10a" /><button class="eye" onclick="passToggle('pw10a',this)">👁</button></div></div>
+                <div class="field"><label>الجديدة</label><div class="passwrap"><input type="password" id="pw10b" /><button class="eye" onclick="passToggle('pw10b',this)">👁</button></div></div>
+                <button class="btn btn-o btn-sm" onclick="passSave(10)">تغيير كلمة المرور</button>
+              </div>
+            </div>
+            <div id="tab-10-avatar" hidden>
+              <div class="card" style="text-align:center;">
+                <div style="display:flex;justify-content:center;margin-bottom:10px;">
+                  <div class="avring" style="width:110px;height:110px;"><div class="avwrap" data-avwrap="10"><div class="avfb" style="font-size:42px">أ</div><img data-av="10" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=ahmad-10&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+                </div>
+                <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;">جنس الشخصية</div>
+                <div class="seg" data-gseg="10">
+                  <button onclick="setGender(10,'m',this)">ذكر</button>
+                  <button onclick="setGender(10,'f',this)">أنثى</button>
+                </div>
+                <div style="height:8px"></div>
+                <div class="seg" data-seg="10">
+                  <button class="on" onclick="setTheme(10,'fatin-verse',this)">فاتن</button>
+                  <button onclick="setTheme(10,'yanliu',this)">يانليو</button>
+                  <button onclick="setTheme(10,'micah',this)">مايكا</button>
+                </div>
+                <button class="btn btn-o btn-sm" onclick="shuffleSeed(10)">🎲 صورة جديدة عشوائية</button>
+                <div class="note">الستايل الحالي: <b id="thTag10">فاتن</b> — تُولَّد تلقائيًا من معرّف حسابك.</div>
+              </div>
+            </div>
+            <button class="btn btn-p" onclick="saveAll(10)">حفظ التعديلات</button>
+          </div>
+          <div class="toast" id="toast10"></div>
+        </div>
+      </div>
+      <button class="choosebtn" onclick="choose('opt10')">اختيار هذا التصميم</button>
+    </div>
+
+    <!-- ══════════ 11 · تبويبات علوية + بطاقة ══════════ -->
+    <div class="option" id="opt11" data-name="4 — تبويبات علوية + بطاقة">
+      <h3>4 — تبويبات علوية + بطاقة</h3>
+      <span class="kind">تنويعة عن الأساس: التبويبات أولًا</span>
+      <p class="desc">ترويسة نحيفة (صورة صغيرة + اسم + شارة) وفوقها شريط التبويبات مباشرة؛ الإحصائيات بطاقة داخل تبويب البيانات.</p>
+      <ul class="sig"><li>الوصول للأقسام فوري</li><li>الجنس في تبويب الصورة فقط</li><li>الإحصائيات خلف تبويب</li></ul>
+      <div class="phone"><div class="notch"><span></span></div>
+        <div class="screen" id="11">
+          <div class="spad">
+            <div class="card" style="display:flex;align-items:center;gap:10px;padding:12px 14px;">
+              <div class="avring" style="width:46px;height:46px;"><div class="avwrap" data-avwrap="11"><div class="avfb" style="font-size:18px">أ</div><img data-av="11" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=ahmad-11&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+              <div style="flex:1;">
+                <div id="nm11" style="font-size:16px;font-weight:800;">أ. أحمد الحسن</div>
+                <div style="font-size:11.5px;color:var(--muted);">ahmed.hassan@example.com</div>
+              </div>
+              <span class="badge-a"><span class="pdot"></span>مفعّل</span>
+            </div>
+            <div class="seg" data-seg="11">
+              <button class="on" onclick="tab(11,'data',this)">البيانات</button>
+              <button onclick="tab(11,'auth',this)">الدخول</button>
+              <button onclick="tab(11,'avatar',this)">الصورة</button>
+            </div>
+            <div id="tab-11-data">
+              <div class="stats">
+                <div class="stat"><b>12</b><span>طالب</span></div>
+                <div class="stat"><b>48</b><span>جلسة هذا الشهر</span></div>
+                <div class="stat"><b>5</b><span>مواد</span></div>
+              </div>
+              <div class="card">
+                <div class="field"><label>الاسم الكامل</label><input value="أ. أحمد الحسن" oninput="setName(11,this.value)" /></div>
+                <div class="field"><label>رقم الهاتف</label><input value="+963 933 123 456" dir="ltr" style="text-align:right;" /></div>
+                <div class="field"><label>نبذة</label><textarea maxlength="160" oninput="bioCount(11,this)">مدرّس رياضيات للمرحلة الابتدائية — خبرة 8 سنوات.</textarea><div class="count"><span id="bioCount11">46</span>/160</div></div>
+              </div>
+              <div class="card">
+                <div class="kv"><span>الدور</span><b>مدرّس</b></div>
+                <div class="kv"><span>المدرسة</span><b>مدرسة الأمل</b></div>
+                <div class="kv"><span>عضو منذ</span><b>أيلول 2026</b></div>
+              </div>
+            </div>
+            <div id="tab-11-auth" hidden>
+              <div class="card">
+                <h4><span class="icon">📧</span> تغيير البريد</h4>
+                <div class="field"><label>البريد الجديد</label><input placeholder="name@mail.com" dir="ltr" style="text-align:right;" /></div>
+                <button class="btn btn-o btn-sm" onclick="emailSave(11)">إرسال رابط التأكيد</button>
+                <div class="note ok" id="emNote11" hidden>أُرسل رابط التأكيد إلى بريدك الجديد — لن يتبدل الدخول حتى التأكيد.</div>
+              </div>
+              <div class="card">
+                <h4><span class="icon">🔒</span> تغيير كلمة المرور</h4>
+                <div class="field"><label>الحالية</label><div class="passwrap"><input type="password" id="pw11a" /><button class="eye" onclick="passToggle('pw11a',this)">👁</button></div></div>
+                <div class="field"><label>الجديدة</label><div class="passwrap"><input type="password" id="pw11b" /><button class="eye" onclick="passToggle('pw11b',this)">👁</button></div></div>
+                <button class="btn btn-o btn-sm" onclick="passSave(11)">تغيير كلمة المرور</button>
+              </div>
+            </div>
+            <div id="tab-11-avatar" hidden>
+              <div class="card" style="text-align:center;">
+                <div style="display:flex;justify-content:center;margin-bottom:10px;">
+                  <div class="avring" style="width:110px;height:110px;"><div class="avwrap" data-avwrap="11"><div class="avfb" style="font-size:42px">أ</div><img data-av="11" src="https://www.avatune.dev/api/svg/?theme=fatin-verse&amp;seed=ahmad-11&amp;size=200" alt="" onerror="this.remove()" /></div></div>
+                </div>
+                <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;">جنس الشخصية</div>
+                <div class="seg" data-gseg="11">
+                  <button onclick="setGender(11,'m',this)">ذكر</button>
+                  <button onclick="setGender(11,'f',this)">أنثى</button>
+                </div>
+                <div style="height:8px"></div>
+                <div class="seg" data-seg="11">
+                  <button class="on" onclick="setTheme(11,'fatin-verse',this)">فاتن</button>
+                  <button onclick="setTheme(11,'yanliu',this)">يانليو</button>
+                  <button onclick="setTheme(11,'micah',this)">مايكا</button>
+                </div>
+                <button class="btn btn-o btn-sm" onclick="shuffleSeed(11)">🎲 صورة جديدة عشوائية</button>
+                <div class="note">الستايل الحالي: <b id="thTag11">فاتن</b> — تُولَّد تلقائيًا من معرّف حسابك.</div>
+              </div>
+            </div>
+            <button class="btn btn-p" onclick="saveAll(11)">حفظ التعديلات</button>
+          </div>
+          <div class="toast" id="toast11"></div>
+        </div>
+      </div>
+      <button class="choosebtn" onclick="choose('opt11')">اختيار هذا التصميم</button>
+    </div>
+
+  </div><!-- /grid -->
+
+  <div class="cmpwrap">
+    <h2>جدول المقارنة</h2>
+    <table class="cmp">
+      <tr><th>التصميم</th><th>الفكرة</th><th>نقاط القوة</th><th>المقايضة</th></tr>
+      <tr><td>1 — البطاقة + تبويبات (الأساس)</td><td>غلاف وإحصائيات + تبويبات؛ الجنس في تبويب الصورة</td><td>أفخم رأس + نماذج قصيرة؛ كل شيء واضح</td><td>أطول تمرير نسبيًا</td></tr>
+      <tr><td>2 — بطل أخضر + تبويبات</td><td>نفس الهيكل برأس بطل أخضر كهوية الجدول</td><td>اتساق تام مع الجدول الجديد</td><td>البطل يأخذ مساحة أكبر</td></tr>
+      <tr><td>3 — رأس أفقي + تبويبات</td><td>رأس أفقي مدمج بدل الغلاف</td><td>الأكثر إحكامًا وتوفيرًا للمساحة</td><td>الصورة أصغر في الرأس</td></tr>
+      <tr><td>4 — تبويبات علوية + بطاقة</td><td>ترويسة نحيفة والتبويبات أولًا؛ الإحصائيات داخل البيانات</td><td>وصول فوري لكل قسم</td><td>الإحصائيات خلف تبويب</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  var TNAME = { 'fatin-verse': 'فاتن', 'yanliu': 'يانليو', 'micah': 'مايكا', 'male': 'رجل', 'female': 'امرأة' };
+  var SEED = { 1: 'ahmad-1', 2: 'ahmad-2', 3: 'ahmad-3', 4: 'ahmad-4', 5: 'ahmad-5', 6: 'ahmad-6', 7: 'ahmad-7', 8: 'ahmad-8', 9: 'ahmad-9', 10: 'ahmad-10', 11: 'ahmad-11' };
+  var THEME = { 1: 'fatin-verse', 2: 'fatin-verse', 3: 'fatin-verse', 4: 'fatin-verse', 5: 'fatin-verse', 6: 'fatin-verse', 7: 'fatin-verse', 8: 'fatin-verse', 9: 'fatin-verse', 10: 'fatin-verse', 11: 'fatin-verse' };
+  var GENDER = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null, 9: null, 10: null, 11: null }; // null=unspecified, 'm'=male, 'f'=female
+  var BASE = { 1: 'fatin-verse', 2: 'fatin-verse', 3: 'fatin-verse', 4: 'fatin-verse', 5: 'fatin-verse', 6: 'fatin-verse', 7: 'fatin-verse', 8: 'fatin-verse', 9: 'fatin-verse', 10: 'fatin-verse', 11: 'fatin-verse' }; // picked style; gender overrides at render
+
+  function sce(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  function toast(id, msg) {
+    var el = sce('toast' + id);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove('show'); }, 1600);
+  }
+
+  function avUrl(p) {
+    return 'https://www.avatune.dev/api/svg/?theme=' + THEME[p] + '&seed=' + SEED[p] + '&size=200';
+  }
+  function renderAv(p) {
+    var wraps = document.querySelectorAll('[data-avwrap="' + p + '"]');
+    wraps.forEach(function (w) {
+      var img = w.querySelector('img');
+      if (!img) {
+        img = document.createElement('img');
+        img.setAttribute('data-av', p);
+        img.setAttribute('alt', '');
+        img.onerror = function () { this.remove(); };
+        w.appendChild(img);
+      }
+      img.src = avUrl(p);
+    });
+    var tag = sce('thTag' + p);
+    if (tag) {
+      var gg = GENDER[p];
+      tag.textContent = (gg === 'm') ? TNAME.male : (gg === 'f') ? TNAME.female : (TNAME[THEME[p]] || THEME[p]);
+    }
+  }
+  function setTheme(p, theme, btn) {
+    THEME[p] = theme;
+    BASE[p] = theme;
+    GENDER[p] = null;
+    var seg = btn.closest('.seg');
+    if (seg) seg.querySelectorAll('button').forEach(function (b) { b.classList.remove('on'); });
+    btn.classList.add('on');
+    var gs = document.querySelector('[data-gseg="' + p + '"]');
+    if (gs) gs.querySelectorAll('button').forEach(function (b) { b.classList.remove('on'); });
+    renderAv(p);
+    toast(p, 'ستايل الصورة: ' + TNAME[theme]);
+  }
+  function shuffleSeed(p) {
+    SEED[p] = 'ahmad-' + p + '-' + Math.floor(Math.random() * 9000 + 1000);
+    renderAv(p);
+    toast(p, 'صورة جديدة مولّدة 🌱');
+  }
+
+  function setName(p, val) {
+    var v = (val || '').trim() || 'أ. أحمد الحسن';
+    var h = sce('nm' + p);
+    if (h) h.textContent = v;
+    document.querySelectorAll('[data-avwrap="' + p + '"] .avfb').forEach(function (f) {
+      f.textContent = v.charAt(0);
+    });
+  }
+  function bioCount(p, ta) {
+    var c = sce('bioCount' + p);
+    if (c) c.textContent = ta.value.length;
+  }
+  function passToggle(id, btn) {
+    var inp = sce(id);
+    if (!inp) return;
+    var show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.textContent = show ? '🙈' : '👁';
+  }
+  function emailSave(p) {
+    var note = sce('emNote' + p);
+    if (note) note.hidden = false;
+    toast(p, 'أُرسل رابط التأكيد (تجريبي)');
+  }
+  function passSave(p) {
+    toast(p, 'تم تغيير كلمة المرور (تجريبي)');
+  }
+  function saveAll(p) {
+    toast(p, 'تم حفظ الملف الشخصي (تجريبي)');
+  }
+  function tab(p, name, btn) {
+    ['data', 'auth', 'avatar'].forEach(function (n) { sce('tab-' + p + '-' + n).hidden = (n !== name); });
+    var seg = btn.closest('.seg');
+    if (seg) seg.querySelectorAll('button').forEach(function (b) { b.classList.remove('on'); });
+    btn.classList.add('on');
+  }
+
+  function choose(id) {
+    document.querySelectorAll('.option').forEach(function (c) { c.classList.remove('selected'); });
+    var card = document.getElementById(id);
+    card.classList.add('selected');
+    sce('bannerName').textContent = card.dataset.name;
+    sce('choiceBanner').classList.add('show');
+    try { localStorage.setItem('durus-profile-design-choice', id); } catch (e) {}
+    sce('choiceBanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function clearChoice() {
+    document.querySelectorAll('.option').forEach(function (c) { c.classList.remove('selected'); });
+    sce('choiceBanner').classList.remove('show');
+    try { localStorage.removeItem('durus-profile-design-choice'); } catch (e) {}
+  }
+  (function init() {
+    try {
+      var saved = localStorage.getItem('durus-profile-design-choice');
+      if (saved && document.getElementById(saved)) choose(saved);
+    } catch (e) {}
+  })();
+  function applyGender(p) {
+    var g = GENDER[p];
+    THEME[p] = (g === 'm') ? 'pawel-olek-man' : (g === 'f') ? 'pawel-olek-woman' : BASE[p];
+    renderAv(p);
+  }
+  function setGender(p, gender, btn) {
+    GENDER[p] = gender;
+    if (btn) {
+      var seg = btn.closest('.seg');
+      if (seg) seg.querySelectorAll('button').forEach(function (b) { b.classList.remove('on'); });
+      btn.classList.add('on');
+    }
+    applyGender(p);
+    toast(p, 'جنس الشخصية: ' + (gender === 'm' ? 'ذكر' : 'أنثى'));
+  }
+  function goSec(p, name, btn) {
+    var el = sce('sec-' + p + '-' + name);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var seg = btn.closest('.seg');
+    if (seg) seg.querySelectorAll('button').forEach(function (b) { b.classList.remove('on'); });
+    btn.classList.add('on');
+  }
+</script>
+</body>
+</html>
