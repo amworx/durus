@@ -769,6 +769,114 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - lessons: (1) Never clobber-copy onto a shared branch without diffing first — fetch, diff, merge. some copilot-style agent or the user may be pushing concurrently. (2) When adding the Nth dynamic screen, extend every parallel structure (data + state map + render loop), not just data.
 - tags: showcase, palettes, colorhunt, intro, ux, collaboration
 
+## EVT-20260917-0052
+- id: EVT-20260917-0052
+- timestamp: 2026-09-17
+- mode: RESEARCH
+- action: Anime.js integrability verdict for the Flutter app
+- summary: User asked if Anime.js (v4 docs reviewed in full) can integrate and how. Verdict: NO as a library — it animates DOM/CSS/SVG in browsers; Android canvas has no DOM to target. All three bridges fail: dart:js_interop works only on web against DOM (Flutter renders to canvas — nothing to grab), WebView embedding breaks offline-lightness + RTL fonts + low-end perf, porting the engine is man-months for zero gain. Smoking gun found: pub.dev HAS an 'animejs' 0.0.1 shim (Dart 2.15, abandoned) and it is exactly a js-interop bridge — proving even its existence is web-only. Flutter already covers every concept natively (tween/Timeline→Interval+chained controllers, stagger→per-item Intervals, easings/springs→Curves/SpringSimulation, keyframes→TweenSequence, scroll triggers→ScrollController). Two Durus-specific hard blockers beyond platform: Arabic script is cursive — per-character split/scramble effects (Anime's showpieces) destroy letter joining and must never be used; low-end phones demand opacity/transform-only motion. Proposed 3 native builds: staggered list entrances, animated counters (income/hero stats), spring micro-interactions. No code changed — awaiting pick.
+- result: advisory — verdict + mapping + proposal
+- files: none (read-only analysis)
+- errors: 0
+- lessons: (1) JS animation libraries answer a DOM question Flutter never asks — check the render target before the feature list. (2) A pub package existing with the right name proves nothing — read what it binds to (js_interop = web-only) and its age (0.0.1/Dart 2.15 = dead).
+- tags: research, animejs, flutter, animation, rtl, advisory
+
+## EVT-20260917-0053
+- id: EVT-20260917-0053
+- timestamp: 2026-09-17
+- mode: BUILD
+- action: live Anime.js motion mockups (stagger, counters, springs)
+- summary: User wanted to feel what Anime.js-style motion means before deciding. Built docs/animations-design.html running the REAL library (cdnjs 3.2.2 UMD) with 3 Durus-flavored demos: staggered student-list entrance (stagger 60ms), income counter tick + rate bar (easeOutExpo), spring FAB bounce + chip pops (spring easing) — each labeled with its zero-dependency Flutter equivalent (Interval/Tween-int/elasticOut). Content degrades gracefully without CDN (visible static + notice). Vote buttons persist picks for the follow-up discussion. Verified via CDP: library loads, 8 rows animate, counter ticks mid-flight, springs/chips/votes/banner all work, zero console errors.
+- result: success — discussable live demos, awaiting picks
+- files: docs/animations-design.html (new, local)
+- errors: 0
+- lessons: (1) When the question is "what does it FEEL like", the mockup must run the real engine — descriptions don't convey motion. (2) Degrade static-visible when a CDN demo can't load; never blank.
+- tags: showcase, animejs, motion, stagger, counters, springs, ux
+
+## EVT-20260917-0054
+- id: EVT-20260917-0054
+- timestamp: 2026-09-17
+- mode: REVIEW
+- action: animation demos rejected — minimal-motion direction locked
+- summary: User rejected all three motion demos (stagger, counters, springs): added load with no quality/UX value. Accepted without argument — correct on the merits for this app (low-end phones, Arabic CRUD, playbook already says avoid unnecessary animations). Nothing was touched in the app (demos lived only in the showcase page), so zero revert needed. Locked direction: keep only motion that communicates state (existing PulseDot presence, AnimatedSwitcher transitions, snackbars) — no decorative motion proposals going forward unless explicitly requested.
+- result: decision recorded — minimal motion is the house rule
+- files: none (no app changes ever made)
+- errors: 0
+- lessons: (1) Presenting options for judgment means accepting rejection gracefully — the showcase did its job by making the decision cheap and concrete. (2) For utility apps on weak hardware, restraint IS the design position; don't re-litigate it.
+- tags: decision, animation, minimal-motion, ux
+
+## EVT-20260917-0055
+- id: EVT-20260917-0055
+- timestamp: 2026-09-17
+- mode: REVIEW
+- action: adversarial QA pass — inputs, constraints, auth, injection
+- summary: User ordered a pro-tester edge-case sweep. Method: static input audit (every form validator/parser/keyboard), new edge unit tests (waNumber garbage, fmtMonthKey garbage, empty excuse sets), live REST probes with service+anon keys (RLS, bad/injected tokens, enum/unique/FK constraints, negative + oversize payloads), live auth probes (existing/weak/wrong). PASS: anon RLS deny, public meta by design, token validation, SQLi neutralized by UUID typing + parameterized RPCs, attendance enum, unique + FK constraints, auth errors without enumeration + server-side weak-password enforcement, client validators (passwords, email, numerics, month regex, slot order, confirms). FAIL: [MED] negative fee amounts accepted (no CHECK on fees.amount — live-verified, cleaned up; also negative test scores possible); [LOW] no text length caps (5KB note accepted); [LOW] duplicate-key errors surface as generic snackbar; [LOW] garbage birth-year silently nulls. All probe rows cleaned. Tests 40/40. No code changed — report delivered, fixes proposed, awaiting pick.
+- result: review only — 1 medium + 3 low findings, all with fixes proposed
+- files: src/test/widget_test.dart (3 new edge tests — additive, uncommitted)
+- errors: 0 (probe writes verified + deleted same run)
+- lessons: (1) Probe-then-clean in the same run: every adversarial write gets a paired delete before moving on, or the dummy school becomes a crime scene. (2) CHECK constraints are the last line — audit every numeric column for missing >= 0, not just the ones with UI spinners. (3) Server already enforces what the client validates (weak passwords) — verify, don't assume duplication is redundant.
+- tags: review, qa, edge-cases, rls, constraints, auth, injection, advisory
+
+## EVT-20260917-0056
+- id: EVT-20260917-0056
+- timestamp: 2026-09-17
+- mode: REVIEW
+- action: full pentest — live exploitation + hardening review
+- summary: User ordered a hacker-grade pentest (own infra only, all writes cleaned same-run). Headline: CRITICAL school-spoofing flaw PROVEN live — profiles_update_self pins only is_manager, so a teacher sets manager_id to a victim school and current_school_id() follows: read victim subjects/announcements + wrote a subject row into the victim school (all verified, then deleted). Student rows additionally need assigned=uid, which contained full theft. Second live proof: disabled teachers keep API access until JWT expiry (RLS never checks active; AuthGate is client-side). CLEAN: secrets (no keys in repo/history/builds, keystore outside repo), RPC definer+search_path discipline, token validation, anon enumeration/write/traversal denied (incl. APK-mime write → 403 RLS), signup/login error behavior, manifest permissions. LOWS: allowBackup unset (adb extraction), any-teacher all-audience announcements (not live-tested — would notify real parents), parent_family missing school filter, QA leftovers (negative fees etc.). No dep vuln scanner in this SDK (deps pinned — good). Range left clean (test user 404, all probe rows deleted).
+- result: 1 critical + 1 medium + lows, all with concrete fixes; nothing built, awaiting fix approval
+- files: none (read-only + ephemeral probe rows, all cleaned)
+- errors: 0 (every write paired with a delete; one inconclusive probe re-run correctly instead of assumed)
+- lessons: (1) RLS with-check must pin EVERYTHING the client never legitimately changes (school/manager/role/email/active) — pinning one column while leaving the school key mutable is a full bypass. (2) Prove impact, not just primitives: 204 on PATCH means little until victim rows come back. (3) Never live-test notification-generating paths against real parents — static policy text suffices. (4) IS NOT DISTINCT FROM, not =, when pinning nullable columns or managers lock themselves out.
+- tags: pentest, rls, exploit, school-spoofing, jwt, secrets, storage, auth, advisory
+
+## EVT-20260917-0057
+- id: EVT-20260917-0057
+- timestamp: 2026-09-17
+- mode: BUILD
+- action: pentest patch round — all findings fixed + re-proven live
+- summary: User ordered patching everything. Shipped: (1) CRITICAL school-spoof closed — profiles_update_self now pins school/manager/role/email/active/onboarded via IS NOT DISTINCT FROM (NULL-safe); re-attacked live with a fresh throwaway: PATCH → 403, profile unchanged, victim data empty. (2) Negative fees/scores now 23514 (migration + fee/test validators; pre-checked existing minimums so constraints applied cleanly). (3) 20 NOT VALID length caps (future writes only, legacy untouched). (4) friendlyError actually maps codes now (23505 duplicate, 23514 invalid value). (5) Announcements audience='all' manager-only in policy + hidden in compose UI (managers verified unbroken via onboarded-throwaway positive control). (6) parent_family school-scoped. (7) allowBackup=false. (8) jwt_expiry 3600→900 via config push (verified exp-iat=900 in a fresh token). Self-caught along the way: bio column doesn't exist on students (migration failed safe, fixed), inline PowerShell JSON mangling (file bodies only, twice), a missing author_id that faked an RLS failure (debug properly, don't assume). Signup-spam left open BY DECISION: only Turnstile (needs user's Cloudflare keys) or killing open-signup (regresses chosen UX) would fix it — Terms: captcha path documented for later. Analyze 8 infos, tests 40/40. Uncommitted.
+- result: success — every patch live-verified; range left clean (all throwaways 404, probe rows deleted)
+- files: supabase/migrations/20260916340000_security_hardening.sql (pushed) + 20260916270000 (earlier type widen), src/android/.../AndroidManifest.xml, supabase/config.toml (pushed), src/lib/widgets/widgets.dart, src/lib/widgets/announcement_compose_sheet.dart, src/lib/screens/fees_screens.dart, src/lib/screens/students_screens.dart, src/lib/l10n/* (3) (not committed)
+- errors: handled above, zero residue
+- lessons: (1) Verify fixes with the SAME exploit that proved the bug, not a weaker variant. (2) A failing security test can be a malformed probe (missing author_id) — debug the probe before doubting the fix. (3) IS NOT DISTINCT FROM for nullable pins; plain = would lock out managers. (4) NOT VALID constraints harden without touching legacy rows.
+- tags: build, security, rls, hardening, verification
+
+## EVT-20260917-0058
+- id: EVT-20260917-0058
+- timestamp: 2026-09-17
+- mode: BUILD
+- action: Google sign-in alongside email/password (code-complete, uncommitted)
+- summary: User approved Google auth + dependency probe. google_sign_in 7.2.0 resolved clean (no jni chain, pins intact). Built: AppConfig.googleWebClientId (dart-define GOOGLE_WEB_CLIENT_ID, default empty) + isGoogleConfigured; new core/google_auth.dart (init-once guard, cancel→null quiet, google_not_configured fail-closed); DurusApi.signInWithGoogle (native ID-token exchange on Android, signInWithOAuth on web, injectable seams for tests); shared _GoogleSignInButton on both sign-in and sign-up forms with أو divider, busy coordination both directions, Arabic errors (provider-not-enabled mapped); profile password section shows notice for Google-only users (no password to change). TDD: 4 new tests (red first: missing-symbol compile errors), green 44/44. Analyze: 8 infos, all pre-existing, zero new. Debug APK builds clean (133s, mirror served play-services-auth). NOT yet usable end-to-end: needs user's Google Cloud OAuth clients (web + Android com.amworx.durus, SHA-1 release 8E:FB:AB:2B:...:91:94 + debug 4A:C1:88:C2:...:AB:0D) pasted into Supabase Dashboard Google provider + builds passed GOOGLE_WEB_CLIENT_ID. Security: same handle_new_user→onboarding path, same pinned-columns RLS, no secret in app.
+- result: success — code complete + verified (tests/build); live OAuth pending user's two dashboard steps
+- files: src/lib/core/google_auth.dart (new), src/lib/core/config.dart, src/lib/core/durus_api.dart, src/lib/screens/auth_screens.dart, src/lib/screens/profile_screen.dart, src/lib/l10n/* (3), src/pubspec.yaml + lock, src/test/widget_test.dart (not committed; prior security batch still uncommitted alongside)
+- errors: none (one self-caught comment splice in config.dart, repaired immediately)
+- lessons: (1) google_sign_in v7 needs initialize-once + separate authorizeScopes for the access token Supabase wants — read the cached package source, not memory. (2) Gate OAuth buttons on build-time client ID so unconfigured builds explain instead of crash. (3) Google-only users break password-change UX — detect provider via appMetadata and say so.
+- tags: build, auth, google-signin, oauth, supabase, l10n, tdd
+
+## EVT-20260917-0059
+- id: EVT-20260917-0059
+- timestamp: 2026-09-17
+- mode: BUILD
+- action: v1.1.17 release APKs built — caught frozen-build-number update blocker
+- summary: User asked for final release APK (debug was 179MB). Bumped to 1.1.17, built split-per-ABI release (19–22MB each, Google flag baked, binary string-proofed). aapt2 showed arm64 versionCode=2001 — identical to the downloaded v1.1.16 asset (2001). Root cause: Flutter Gradle's split override is abi*1000+base and the project freezes build at +1, so EVERY release ships identical versionCodes and Android silently refuses update-over-install. Fixed by breaking convention to 1.1.17+2 (arm64=2002 > 2001), rebuilt, re-verified (2002, 1.1.17, client ID present). New standing rule: bump +N every release, never freeze it. Not yet committed/tagged/published.
+- result: success — installable release APKs ready at src/build/app/outputs/flutter-apk/
+- files: src/pubspec.yaml (1.1.17+2), src/lib/core/config.dart (appVersion 1.1.17)
+- errors: none
+- lessons: (1) Always aapt2-dump a release APK and compare versionCode against the live release asset — versionName alone says nothing about installability. (2) Split-per-ABI versionCodes derive from the build number; freezing +N freezes updates.
+- tags: build, release, versioning, android, lesson
+
+## EVT-20260917-0060
+- id: EVT-20260917-0060
+- timestamp: 2026-09-17
+- mode: BUILD
+- action: Google-user password-form guard hardened (identities-based)
+- summary: User's live Google test passed, then asked whether Profile copes with password-less accounts. First version hid the form via appMetadata provider only; hardened to check linked identities (User.identities[*].provider) with appMetadata fallback: Google-only sees the Arabic notice, email or linked-both keeps the form, unknown state fails open to historical behavior. Pure helper showPasswordForm in core/google_auth.dart + 6-case unit test. 45/45 green, analyze still 8 pre-existing infos. Uncommitted.
+- result: success
+- files: src/lib/core/google_auth.dart, src/lib/screens/profile_screen.dart, src/test/widget_test.dart
+- errors: none
+- lessons: Prefer identities list over appMetadata provider for account-type decisions — metadata reflects signup method, identities reflect what exists now (linking-safe).
+- tags: build, auth, google-signin, profile, testing
+
 ## EVT-20260916-0043
 - id: EVT-20260916-0043
 - timestamp: 2026-09-16
