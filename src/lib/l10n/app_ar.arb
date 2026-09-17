@@ -252,6 +252,57 @@
       }
     }
   },
+  "studentDeleteBlockedTitle": "لا يمكن حذف هذا الطالب",
+  "studentDeleteBlockedMessage": "للطالب «{name}» جلسات مسجلة (العدد: {count}) — حذفه سيمحو السجل نهائيًا. هل تريد حذف حصصه الأسبوعية فقط مع بقاء كل السجل؟",
+  "@studentDeleteBlockedMessage": {
+    "description": "Blocks deleting a student with sessions; offers slots-only deletion",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studentSlotsDeleted": "حذفنا الحصص الأسبوعية — السجل محفوظ",
+  "bulkDeleteBlockedTitle": "تعذّر حذف الكل",
+  "bulkDeleteBlockedCounts": "من المحددين: {blocked} لديهم جلسات مسجلة ولن يُحذفوا. متابعة حذف {deletable}؟",
+  "@bulkDeleteBlockedCounts": {
+    "description": "Bulk delete with session-having students excluded",
+    "placeholders": {
+      "blocked": {
+        "type": "int"
+      },
+      "deletable": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteBlockedNone": "كل المحددين ({blocked}) لديهم جلسات مسجلة — لا يمكن حذف أي منهم.",
+  "@bulkDeleteBlockedNone": {
+    "description": "Bulk delete where nobody is deletable",
+    "placeholders": {
+      "blocked": {
+        "type": "int"
+      }
+    }
+  },
+  "studentsGradeReasonTitle": "سبب تغيير الصف",
+  "studentsGradeReasonMessage": "التصحيح يحفظ بهدوء. الانتقال إلى صف جديد يذكّرك بمراجعة المواد والحصص الأسبوعية.",
+  "studentsGradeReasonMistake": "خطأ إدخال",
+  "studentsGradeReasonMove": "انتقال صف",
+  "studentsGradeMovedReview": "انتقل الطالب إلى {grade} — راجع مواده وحصصه الأسبوعية",
+  "@studentsGradeMovedReview": {
+    "description": "Review nudge after a real grade move",
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "feesFutureMonth": "شهر مستقبلي",
+  "feesAdvanceHint": "شهر مستقبلي — سيُحتسب هذا القسط كدفعة مقدمة",
   "bulkSetGrade": "تعديل الصف",
   "bulkSetGradeTitle": "الصف الجديد للمحددين",
   "bulkAssignSubject": "إسناد مادة",

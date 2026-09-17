@@ -266,9 +266,13 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
       return true;
     }).toList();
 
+    // Advance practice: future-month rows are prepayments, not dues — keep
+    // them out of the summary unless the month filter targets them directly.
+    final nowMonth = monthKey(DateTime.now());
     num totalAmount = 0;
     num totalPaid = 0;
     for (final fee in filtered) {
+      if (_filterMonth == null && fee.month.compareTo(nowMonth) > 0) continue;
       totalAmount += fee.amount;
       totalPaid += fee.paidAmount;
     }
@@ -373,6 +377,14 @@ itemBuilder: (context, index) {
                         ),
                         const SizedBox(width: 8),
                         StatusChip(label: status.label, color: status.color),
+                        if (fee.month.compareTo(nowMonth) > 0) ...[
+                          const SizedBox(width: 6),
+                          StatusChip(
+                            label: l10n.feesFutureMonth,
+                            color:
+                                Theme.of(context).colorScheme.tertiary,
+                          ),
+                        ],
                       ],
                     ),
                     subtitle: Text(
@@ -486,6 +498,7 @@ class _FeeFormScreenState extends ConsumerState<FeeFormScreen> {
   String? _selectedStudentId;
   DateTime? _dueDate;
   bool _saving = false;
+  bool _isFutureMonth = false;
 
   @override
   void initState() {
@@ -507,10 +520,19 @@ class _FeeFormScreenState extends ConsumerState<FeeFormScreen> {
     );
     _notesController = TextEditingController(text: fee?.notes ?? '');
     _selectedStudentId = fee?.studentId;
+    _monthController.addListener(_checkFutureMonth);
+    _checkFutureMonth();
+  }
+
+  void _checkFutureMonth() {
+    final future =
+        _monthController.text.trim().compareTo(monthKey(DateTime.now())) > 0;
+    if (future != _isFutureMonth) setState(() => _isFutureMonth = future);
   }
 
   @override
   void dispose() {
+    _monthController.removeListener(_checkFutureMonth);
     _monthController.dispose();
     _amountController.dispose();
     _dueDateController.dispose();
@@ -632,7 +654,18 @@ class _FeeFormScreenState extends ConsumerState<FeeFormScreen> {
                     : l10n.feesMonthInvalid;
               },
             ),
-            const SizedBox(height: 16),
+            if (!isEdit && _isFutureMonth)
+              Padding(
+                padding: const EdgeInsets.only(top: 6, bottom: 12),
+                child: Text(
+                  l10n.feesAdvanceHint,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+            if (isEdit || !_isFutureMonth) const SizedBox(height: 16),
             TextFormField(
               controller: _amountController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),

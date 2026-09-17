@@ -89,15 +89,57 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
 
   Future<void> _bulkDelete(List<Student> students) async {
     final l10n = context.l10n;
-    final ok = await confirmDialog(
-      context,
-      title: l10n.bulkDeleteTitle,
-      message: l10n.bulkDeleteConfirm(_selected.length),
-    );
-    if (!ok || !mounted) return;
+    // Same critical rule as single delete: partition the selection so no
+    // student with recorded sessions can be hard-deleted. Falls back to a
+    // direct fetch when the provider has no value yet; any failure aborts
+    // with an error instead of silently bypassing the guard.
+    final List<LessonSession> lessons;
+    try {
+      lessons = ref.read(lessonsProvider).valueOrNull ??
+          await ref.read(apiProvider).lessons();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+      return;
+    }
+    if (!mounted) return;
+    final byId = <String, Student>{for (final s in students) s.id: s};
+    final blocked = <Student>[];
+    final targets = <String>[];
+    for (final id in _selected) {
+      final hasSessions = lessons.any((l) => l.studentId == id);
+      if (hasSessions) {
+        final s = byId[id];
+        if (s != null) blocked.add(s);
+      } else {
+        targets.add(id);
+      }
+    }
+    if (blocked.isNotEmpty) {
+      final names = blocked.map((s) => s.name).take(5).join('، ');
+      final msg = targets.isEmpty
+          ? l10n.bulkDeleteBlockedNone(blocked.length)
+          : '${l10n.bulkDeleteBlockedCounts(blocked.length, targets.length)}\n$names';
+      final proceed = await confirmDialog(
+        context,
+        title: l10n.bulkDeleteBlockedTitle,
+        message: msg,
+      );
+      if (!proceed || !mounted || targets.isEmpty) return;
+    } else {
+      final ok = await confirmDialog(
+        context,
+        title: l10n.bulkDeleteTitle,
+        message: l10n.bulkDeleteConfirm(_selected.length),
+      );
+      if (!ok || !mounted) return;
+    }
     try {
       final api = ref.read(apiProvider);
-      await api.deleteStudents(_selected.toList());
+      await api.deleteStudents(targets);
       _selected.clear();
       ref.invalidate(studentsProvider);
       ref.invalidate(studentSubjectRefsProvider);
@@ -473,6 +515,7 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
   late final TextEditingController _parentNameController;
   late final TextEditingController _parentPhoneController;
   late final TextEditingController _notesController;
+  late final String _initialGrade;
   String? _location;
   String? _selectedTeacherId;
   final Set<String> _selectedSubjectIds = <String>{};
@@ -491,6 +534,7 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
     _parentNameController = TextEditingController(text: student?.parentName ?? '');
     _parentPhoneController = TextEditingController(text: student?.parentPhone ?? '');
     _notesController = TextEditingController(text: student?.notes ?? '');
+    _initialGrade = (student?.grade ?? '').trim();
     _location = student?.defaultLocation;
     _selectedTeacherId = student?.assignedTeacherId;
   }
@@ -538,6 +582,16 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
     final assignedTeacherId = isManager
         ? (_selectedTeacherId ?? (student == null ? profile?.id : null))
         : profile?.id;
+    // Grade change needs a reason: a typo is a silent fix, while a real
+    // move should remind the teacher to review grade-labeled subjects and
+    // weekly slots. Only when editing (a new student has no old grade).
+    String? gradeMoveTo;
+    final newGrade = gradeText.isEmpty ? null : gradeText;
+    if (student != null && newGrade != null && newGrade != _initialGrade) {
+      final reason = await _askGradeReason();
+      if (reason == null || !mounted) return;
+      if (reason == 'move') gradeMoveTo = newGrade;
+    }
     setState(() => _saving = true);
     try {
       final DurusApi api = ref.read(apiProvider);
@@ -569,6 +623,11 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
       }
       ref.invalidate(studentsProvider);
       ref.invalidate(studentSubjectRefsProvider);
+      if (gradeMoveTo != null && mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.studentsGradeMovedReview(gradeMoveTo))),
+        );
+      }
       if (mounted) Navigator.of(context).pop();
     } catch (_) {
       if (mounted) {
@@ -577,6 +636,33 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+
+  /// Asks why the grade changed: 'mistake' saves silently, 'move' saves
+  /// and reminds the teacher to review subjects/slots. Null = cancelled.
+  Future<String?> _askGradeReason() {
+    final l10n = context.l10n;
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.studentsGradeReasonTitle),
+        content: Text(l10n.studentsGradeReasonMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop('mistake'),
+            child: Text(l10n.studentsGradeReasonMistake),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop('move'),
+            child: Text(l10n.studentsGradeReasonMove),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -1071,6 +1157,54 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
 
   Future<void> _deleteStudent(Student student) async {
     final l10n = context.l10n;
+    // CRITICAL: a student with recorded sessions must never be hard-deleted
+    // (cascade would wipe sessions, fees, tests, notes, even reports).
+    // Instead the teacher is offered the safe alternative: delete only the
+    // weekly slots and keep the entire history. Any failure to load the
+    // sessions aborts with an error instead of bypassing the guard.
+    final List<LessonSession> lessons;
+    try {
+      lessons = ref.read(lessonsProvider).valueOrNull ??
+          await ref.read(apiProvider).lessons();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+      return;
+    }
+    if (!mounted) return;
+    final sessionCount =
+        lessons.where((l) => l.studentId == student.id).length;
+    if (sessionCount > 0) {
+      final slotsOnly = await confirmDialog(
+        context,
+        title: l10n.studentDeleteBlockedTitle,
+        message: l10n.studentDeleteBlockedMessage(student.name, sessionCount),
+      );
+      if (!slotsOnly || !mounted) return;
+      try {
+        final DurusApi api = ref.read(apiProvider);
+        final slots = ref.read(slotsProvider).valueOrNull ??
+            await ref.read(apiProvider).slots();
+        for (final slot in slots.where((s) => s.studentId == student.id)) {
+          await api.deleteSlot(slot.id);
+        }
+        ref.invalidate(slotsProvider);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.studentSlotsDeleted)),
+        );
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.commonError)),
+          );
+        }
+      }
+      return;
+    }
     final confirmed = await confirmDialog(
       context,
       title: l10n.commonDelete,

@@ -585,6 +585,54 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get studentDeleteBlockedTitle => 'لا يمكن حذف هذا الطالب';
+
+  @override
+  String studentDeleteBlockedMessage(String name, int count) {
+    return 'للطالب «$name» جلسات مسجلة (العدد: $count) — حذفه سيمحو السجل نهائيًا. هل تريد حذف حصصه الأسبوعية فقط مع بقاء كل السجل؟';
+  }
+
+  @override
+  String get studentSlotsDeleted => 'حذفنا الحصص الأسبوعية — السجل محفوظ';
+
+  @override
+  String get bulkDeleteBlockedTitle => 'تعذّر حذف الكل';
+
+  @override
+  String bulkDeleteBlockedCounts(int blocked, int deletable) {
+    return 'من المحددين: $blocked لديهم جلسات مسجلة ولن يُحذفوا. متابعة حذف $deletable؟';
+  }
+
+  @override
+  String bulkDeleteBlockedNone(int blocked) {
+    return 'كل المحددين ($blocked) لديهم جلسات مسجلة — لا يمكن حذف أي منهم.';
+  }
+
+  @override
+  String get studentsGradeReasonTitle => 'سبب تغيير الصف';
+
+  @override
+  String get studentsGradeReasonMessage =>
+      'التصحيح يحفظ بهدوء. الانتقال إلى صف جديد يذكّرك بمراجعة المواد والحصص الأسبوعية.';
+
+  @override
+  String get studentsGradeReasonMistake => 'خطأ إدخال';
+
+  @override
+  String get studentsGradeReasonMove => 'انتقال صف';
+
+  @override
+  String studentsGradeMovedReview(String grade) {
+    return 'انتقل الطالب إلى $grade — راجع مواده وحصصه الأسبوعية';
+  }
+
+  @override
+  String get feesFutureMonth => 'شهر مستقبلي';
+
+  @override
+  String get feesAdvanceHint => 'شهر مستقبلي — سيُحتسب هذا القسط كدفعة مقدمة';
+
+  @override
   String get bulkSetGrade => 'تعديل الصف';
 
   @override

@@ -1204,6 +1204,84 @@ abstract class AppLocalizations {
   /// **'سيتم حذف {count} عنصر. هل أنت متأكد؟'**
   String bulkDeleteConfirm(int count);
 
+  /// No description provided for @studentDeleteBlockedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يمكن حذف هذا الطالب'**
+  String get studentDeleteBlockedTitle;
+
+  /// Blocks deleting a student with sessions; offers slots-only deletion
+  ///
+  /// In ar, this message translates to:
+  /// **'للطالب «{name}» جلسات مسجلة (العدد: {count}) — حذفه سيمحو السجل نهائيًا. هل تريد حذف حصصه الأسبوعية فقط مع بقاء كل السجل؟'**
+  String studentDeleteBlockedMessage(String name, int count);
+
+  /// No description provided for @studentSlotsDeleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذفنا الحصص الأسبوعية — السجل محفوظ'**
+  String get studentSlotsDeleted;
+
+  /// No description provided for @bulkDeleteBlockedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر حذف الكل'**
+  String get bulkDeleteBlockedTitle;
+
+  /// Bulk delete with session-having students excluded
+  ///
+  /// In ar, this message translates to:
+  /// **'من المحددين: {blocked} لديهم جلسات مسجلة ولن يُحذفوا. متابعة حذف {deletable}؟'**
+  String bulkDeleteBlockedCounts(int blocked, int deletable);
+
+  /// Bulk delete where nobody is deletable
+  ///
+  /// In ar, this message translates to:
+  /// **'كل المحددين ({blocked}) لديهم جلسات مسجلة — لا يمكن حذف أي منهم.'**
+  String bulkDeleteBlockedNone(int blocked);
+
+  /// No description provided for @studentsGradeReasonTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب تغيير الصف'**
+  String get studentsGradeReasonTitle;
+
+  /// No description provided for @studentsGradeReasonMessage.
+  ///
+  /// In ar, this message translates to:
+  /// **'التصحيح يحفظ بهدوء. الانتقال إلى صف جديد يذكّرك بمراجعة المواد والحصص الأسبوعية.'**
+  String get studentsGradeReasonMessage;
+
+  /// No description provided for @studentsGradeReasonMistake.
+  ///
+  /// In ar, this message translates to:
+  /// **'خطأ إدخال'**
+  String get studentsGradeReasonMistake;
+
+  /// No description provided for @studentsGradeReasonMove.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتقال صف'**
+  String get studentsGradeReasonMove;
+
+  /// Review nudge after a real grade move
+  ///
+  /// In ar, this message translates to:
+  /// **'انتقل الطالب إلى {grade} — راجع مواده وحصصه الأسبوعية'**
+  String studentsGradeMovedReview(String grade);
+
+  /// No description provided for @feesFutureMonth.
+  ///
+  /// In ar, this message translates to:
+  /// **'شهر مستقبلي'**
+  String get feesFutureMonth;
+
+  /// No description provided for @feesAdvanceHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'شهر مستقبلي — سيُحتسب هذا القسط كدفعة مقدمة'**
+  String get feesAdvanceHint;
+
   /// No description provided for @bulkSetGrade.
   ///
   /// In ar, this message translates to:
