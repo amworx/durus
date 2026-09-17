@@ -685,6 +685,18 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - lessons: (1) Old-but-MIT + zero-deps packages are safe to adopt when version solving passes on the first try — verify with a widget test, not just analyze. (2) itemBuilder signature drift between README and code is real — optional-positional shim covers both. (3) Test failures in wrapper harnesses (unbounded constraints) are harness bugs until proven otherwise.
 - tags: build, onboarding, intro, concentric, rtl, l10n, mit
 
+## EVT-20260917-0051
+- id: EVT-20260917-0051
+- timestamp: 2026-09-17
+- mode: BUILD
+- action: release v1.1.16 (7-item quality batch) end-to-end
+- summary: User said push. Pipeline, zero failures: tests 38/38 first; bump 1.1.15+1→1.1.16+1 + AppConfig; migration 20260916330000_app_meta_v126.sql pushed + REST-verified; APKs split-per-ABI (sizes shifted) + aapt2 1.1.16 + binary string proof upfront (تقارير الدخل at offset 1104447); 2 commits pushed (36c9f63 feat incl. income screen, 3f4c269 release); web to gh-pages (showcase/ preserved); draft → upload --clobber → publish verified draft:false + publishedAt AFTER upload; Storage 3×200; asset 206 + Pages 200.
+- result: success — v1.1.16 live everywhere; ≤1.1.15 devices auto-detect on resume
+- files: 36c9f63 + 3f4c269 (pushed); memory below
+- errors: 0
+- lessons: Sixth routine release — no new lessons; the checklist is the product now.
+- tags: release, v1.1.16, github, app_meta, storage, gh-pages, verification, publish
+
 ## EVT-20260917-0049
 - id: EVT-20260917-0049
 - timestamp: 2026-09-17
@@ -708,6 +720,18 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - errors: 0
 - lessons: Local :8128 serves the working tree's build/web, so it is always ahead of the live site — state which surface a link points at.
 - tags: serve, web, intro, explore
+
+## EVT-20260917-0050
+- id: EVT-20260917-0050
+- timestamp: 2026-09-17
+- mode: BUILD
+- action: 7-item quality batch — guards, stats, income, FABs
+- summary: User's 7-point list, all built, zero migrations. (1) Sibling chips now show guardian relation. (2) Cross-grade guard via gradeOrdinal/gradesCompatible (unknown grades can't-judge-allow): warn-and-confirm on form chips, bulk assign (names listed), and slot picker — revision stays possible, nonsense needs one tap. (3) Test + slot subject dropdowns filtered to enrolled subjects (legacy current value unioned in) with assign-first hint. (4) Schedule zoom ± persisted in prefs with header buttons (default unchanged). (5) Subject stat badges on list (students/month-sessions/pass/income-estimate) + stats card in edit form with honest estimate note. (6) IncomeReportScreen: collection rate, per-month bars, method split, advance, waivers, debtors ranking — pure helpers unit-tested. (7) FABs replace top add buttons on Students/Subjects/Fees/Announcements (report action stays top on fees). 30 l10n keys ×3. Analyze 8 infos, tests 38/38. Uncommitted. UI flows need on-device glance (canvas-blind as usual).
+- result: success — all seven items implemented and verified statically
+- files: src/lib/core/utils.dart, src/lib/models/models.dart, src/lib/screens/students_screens.dart, src/lib/screens/subjects_screens.dart, src/lib/screens/schedule_screen.dart, src/lib/screens/fees_screens.dart, src/lib/screens/announcements_screen.dart, src/lib/screens/income_report_screen.dart (new), src/lib/l10n/* (3), src/test/widget_test.dart (not committed)
+- errors: 0 shipped (one self-deleted function signature + one guessed import block, both caught immediately)
+- lessons: (1) Duplicate-looking dropdown blocks across forms need wide anchors (neighbor widgets disambiguate). (2) Never trust a guessed import block — read the header; a wrong guess here would have deleted real imports. (3) Waiver/estimate features must label their accounting honestly in-UI (method=other+note, ~estimate note), not just in code comments.
+- tags: build, guards, stats, income, fab, ux, l10n
 
 ## EVT-20260916-0047
 - id: EVT-20260916-0047
