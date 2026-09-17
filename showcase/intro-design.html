@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" href="data:," />
-<title>دروس — شاشة التعريف: 7 لوحات ألوان</title>
+<title>دروس — شاشة التعريف: لوحتان جديدتان</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -85,9 +85,11 @@
 <div class="hero">
   <div class="wrap">
     <span class="tag">ألوان شاشة التعريف — تباين بين الشاشات</span>
-    <h1>شاشة التعريف: 7 لوحات ألوان</h1>
+    <h1>شاشة التعريف: لوحتان جديدتان</h1>
     <p class="sub">المشكلة: الشاشتان الأولى والثانية خضراوان داكنتان متشابهتان. كل لوحة أدناه تعطي كل شاشة من الثلاث هوية لونية مستقلة — تنقّل بين الصفحات داخل كل هاتف وقارن الإحساس.</p>
-    <div class="meta"><span>7 لوحات تفاعلية</span><span>نفس المحتوى والخط</span><span>عربي RTL</span></div>
+    <div class="meta"><span>لوحتان تفاعليتان</span><span>نفس المحتوى والخط</span><span>عربي RTL</span></div>
+    <div style="margin-top:18px;"><a href="/durus/showcase/concentric/" style="display:inline-block;background:#fff;color:#0A3B2E;font-weight:800;font-size:17px;border-radius:999px;padding:10px 28px;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.25);">▶ جرّب الحركة الدائرية الحقيقية (5 لوحات قابلة للتبديل)</a></div>
+    <div style="margin-top:18px;"><a href="/durus/showcase/concentric/" style="display:inline-block;background:#fff;color:#0A3B2E;font-weight:800;font-size:17px;border-radius:999px;padding:10px 28px;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.25);">▶ جرّب الحركة الدائرية الحقيقية (5 لوحات قابلة للتبديل)</a></div>
     <div style="margin-top:18px;"><a href="/durus/showcase/concentric/" style="display:inline-block;background:#fff;color:#0A3B2E;font-weight:800;font-size:17px;border-radius:999px;padding:10px 28px;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.25);">▶ جرّب الحركة الدائرية الحقيقية (5 لوحات قابلة للتبديل)</a></div>
   </div>
 </div>
@@ -111,11 +113,6 @@
     <h2>جدول المقارنة</h2>
     <table class="cmp">
       <tr><th>اللوحة</th><th>الشاشات</th><th>نقاط القوة</th><th>المقايضة</th></tr>
-      <tr><td>1 — الناري</td><td>تركوازي / عنّابي / كحلي (نص أبيض)</td><td>أقصى تباين؛ ثلاث هويات صارخة</td><td>صاخب — قد يبدو أقل جدّية</td></tr>
-      <tr><td>2 — الذهبي</td><td>غابي / كهرماني (نص كحلي) / تركوازي</td><td>الشاشة الوسطى المضيئة فاصل مبهج</td><td>الكهرماني أقل فخامة من الغامق</td></tr>
-      <tr><td>3 — التصاعدي</td><td>ورقي / عنّابي / غابي (فاتح ← داكن)</td><td>تصاعد درامي نحو الشعار؛ بداية هادئة</td><td>البداية الفاتحة أقل إبهارًا</td></tr>
-      <tr><td>4 — البحري</td><td>صنوبري / أكوا (نص كحلي) / عنّابي</td><td>عائلة خضراء-زرقاء متماسكة ومتباينة</td><td>الأكوا وسط أقل جرأة من الكهرماني</td></tr>
-      <tr><td>5 — النعناعي</td><td>كحلي / نعناعي فاتح (نص كحلي) / عنّابي</td><td>أنظف تباين فاتح/داكن بالتناوب</td><td>النعناعي قد يبدو سريريًا</td></tr>
       <tr><td>6 — التركوازي الهادئ</td><td>تركوازي عميق / كريمي / تركوازي ساطع</td><td>الأقرب لهوية التطبيق؛ مريح وغير صارخ</td><td>أقل درامية من الناري</td></tr>
       <tr><td>7 — الكحلي المريح</td><td>كحلي / عظمي دافئ / عنابي-مزرق</td><td>الألطف على العين؛ قراءة ممتازة</td><td>بعيد عن التركوازية الحالية</td></tr>
     </table>
@@ -165,8 +162,10 @@
 
   function buildGrid() {
     var html = '';
-    PALETTES.forEach(function (pl, idx) {
-      var n = idx + 1;
+    // Only the two new palettes — the older five are retired from view.
+    var shown = PALETTES.filter(function (pl) { return pl.id === 'opt6' || pl.id === 'opt7'; });
+    shown.forEach(function (pl) {
+      var n = PALETTES.indexOf(pl) + 1;
       var sw = pl.pages.map(function (pg) {
         return '<span style="background:' + pg.bg + '"></span>';
       }).join('');
@@ -181,7 +180,7 @@
         + '<button class="choosebtn" onclick="choose(\'' + pl.id + '\')">اختيار هذه اللوحة</button></div>';
     });
     sce('grid').innerHTML = html;
-    for (var n = 1; n <= 7; n++) renderPhone(n);
+    [6, 7].forEach(function (n) { renderPhone(n); });
   }
 
   function renderPhone(n) {
