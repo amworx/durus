@@ -733,8 +733,8 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - lessons: (1) Supabase Storage is a file host, not a web host — never assume it renders HTML; verify Content-Type as served, not as uploaded. (2) GitHub Pages needs ~2 min after push before new paths resolve — recheck, don't panic at first 404. (3) Localhost links are dev-machine-only; anything the user must touch goes on a public URL from the start.
 - tags: showcase, pages, hosting, storage, mobile-testing
 
-## EVT-20260916-0047
-- id: EVT-20260916-0047
+## EVT-20260916-0048
+- id: EVT-20260916-0048
 - timestamp: 2026-09-16
 - mode: BUILD
 - action: intro palettes 6-7 from ColorHunt + trim page to the new two
