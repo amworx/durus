@@ -625,6 +625,54 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - lessons: (1) YYYY-MM strings compare lexicographically — month > nowMonth needs no date parsing. (2) Polish beats schema: the engine already supported prepay; only totals, labels, and one hint were missing.
 - tags: build, fees, advance-payments, prepay, l10n
 
+## EVT-20260916-0034
+- id: EVT-20260916-0034
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: manual family linking + guardian relation + portal child switcher
+- summary: User mandated manual (not auto) family linking + duplicate-phone resolution + kinship field. Built: migration 024 (family_id + index, parent_relation, parent_family RPC family-scoped with anon/authenticated grants) pushed live and verified via anon REST (unlinked token → single-row array). Models/API: Student +2 fields, create/update params, clearFamily flag, parentFamily(), resolveFamilyId() merge helper. Teacher UI: relation dropdown (11 presets) in form, duplicate-phone dialog on save (same family → auto-link incl. cross-family merge / different person → keep separate / cancel), family card on detail (sibling chips navigate, × unlinks, link-picker dialog merges). Portal: family fetch + chip switcher + didUpdateWidget reload (same-route token change otherwise shows stale child — caught by design, fixed same edit). 22 l10n keys ×3. Tests 31/31 (resolveFamilyId, Student fields). Analyze 8 pre-existing infos (fixed own InputChip tooltip error + null-comparison warning + InputChip param removal with dead-key cleanup). Uncommitted. Portal two-way actions (absence excuse, messaging) deliberately left for scoping — writes follow parent_mark_read RPC precedent.
+- result: success — families fully work locally; needs teacher linking + release to reach phones
+- files: supabase/migrations/20260916250000_family_linking.sql (pushed), src/lib/models/models.dart, src/lib/core/durus_api.dart, src/lib/core/utils.dart, src/lib/screens/students_screens.dart, src/lib/screens/portal_screens.dart, src/lib/l10n/* (3), src/test/widget_test.dart (not committed)
+- errors: 3 analyzer issues during build (undefined InputChip param, dangling key, null comparison) — all fixed, none shipped
+- lessons: (1) Same-route navigation with new params does NOT rebuild state — any token/id-driven screen needs didUpdateWidget reload; audit all go() targets with params. (2) Mandatory-manual over clever-auto when identity is at stake (family merge by typo = privacy leak). (3) Binary-search the APK / call the RPC live — verification beats reasoning about caches and sizes.
+- tags: build, family, siblings, portal, rpc, migration, l10n, manual-linking
+
+## EVT-20260916-0035
+- id: EVT-20260916-0035
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: parent portal actions — absence excuses + read receipts
+- summary: User approved excuses + receipts (messaging deferred). Migration 025: absence_excuses (unique student+date = double-send guard), parent_receipts (unique student+kind+item), school-scoped teacher select policies, 4 token RPCs; teacher notification on excuse (type absence_excuse → attendance category client-side). Portal: excuse form (date picker, reason, sent history) + تأكيد القراءة buttons on notes/announcements with ✓ state. Teacher: per-note ✓ counts on detail, ✓ counts on announcement tiles. 12 l10n keys ×3. Live verification caught a REAL bug pre-ship: notifications_type_check rejected the new type (whole RPC rolled back atomically — good); fixed via migration 026 widening the check (+session_change, also missing). Re-verified full loop anon: report ok → duplicate already_exists → list ok → teacher notif correct Arabic body → confirm ok → receipts ok; test rows cleaned via service key. Analyze 8 infos, tests 31/31. Uncommitted.
+- result: success — portal is writable, receipts visible both sides
+- files: supabase/migrations/20260916260000_parent_actions.sql + 20260916270000_notification_types.sql (pushed), src/lib/core/durus_api.dart, src/lib/screens/portal_screens.dart, src/lib/screens/students_screens.dart, src/lib/screens/announcements_screen.dart, src/lib/screens/notifications_screen.dart, src/lib/l10n/* (3) (not committed)
+- errors: 1 real (type check) caught by live RPC test, fixed by migration
+- lessons: (1) New notification types MUST be added to the DB check constraint — the client label map is not the authority. Live-test every RPC that writes before calling a feature done. (2) Unique constraints double as idempotency guards (excuse dedupe, receipt reconfirm) — free, race-safe. (3) Rollback atomicity saved us: the failed excuse left zero partial rows.
+- tags: build, portal, excuses, receipts, rpc, migration, notifications, verification
+
+## EVT-20260916-0036
+- id: EVT-20260916-0036
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: student lifecycle package — status, rollover, allocate, waiver, duplicate guard
+- summary: Built the full lifecycle set, no migrations beyond status (027 pushed, RLS needs nothing — update policy pins school scope only): (1) status active/paused/dropped/graduated — detail editor (RadioGroup dialog), chip + subtitle labels, list filter defaulting to active (badge counts deviations), schedule hides non-active rec slots (recorded history stays), delete-guard snackbar offers one-tap mark-graduated. (2) Bulk rollover ترحيل الصفوف over selection (unknown/terminal/inactive skipped + reported, السادس never auto-graduates). (3) Oldest-first allocatePayment API + per-student distribute dialog with validated amount/method and leftover reporting. (4) Waiver button on remaining balance (method other + note إعفاء, trigger closes the fee honestly). (5) Exact-duplicate guard (name AND phone must match — common names alone never block). Pure helpers tested (promoteGrade, status default). Self-fixed during build: unnecessary cast, unused helper, deprecated RadioListTile→RadioGroup. Analyze 8 infos, tests 33/33 (2 new). Uncommitted — rides v1.1.13 next.
+- result: success — lifecycle complete locally, verified
+- files: supabase/migrations/20260916280000_student_status.sql (pushed), src/lib/models/models.dart, src/lib/core/durus_api.dart, src/lib/core/utils.dart, src/lib/screens/students_screens.dart, src/lib/screens/schedule_screen.dart, src/lib/screens/fees_screens.dart, src/lib/l10n/* (3), src/test/widget_test.dart (not committed)
+- errors: 0 shipped (3 analyzer infos fixed in-session)
+- lessons: (1) Default filters to the productive subset (active) only when zero existing rows are affected — new states default so old data never hides. (2) Graduation must never be automatic (even السادس) — lifecycle transitions that imply judgment stay one explicit tap away. (3) Waiver-via-payment beats waiver-column: zero schema, honest ledger, trigger does the math.
+- tags: build, lifecycle, status, rollover, allocate, waiver, duplicate-guard, l10n
+
+## EVT-20260916-0037
+- id: EVT-20260916-0037
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: release v1.1.13 (families + portal actions + lifecycle) end-to-end
+- summary: Pre-ordered push executed as one bundle. Pipeline, zero failures: tests 33/33 first; bump 1.1.12+1→1.1.13+1 + AppConfig; migration 20260916290000_app_meta_v123.sql pushed + REST-verified; APKs split-per-ABI (sizes visibly shifted this time: 21.7M/19.4M/23.1M) + aapt2 1.1.13 + binary string proof upfront; caught my own mislabeled split commits mid-pipeline (lifecycle l10n/models shared files across both) and fixed honestly via soft-reset into ONE accurate feat commit ce97297 + release 80e9918, pushed; web to gh-pages; draft → upload --clobber → publish verified draft:false + publishedAt AFTER upload; Storage 3×200; asset 206 + Pages 200.
+- result: success — v1.1.13 live everywhere; ≤1.1.12 devices auto-detect on resume
+- files: ce97297 + 80e9918 (pushed); memory below
+- errors: 0 (1 self-caught commit-labeling mistake, fixed before push)
+- lessons: (1) When two features touch the same files, don't fake a per-feature split — one honest bundle commit beats two lying ones; fix with soft-reset BEFORE pushing, never rewrite after. (2) The verify-after-upload + binary-proof standards held for the 3rd release running.
+- tags: release, v1.1.13, github, app_meta, storage, gh-pages, verification, publish
+
 ## EVT-20260916-0031
 - id: EVT-20260916-0031
 - timestamp: 2026-09-16
@@ -636,6 +684,18 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - errors: 0
 - lessons: (1) When an edit-tool match fails twice, diff the exact bytes (single-line vs wrapped snackbar) instead of resending — formatting assumptions are the usual culprit. (2) Show the post-save nudge BEFORE pop: root ScaffoldMessenger outlives the route.
 - tags: build, students, grade, ux, l10n
+
+## EVT-20260916-0033
+- id: EVT-20260916-0033
+- timestamp: 2026-09-16
+- mode: RESEARCH
+- action: sibling-aware parents analysis (multi-kid families + portal UX)
+- summary: User wants family-aware parents/portal (pro-app UX). Current state verified: parent_portal(p_token) RPC returns ONE student's aggregate; portal home is single-student by design; teacher shares one link per child (/#/portal/<token>); parent_token unique per student, parent_phone has no uniqueness (siblings CAN share a number at data level, but nothing connects them — 2 kids = 2 isolated links). Designed two options: (A) phone-matched family — new parent_family RPC (normalize 09/00963/+963 → 963, same school, valid length) returns siblings; portal shows ClassDojo-style child switcher (each child still fetched via its own token, zero privilege change); teacher side groups via existing waNumber() with sibling chips + single family link. No migration beyond additive RPC. (B) explicit family_id + link/unlink UI — zero false-merge risk but teacher effort per family (adoption risk) + bigger migration. Privacy analysis: only failure mode is teacher-typed identical numbers (typo-merge); splits fail safe. Recommended A. No code changed — awaiting build decision + auto-vs-manual answer.
+- result: advisory — design + recommendation ready
+- files: none (read-only analysis)
+- errors: 0
+- lessons: (1) Token-per-child + phone-as-household-key means family grouping needs no new secrets — the switcher navigates with real tokens. (2) Reuse client waNumber() for teacher-side grouping; only the anon-facing RPC needs SQL normalization. (3) Pro UX here = one link + switcher, not accounts — preserves the PIN-links-no-accounts v1 constraint.
+- tags: research, parents, portal, siblings, family, ux, advisory
 
 ## EVT-20260916-0032
 - id: EVT-20260916-0032
