@@ -637,6 +637,30 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - lessons: (1) Same-route navigation with new params does NOT rebuild state — any token/id-driven screen needs didUpdateWidget reload; audit all go() targets with params. (2) Mandatory-manual over clever-auto when identity is at stake (family merge by typo = privacy leak). (3) Binary-search the APK / call the RPC live — verification beats reasoning about caches and sizes.
 - tags: build, family, siblings, portal, rpc, migration, l10n, manual-linking
 
+## EVT-20260916-0039
+- id: EVT-20260916-0039
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: excuse-session guard + portal bottom-navbar tabs
+- summary: Two user reports fixed. (1) CRITICAL excuse integrity hole: parents could excuse any date. Fixed both halves — migration 029 rejects excuse dates with neither a recorded session nor an active slot weekday ('no_session', ISODOW-matched), and the picker greys out non-excusable days via pure isExcusableDay() (recent session dates ∪ slot weekdays) so client/server can't drift. Live-verified both directions (Tue no-slot → no_session, Wed slot-day → ok, cleaned up). (2) Portal endless scroll → 5-tab bottom navbar (home/attendance/schedule/fees/more) with expanding-pill destinations in the referenced Uiverse idiom — rebuilt natively (uiverse.io 403s all fetches, CSS unportable anyway); absence form moved into the attendance tab where it belongs. 6 l10n keys ×3. Analyze 8 infos, tests 34/34. Uncommitted. Rendering not CDP-verifiable (Flutter canvas) — regroup reuses proven section widgets, needs on-device glance.
+- result: success — excuses are session-bound, portal navigable
+- files: supabase/migrations/20260916300000_absence_session_guard.sql (pushed), src/lib/core/utils.dart, src/lib/screens/portal_screens.dart, src/lib/l10n/* (3), src/test/widget_test.dart (not committed)
+- errors: 0
+- lessons: (1) Any parent-supplied date/number must be validated against the student's reality server-side — pickers are UX, RPC checks are the lock. (2) When regrouping long scrolls into tabs, move each section verbatim (zero redesign inside) so risk stays in navigation only. (3) Pure rule functions shared by UI + tests (+ mirrored SQL) beat duplicated inline logic.
+- tags: build, portal, excuses, integrity, navbar, tabs, ux, verification
+
+## EVT-20260916-0040
+- id: EVT-20260916-0040
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: release v1.1.14 (excuse guard + portal tabs) end-to-end
+- summary: User said push. Pipeline, zero failures: tests 34/34 first; bump 1.1.13+1→1.1.14+1 + AppConfig; migration 20260916310000_app_meta_v124.sql pushed + REST-verified; APKs split-per-ABI (sizes shifted: 21.7M/19.4M/23.1M) + aapt2 1.1.14 + binary string proof upfront (الأعذار المرسلة at offset 907970); 2 commits pushed (1af9e16 feat incl. guard migration file, 66c7599 release); web to gh-pages; draft → upload --clobber → publish verified draft:false + publishedAt AFTER upload; Storage 3×200; asset 206 + Pages 200.
+- result: success — v1.1.14 live everywhere; ≤1.1.13 devices auto-detect on resume
+- files: 1af9e16 + 66c7599 (pushed); memory below
+- errors: 0
+- lessons: Pipeline now routine at 5 releases — the checklist (tests → bump → meta → build → binary-proof → commits → web → draft → upload → publish-verify → storage → endpoint-verify → memory) catches everything; no new lessons, which is the point of a checklist.
+- tags: release, v1.1.14, github, app_meta, storage, gh-pages, verification, publish
+
 ## EVT-20260916-0035
 - id: EVT-20260916-0035
 - timestamp: 2026-09-16
@@ -672,6 +696,18 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - errors: 0 (1 self-caught commit-labeling mistake, fixed before push)
 - lessons: (1) When two features touch the same files, don't fake a per-feature split — one honest bundle commit beats two lying ones; fix with soft-reset BEFORE pushing, never rewrite after. (2) The verify-after-upload + binary-proof standards held for the 3rd release running.
 - tags: release, v1.1.13, github, app_meta, storage, gh-pages, verification, publish
+
+## EVT-20260916-0038
+- id: EVT-20260916-0038
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: demo family link + live portal verification for user exploration
+- summary: User asked to open a parent portal to explore. Linked demo sisters سارة + لين (shared family_id) via service REST so the switcher appears. Verified the LIVE deployment in an isolated browser context: Flutter a11y tree stays empty (canvas — known CDP limitation, Tab/enable-accessibility didn't help), so fingerprinted the version via resource timing instead — the page called parent_portal + parent_notifications + parent_family + parent_excuses + parent_receipts, a combination only v1.1.13 code makes. Handed user the portal links + tour.
+- result: success — live portal proven current, demo family ready
+- files: none (DB rows only: family_id on 50505051/50505053)
+- errors: 0
+- lessons: (1) When Flutter web hides its semantics tree, fingerprint the deployed version via performance resource entries (new-RPC calls prove new code paths execute). (2) Demo data mutations for exploration (linking demo sisters) are legitimate seed-like actions — keep them on dummy rows, record them.
+- tags: portal, verification, demo, family, deploy
 
 ## EVT-20260916-0031
 - id: EVT-20260916-0031
