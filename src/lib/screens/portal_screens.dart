@@ -131,13 +131,42 @@ class PortalHomeScreen extends ConsumerStatefulWidget {
 class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
   Map<String, dynamic>? _data;
   Map<String, dynamic> _notifMap = const {};
+  List<Map<String, dynamic>> _family = const [];
+  List<Map<String, dynamic>> _excuses = const [];
+  Set<String> _receiptKeys = const {};
+  DateTime _excuseDate = DateTime.now().add(const Duration(days: 1));
+  final TextEditingController _excuseReasonCtrl = TextEditingController();
+  bool _sendingExcuse = false;
   bool _loading = true;
   bool _error = false;
 
   @override
   void initState() {
     super.initState();
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    _excuseDate = DateTime(tomorrow.year, tomorrow.month, tomorrow.day);
     _load();
+  }
+
+  @override
+  void dispose() {
+    _excuseReasonCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(PortalHomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Child switcher navigates to the same route with another token —
+    // reload everything instead of showing stale data.
+    if (oldWidget.token != widget.token) {
+      _data = null;
+      _notifMap = const {};
+      _family = const [];
+      _excuses = const [];
+      _receiptKeys = const {};
+      _load();
+    }
   }
 
   Future<void> _load() async {
@@ -170,6 +199,27 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
       setState(() => _notifMap = notifMap);
     } catch (_) {
       // Notifications are auxiliary — the portal data stays visible.
+    }
+    try {
+      final family = await api.parentFamily(widget.token);
+      if (!mounted) return;
+      setState(() => _family = family);
+    } catch (_) {
+      // Unlinked students simply show no switcher.
+    }
+    try {
+      final excuses = await api.parentExcuses(widget.token);
+      if (!mounted) return;
+      setState(() => _excuses = excuses);
+    } catch (_) {
+      // Excuse history is auxiliary.
+    }
+    try {
+      final receipts = await api.parentReceipts(widget.token);
+      if (!mounted) return;
+      setState(() => _receiptKeys = receipts);
+    } catch (_) {
+      // Confirm states default to unconfirmed.
     }
   }
 
@@ -268,6 +318,124 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
     });
   }
 
+  /// Absence excuse form + sent history. Reporting notifies the assigned
+  /// teacher immediately; the unique (student, date) constraint prevents
+  /// double-sending the same day.
+  Widget _absenceSection(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    return _sectionCard(
+      context,
+      l10n.portalAbsenceTitle,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${l10n.portalAbsenceDate}: ${fmtDate(_excuseDate)}',
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: _pickExcuseDate,
+                icon: const Icon(Icons.event_outlined),
+                label: Text(l10n.portalAbsenceChange),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _excuseReasonCtrl,
+            maxLength: 200,
+            maxLines: 2,
+            decoration: InputDecoration(
+              labelText: l10n.portalAbsenceReason,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          FilledButton(
+            onPressed: _sendingExcuse ? null : _sendExcuse,
+            child: Text(l10n.portalAbsenceSend),
+          ),
+          if (_excuses.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              l10n.portalAbsenceHistory,
+              style: theme.textTheme.labelLarge,
+            ),
+            const SizedBox(height: 4),
+            for (final e in _excuses)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  '${_dateLabel(e['date'])} • ${_stringOf(e['reason'])}',
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickExcuseDate() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _excuseDate,
+      firstDate: today.subtract(const Duration(days: 30)),
+      lastDate: today.add(const Duration(days: 90)),
+    );
+    if (picked != null && mounted) {
+      setState(
+        () => _excuseDate = DateTime(picked.year, picked.month, picked.day),
+      );
+    }
+  }
+
+  Future<void> _sendExcuse() async {
+    final l10n = context.l10n;
+    final reason = _excuseReasonCtrl.text.trim();
+    if (reason.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.portalAbsenceRequired)),
+      );
+      return;
+    }
+    setState(() => _sendingExcuse = true);
+    try {
+      await ref.read(apiProvider).parentReportAbsence(
+            token: widget.token,
+            date: isoDate(_excuseDate),
+            reason: reason,
+          );
+      if (!mounted) return;
+      _excuseReasonCtrl.clear();
+      setState(() => _sendingExcuse = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.portalAbsenceSent)),
+      );
+      try {
+        final excuses = await ref.read(apiProvider).parentExcuses(widget.token);
+        if (!mounted) return;
+        setState(() => _excuses = excuses);
+      } catch (_) {
+        // List refreshes on next load.
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _sendingExcuse = false);
+      final msg = e.toString().contains('already_exists')
+          ? l10n.portalAbsenceExists
+          : l10n.portalActionFailed;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
+
   // ---------- labels ----------
 
   String _attendanceStatusLabel(BuildContext context, String status) {
@@ -338,6 +506,53 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
     return ((present / total) * 100).round();
   }
 
+  /// ClassDojo-style child switcher for linked siblings. Each child keeps
+  /// its own token (no privilege change) — tapping navigates to that
+  /// child's portal view, which reloads via didUpdateWidget.
+  Widget _familySwitcher(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.portalFamilyChildren,
+            style: theme.textTheme.labelLarge,
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final sib in _family) _familyChip(context, sib),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _familyChip(BuildContext context, Map<String, dynamic> sib) {
+    final token = sib['token'];
+    final selected = token is String && token == widget.token;
+    final name = _stringOf(sib['name']);
+    final grade = _stringOf(sib['grade']);
+    return ChoiceChip(
+      label: Text(grade.isEmpty ? name : '$name • $grade'),
+      selected: selected,
+      avatar: CircleAvatar(
+        child: Text(name.isEmpty ? '?' : name.characters.first),
+      ),
+      onSelected: (_) {
+        if (token is String && token.isNotEmpty && !selected) {
+          context.go('/portal/$token');
+        }
+      },
+    );
+  }
+
   // ---------- build ----------
 
   @override
@@ -398,8 +613,10 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (_family.length > 1) _familySwitcher(context),
                     _headerSection(context, data),
                     _notificationsSection(context),
+                    _absenceSection(context),
                     _attendanceSection(context, attendance),
                     _scheduleSection(context, schedule),
                     _feeSection(context, fee),
@@ -998,6 +1215,7 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
       context,
       context.l10n.portalNotes,
       notes,
+      confirmKind: 'note',
     );
   }
 
@@ -1009,14 +1227,16 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
       context,
       context.l10n.portalAnnouncements,
       announcements,
+      confirmKind: 'announcement',
     );
   }
 
   Widget _textListSection(
     BuildContext context,
     String title,
-    List<dynamic> entries,
-  ) {
+    List<dynamic> entries, {
+    String? confirmKind,
+  }) {
     return _sectionCard(
       context,
       title,
@@ -1027,7 +1247,7 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
             _emptyBlock(context, context.l10n.portalNoData)
           else
             for (var i = 0; i < entries.length; i++) ...[
-              _textEntryRow(context, entries[i]),
+              _textEntryRow(context, entries[i], confirmKind),
               if (i < entries.length - 1) _divider(),
             ],
         ],
@@ -1035,11 +1255,20 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
     );
   }
 
-  Widget _textEntryRow(BuildContext context, dynamic entry) {
+  Widget _textEntryRow(
+    BuildContext context,
+    dynamic entry, [
+    String? confirmKind,
+  ]) {
     if (entry is! Map<String, dynamic>) return const SizedBox.shrink();
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final body = _stringOf(entry['body']);
     final date = _dateLabel(entry['created_at']);
+    final id = _stringOf(entry['id']);
+    final confirmed = confirmKind != null &&
+        id.isNotEmpty &&
+        _receiptKeys.contains('$confirmKind:$id');
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -1056,8 +1285,55 @@ class _PortalHomeScreenState extends ConsumerState<PortalHomeScreen> {
               ),
             ),
           ],
+          if (confirmKind != null && id.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            if (confirmed)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.done_all,
+                    size: 14,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    l10n.portalReadDone,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              )
+            else
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: OutlinedButton(
+                  onPressed: () => _confirmRead(confirmKind, id),
+                  child: Text(l10n.portalConfirmRead),
+                ),
+              ),
+          ],
         ],
       ),
     );
+  }
+
+  Future<void> _confirmRead(String kind, String id) async {
+    try {
+      await ref.read(apiProvider).parentConfirmRead(
+            token: widget.token,
+            kind: kind,
+            itemId: id,
+          );
+      if (!mounted) return;
+      setState(() => _receiptKeys = {..._receiptKeys, '$kind:$id'});
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.portalActionFailed)),
+      );
+    }
   }
 }

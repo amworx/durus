@@ -1270,6 +1270,348 @@ abstract class AppLocalizations {
   /// **'انتقل الطالب إلى {grade} — راجع مواده وحصصه الأسبوعية'**
   String studentsGradeMovedReview(String grade);
 
+  /// No description provided for @studentsParentRelation.
+  ///
+  /// In ar, this message translates to:
+  /// **'صلة القرابة'**
+  String get studentsParentRelation;
+
+  /// No description provided for @studentsRelationFather.
+  ///
+  /// In ar, this message translates to:
+  /// **'أب'**
+  String get studentsRelationFather;
+
+  /// No description provided for @studentsRelationMother.
+  ///
+  /// In ar, this message translates to:
+  /// **'أم'**
+  String get studentsRelationMother;
+
+  /// No description provided for @studentsRelationBrother.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخ'**
+  String get studentsRelationBrother;
+
+  /// No description provided for @studentsRelationSister.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخت'**
+  String get studentsRelationSister;
+
+  /// No description provided for @studentsRelationUncle.
+  ///
+  /// In ar, this message translates to:
+  /// **'عم'**
+  String get studentsRelationUncle;
+
+  /// No description provided for @studentsRelationAuntPaternal.
+  ///
+  /// In ar, this message translates to:
+  /// **'عمة'**
+  String get studentsRelationAuntPaternal;
+
+  /// No description provided for @studentsRelationUncleMaternal.
+  ///
+  /// In ar, this message translates to:
+  /// **'خال'**
+  String get studentsRelationUncleMaternal;
+
+  /// No description provided for @studentsRelationAuntMaternal.
+  ///
+  /// In ar, this message translates to:
+  /// **'خالة'**
+  String get studentsRelationAuntMaternal;
+
+  /// No description provided for @studentsRelationGrandfather.
+  ///
+  /// In ar, this message translates to:
+  /// **'جد'**
+  String get studentsRelationGrandfather;
+
+  /// No description provided for @studentsRelationGrandmother.
+  ///
+  /// In ar, this message translates to:
+  /// **'جدة'**
+  String get studentsRelationGrandmother;
+
+  /// No description provided for @studentsRelationOther.
+  ///
+  /// In ar, this message translates to:
+  /// **'أخرى'**
+  String get studentsRelationOther;
+
+  /// No description provided for @studentsFamilyDuplicateTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'رقم مسجل مسبقًا'**
+  String get studentsFamilyDuplicateTitle;
+
+  /// Duplicate phone resolution prompt with matched names
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الرقم مسجل لـ: {names}. هل الطالب الجديد من نفس العائلة؟'**
+  String studentsFamilyDuplicateMessage(String names);
+
+  /// No description provided for @studentsFamilySame.
+  ///
+  /// In ar, this message translates to:
+  /// **'نفس العائلة'**
+  String get studentsFamilySame;
+
+  /// No description provided for @studentsFamilyDifferent.
+  ///
+  /// In ar, this message translates to:
+  /// **'شخص مختلف'**
+  String get studentsFamilyDifferent;
+
+  /// No description provided for @studentsFamilyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'العائلة'**
+  String get studentsFamilyTitle;
+
+  /// No description provided for @studentsFamilyNone.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا إخوة مربوطين بعد'**
+  String get studentsFamilyNone;
+
+  /// No description provided for @studentsFamilyLink.
+  ///
+  /// In ar, this message translates to:
+  /// **'ربط طالب'**
+  String get studentsFamilyLink;
+
+  /// No description provided for @studentsFamilyLinked.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الربط العائلي'**
+  String get studentsFamilyLinked;
+
+  /// No description provided for @studentsFamilyUnlinked.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم فك الربط'**
+  String get studentsFamilyUnlinked;
+
+  /// No description provided for @studentsStatusFilter.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحالة'**
+  String get studentsStatusFilter;
+
+  /// No description provided for @studentsStatusAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get studentsStatusAll;
+
+  /// No description provided for @studentsStatusActive.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشط'**
+  String get studentsStatusActive;
+
+  /// No description provided for @studentsStatusPaused.
+  ///
+  /// In ar, this message translates to:
+  /// **'موقوف مؤقتًا'**
+  String get studentsStatusPaused;
+
+  /// No description provided for @studentsStatusDropped.
+  ///
+  /// In ar, this message translates to:
+  /// **'منقطع'**
+  String get studentsStatusDropped;
+
+  /// No description provided for @studentsStatusGraduated.
+  ///
+  /// In ar, this message translates to:
+  /// **'متخرج'**
+  String get studentsStatusGraduated;
+
+  /// No description provided for @studentsStatusTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حالة الطالب'**
+  String get studentsStatusTitle;
+
+  /// No description provided for @studentsStatusUpdated.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحديث الحالة'**
+  String get studentsStatusUpdated;
+
+  /// No description provided for @studentsMarkGraduated.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعيين كمتخرج'**
+  String get studentsMarkGraduated;
+
+  /// No description provided for @studentsPromote.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترحيل الصفوف'**
+  String get studentsPromote;
+
+  /// No description provided for @studentsPromoteTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترحيل للصف التالي'**
+  String get studentsPromoteTitle;
+
+  /// Bulk grade promotion confirmation
+  ///
+  /// In ar, this message translates to:
+  /// **'ترقية {count} طلاب للصف التالي؟'**
+  String studentsPromoteConfirm(int count);
+
+  /// Bulk promotion result
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت ترقية {promoted} (تم تخطي {skipped})'**
+  String studentsPromoteDone(int promoted, int skipped);
+
+  /// No description provided for @studentsPromoteNone.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد طلاب قابلون للترقية'**
+  String get studentsPromoteNone;
+
+  /// No description provided for @studentsDuplicateTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'طالب مشابه موجود'**
+  String get studentsDuplicateTitle;
+
+  /// Exact-duplicate warning with the matched name
+  ///
+  /// In ar, this message translates to:
+  /// **'يوجد طالب بنفس الاسم والرقم: {name}. المتابعة ستنشئ سجلًا مكررًا.'**
+  String studentsDuplicateMessage(String name);
+
+  /// No description provided for @feesAllocate.
+  ///
+  /// In ar, this message translates to:
+  /// **'توزيع دفعة'**
+  String get feesAllocate;
+
+  /// No description provided for @feesAllocateDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم توزيع الدفعة'**
+  String get feesAllocateDone;
+
+  /// Unallocated remainder after distribution
+  ///
+  /// In ar, this message translates to:
+  /// **'مبلغ زائد لم يوزع: {left}'**
+  String feesAllocateLeftover(String left);
+
+  /// No description provided for @feesWaive.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعفاء من المتبقي'**
+  String get feesWaive;
+
+  /// Waiver confirmation with the remaining amount
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُسجل {amount} كإعفاء ويُغلق القسط.'**
+  String feesWaiveConfirm(String amount);
+
+  /// No description provided for @feesWaiveNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعفاء'**
+  String get feesWaiveNote;
+
+  /// No description provided for @feesWaived.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تسجيل الإعفاء'**
+  String get feesWaived;
+
+  /// No description provided for @portalFamilyChildren.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأبناء'**
+  String get portalFamilyChildren;
+
+  /// No description provided for @portalAbsenceTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإبلاغ عن غياب'**
+  String get portalAbsenceTitle;
+
+  /// No description provided for @portalAbsenceDate.
+  ///
+  /// In ar, this message translates to:
+  /// **'اليوم'**
+  String get portalAbsenceDate;
+
+  /// No description provided for @portalAbsenceChange.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير'**
+  String get portalAbsenceChange;
+
+  /// No description provided for @portalAbsenceReason.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب الغياب'**
+  String get portalAbsenceReason;
+
+  /// No description provided for @portalAbsenceSend.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال العذر'**
+  String get portalAbsenceSend;
+
+  /// No description provided for @portalAbsenceSent.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال العذر إلى المعلم'**
+  String get portalAbsenceSent;
+
+  /// No description provided for @portalAbsenceExists.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال عذر لهذا اليوم مسبقًا'**
+  String get portalAbsenceExists;
+
+  /// No description provided for @portalAbsenceRequired.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب السبب واختر اليوم'**
+  String get portalAbsenceRequired;
+
+  /// No description provided for @portalAbsenceHistory.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأعذار المرسلة'**
+  String get portalAbsenceHistory;
+
+  /// No description provided for @portalConfirmRead.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد القراءة'**
+  String get portalConfirmRead;
+
+  /// No description provided for @portalReadDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت القراءة'**
+  String get portalReadDone;
+
+  /// No description provided for @portalActionFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر تنفيذ الإجراء'**
+  String get portalActionFailed;
+
   /// No description provided for @feesFutureMonth.
   ///
   /// In ar, this message translates to:

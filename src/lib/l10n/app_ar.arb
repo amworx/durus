@@ -301,6 +301,114 @@
       }
     }
   },
+  "studentsParentRelation": "صلة القرابة",
+  "studentsRelationFather": "أب",
+  "studentsRelationMother": "أم",
+  "studentsRelationBrother": "أخ",
+  "studentsRelationSister": "أخت",
+  "studentsRelationUncle": "عم",
+  "studentsRelationAuntPaternal": "عمة",
+  "studentsRelationUncleMaternal": "خال",
+  "studentsRelationAuntMaternal": "خالة",
+  "studentsRelationGrandfather": "جد",
+  "studentsRelationGrandmother": "جدة",
+  "studentsRelationOther": "أخرى",
+  "studentsFamilyDuplicateTitle": "رقم مسجل مسبقًا",
+  "studentsFamilyDuplicateMessage": "هذا الرقم مسجل لـ: {names}. هل الطالب الجديد من نفس العائلة؟",
+  "@studentsFamilyDuplicateMessage": {
+    "description": "Duplicate phone resolution prompt with matched names",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "studentsFamilySame": "نفس العائلة",
+  "studentsFamilyDifferent": "شخص مختلف",
+  "studentsFamilyTitle": "العائلة",
+  "studentsFamilyNone": "لا إخوة مربوطين بعد",
+  "studentsFamilyLink": "ربط طالب",
+  "studentsFamilyLinked": "تم الربط العائلي",
+  "studentsFamilyUnlinked": "تم فك الربط",
+  "studentsStatusFilter": "الحالة",
+  "studentsStatusAll": "الكل",
+  "studentsStatusActive": "نشط",
+  "studentsStatusPaused": "موقوف مؤقتًا",
+  "studentsStatusDropped": "منقطع",
+  "studentsStatusGraduated": "متخرج",
+  "studentsStatusTitle": "حالة الطالب",
+  "studentsStatusUpdated": "تم تحديث الحالة",
+  "studentsMarkGraduated": "تعيين كمتخرج",
+  "studentsPromote": "ترحيل الصفوف",
+  "studentsPromoteTitle": "ترحيل للصف التالي",
+  "studentsPromoteConfirm": "ترقية {count} طلاب للصف التالي؟",
+  "@studentsPromoteConfirm": {
+    "description": "Bulk grade promotion confirmation",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studentsPromoteDone": "تمت ترقية {promoted} (تم تخطي {skipped})",
+  "@studentsPromoteDone": {
+    "description": "Bulk promotion result",
+    "placeholders": {
+      "promoted": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "studentsPromoteNone": "لا يوجد طلاب قابلون للترقية",
+  "studentsDuplicateTitle": "طالب مشابه موجود",
+  "studentsDuplicateMessage": "يوجد طالب بنفس الاسم والرقم: {name}. المتابعة ستنشئ سجلًا مكررًا.",
+  "@studentsDuplicateMessage": {
+    "description": "Exact-duplicate warning with the matched name",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "feesAllocate": "توزيع دفعة",
+  "feesAllocateDone": "تم توزيع الدفعة",
+  "feesAllocateLeftover": "مبلغ زائد لم يوزع: {left}",
+  "@feesAllocateLeftover": {
+    "description": "Unallocated remainder after distribution",
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "feesWaive": "إعفاء من المتبقي",
+  "feesWaiveConfirm": "سيُسجل {amount} كإعفاء ويُغلق القسط.",
+  "@feesWaiveConfirm": {
+    "description": "Waiver confirmation with the remaining amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "feesWaiveNote": "إعفاء",
+  "feesWaived": "تم تسجيل الإعفاء",
+  "portalFamilyChildren": "الأبناء",
+  "portalAbsenceTitle": "الإبلاغ عن غياب",
+  "portalAbsenceDate": "اليوم",
+  "portalAbsenceChange": "تغيير",
+  "portalAbsenceReason": "سبب الغياب",
+  "portalAbsenceSend": "إرسال العذر",
+  "portalAbsenceSent": "تم إرسال العذر إلى المعلم",
+  "portalAbsenceExists": "تم إرسال عذر لهذا اليوم مسبقًا",
+  "portalAbsenceRequired": "اكتب السبب واختر اليوم",
+  "portalAbsenceHistory": "الأعذار المرسلة",
+  "portalConfirmRead": "تأكيد القراءة",
+  "portalReadDone": "تمت القراءة",
+  "portalActionFailed": "تعذّر تنفيذ الإجراء",
   "feesFutureMonth": "شهر مستقبلي",
   "feesAdvanceHint": "شهر مستقبلي — سيُحتسب هذا القسط كدفعة مقدمة",
   "bulkSetGrade": "تعديل الصف",

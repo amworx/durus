@@ -58,6 +58,7 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
   // ── filters ──
   String? _filterGrade;     // null = all
   String? _filterSubjectId; // null = all
+  String? _filterStatus = 'active'; // null = all; default hides non-active
   bool _sortNewest = false;
   // ── selection mode ──
   final Set<String> _selected = {};
@@ -150,6 +151,65 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.bulkCompleted)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+    }
+  }
+
+  /// September rollover: promotes selected active students one grade.
+  /// Unknown or terminal grades are skipped and reported, never guessed.
+  Future<void> _bulkPromote() async {
+    final l10n = context.l10n;
+    final all = ref.read(studentsProvider).valueOrNull ?? const <Student>[];
+    final byId = <String, Student>{for (final s in all) s.id: s};
+    final promotable = <Student>[];
+    var skipped = 0;
+    for (final id in _selected) {
+      final s = byId[id];
+      final next =
+          s == null || s.status != 'active' ? null : promoteGrade(s.grade ?? '');
+      if (s == null || next == null) {
+        skipped++;
+      } else {
+        promotable.add(s);
+      }
+    }
+    if (promotable.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.studentsPromoteNone)),
+      );
+      return;
+    }
+    final ok = await confirmDialog(
+      context,
+      title: l10n.studentsPromoteTitle,
+      message: l10n.studentsPromoteConfirm(promotable.length),
+    );
+    if (!ok || !mounted) return;
+    var done = 0;
+    try {
+      final api = ref.read(apiProvider);
+      for (final s in promotable) {
+        final next = promoteGrade(s.grade ?? '');
+        if (next == null) {
+          skipped++;
+          continue;
+        }
+        await api.updateStudent(s.id, grade: next);
+        done++;
+      }
+      _selected.clear();
+      ref.invalidate(studentsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.studentsPromoteDone(done, skipped))),
         );
       }
     } catch (_) {
@@ -275,7 +335,9 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
 // ── filter sheet (compact button + modal bottom sheet) ──
 
   int get _activeFilterCount =>
-      (_filterGrade != null ? 1 : 0) + (_filterSubjectId != null ? 1 : 0);
+      (_filterGrade != null ? 1 : 0) +
+      (_filterSubjectId != null ? 1 : 0) +
+      (_filterStatus != 'active' ? 1 : 0);
 
   Future<void> _openFilterSheet() async {
     final l10n = context.l10n;
@@ -304,12 +366,25 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
               FilterChoice(s.id, s.displayLabel),
           ],
         ),
+        FilterSheetSection(
+          id: 'status',
+          label: l10n.studentsStatusFilter,
+          current: _filterStatus,
+          choices: [
+            FilterChoice(null, l10n.studentsStatusAll),
+            FilterChoice('active', l10n.studentsStatusActive),
+            FilterChoice('paused', l10n.studentsStatusPaused),
+            FilterChoice('dropped', l10n.studentsStatusDropped),
+            FilterChoice('graduated', l10n.studentsStatusGraduated),
+          ],
+        ),
       ],
     );
     if (result == null || !mounted) return;
     setState(() {
       _filterGrade = result['grade'];
       _filterSubjectId = result['subject'];
+      _filterStatus = result['status'];
     });
   }
 
@@ -366,6 +441,9 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
                   ? null
                   : refs.where((r) => r.subjectId == _filterSubjectId).map((r) => r.studentId).toSet();
               var visible = students.where((s) {
+                if (_filterStatus != null && s.status != _filterStatus) {
+                  return false;
+                }
                 if (_filterGrade != null && (s.grade ?? '') != _filterGrade) return false;
                 if (assignedIds != null && !assignedIds.contains(s.id)) return false;
                 return true;
@@ -380,10 +458,10 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
                 return RefreshableEmpty(
                   onRefresh: () => refreshSchoolData(ref),
                   empty: EmptyState(
-                    icon: (_query.isEmpty && _filterGrade == null && _filterSubjectId == null)
+                    icon: (_query.isEmpty && _filterGrade == null && _filterSubjectId == null && (_filterStatus == null || _filterStatus == 'active'))
                         ? Icons.group_outlined
                         : Icons.search_off,
-                    message: (_query.isEmpty && _filterGrade == null && _filterSubjectId == null)
+                    message: (_query.isEmpty && _filterGrade == null && _filterSubjectId == null && (_filterStatus == null || _filterStatus == 'active'))
                         ? l10n.studentsEmpty
                         : l10n.commonEmpty,
                   ),
@@ -440,6 +518,9 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
               final current = ref.read(studentsProvider).value ?? const <Student>[];
               // If filtering, select all visible only
               final ids = current.where((s) {
+                if (_filterStatus != null && s.status != _filterStatus) {
+                  return false;
+                }
                 if (_filterGrade != null && (s.grade ?? '') != _filterGrade) return false;
                 if (_filterSubjectId != null) {
                   final assigned = refs.any((r) => r.studentId == s.id && r.subjectId == _filterSubjectId);
@@ -460,6 +541,11 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
                 icon: Icons.book_outlined,
                 label: l10n.bulkAssignSubject,
                 onTap: _bulkAssignSubject,
+              ),
+              BulkAction(
+                icon: Icons.trending_up_outlined,
+                label: l10n.studentsPromote,
+                onTap: _bulkPromote,
               ),
               BulkAction(
                 icon: Icons.share_outlined,
@@ -518,6 +604,7 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
   late final String _initialGrade;
   String? _location;
   String? _selectedTeacherId;
+  String? _relation;
   final Set<String> _selectedSubjectIds = <String>{};
   bool _subjectsPrefilled = false;
   bool _saving = false;
@@ -537,6 +624,7 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
     _initialGrade = (student?.grade ?? '').trim();
     _location = student?.defaultLocation;
     _selectedTeacherId = student?.assignedTeacherId;
+    _relation = student?.parentRelation;
   }
 
   @override
@@ -592,9 +680,62 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
       if (reason == null || !mounted) return;
       if (reason == 'move') gradeMoveTo = newGrade;
     }
+    // Exact-duplicate guard: same name + same phone as another student
+    // almost always means double entry (common names alone are not enough
+    // to block on, so the phone must match too).
+    if (name.isNotEmpty && parentPhoneText.isNotEmpty) {
+      final all = ref.read(studentsProvider).valueOrNull ?? const <Student>[];
+      final phoneNorm = waNumber(parentPhoneText);
+      final dupes = [
+        for (final s in all)
+          if (s.id != student?.id &&
+              s.name.trim() == name &&
+              phoneNorm.isNotEmpty &&
+              waNumber(s.parentPhone ?? '') == phoneNorm)
+            s.name,
+      ];
+      if (dupes.isNotEmpty) {
+        final keep = await confirmDialog(
+          context,
+          title: l10n.studentsDuplicateTitle,
+          message: l10n.studentsDuplicateMessage(dupes.first),
+        );
+        if (!keep || !mounted) return;
+      }
+    }
+    // Duplicate-phone resolution: the same number may belong to siblings
+    // (link the family on teacher confirmation) or to a different person
+    // registering separately (keep the rows unlinked).
+    var dupIds = const <String>[];
+    var dupFamilies = const <String?>[];
+    final newPhoneNorm = waNumber(parentPhoneText);
+    if (parentPhoneText.isNotEmpty && newPhoneNorm.isNotEmpty) {
+      final all = ref.read(studentsProvider).valueOrNull ?? const <Student>[];
+      final byId = <String, Student>{for (final s in all) s.id: s};
+      dupIds = [
+        for (final s in all)
+          if (s.id != student?.id &&
+              (s.parentPhone ?? '').isNotEmpty &&
+              waNumber(s.parentPhone!) == newPhoneNorm)
+            s.id,
+      ];
+      if (dupIds.isNotEmpty) {
+        final names = [
+          for (final id in dupIds) byId[id]?.name ?? ''
+        ].where((n) => n.isNotEmpty).take(4).join('، ');
+        final decision = await _askDuplicatePhone(names);
+        if (decision == null || !mounted) return;
+        if (decision == 'same') {
+          dupFamilies = [for (final id in dupIds) byId[id]?.familyId];
+        } else {
+          dupIds = const [];
+        }
+      }
+    }
     setState(() => _saving = true);
     try {
       final DurusApi api = ref.read(apiProvider);
+      String? savedStudentId;
       if (student == null) {
         final created = await api.createStudent(
           name: name,
@@ -604,9 +745,11 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
           assignedTeacherId: assignedTeacherId,
           parentName: parentNameText.isEmpty ? null : parentNameText,
           parentPhone: parentPhoneText.isEmpty ? null : parentPhoneText,
+          parentRelation: _relation,
           notes: notesText.isEmpty ? null : notesText,
         );
         await api.setStudentSubjects(created.id, _selectedSubjectIds.toList());
+        savedStudentId = created.id;
       } else {
         await api.updateStudent(
           student.id,
@@ -617,9 +760,19 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
           assignedTeacherId: assignedTeacherId,
           parentName: parentNameText.isEmpty ? null : parentNameText,
           parentPhone: parentPhoneText.isEmpty ? null : parentPhoneText,
+          parentRelation: _relation,
           notes: notesText.isEmpty ? null : notesText,
         );
         await api.setStudentSubjects(student.id, _selectedSubjectIds.toList());
+        savedStudentId = student.id;
+      }
+      // Confirmed same-family duplicate: link all rows into one family
+      // (merging pre-existing families by reusing the first family id).
+      if (dupIds.isNotEmpty) {
+        final target = resolveFamilyId(dupFamilies);
+        for (final id in [savedStudentId, ...dupIds]) {
+          await api.updateStudent(id, familyId: target);
+        }
       }
       ref.invalidate(studentsProvider);
       ref.invalidate(studentSubjectRefsProvider);
@@ -659,6 +812,48 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop('move'),
             child: Text(l10n.studentsGradeReasonMove),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Guardian kinship presets (stored as-is; Arabic-only app).
+  List<String> _relationPresets(AppLocalizations l10n) => [
+        l10n.studentsRelationFather,
+        l10n.studentsRelationMother,
+        l10n.studentsRelationBrother,
+        l10n.studentsRelationSister,
+        l10n.studentsRelationUncle,
+        l10n.studentsRelationAuntPaternal,
+        l10n.studentsRelationUncleMaternal,
+        l10n.studentsRelationAuntMaternal,
+        l10n.studentsRelationGrandfather,
+        l10n.studentsRelationGrandmother,
+        l10n.studentsRelationOther,
+      ];
+
+  /// Duplicate-phone resolution: 'same' links the family, 'other' keeps
+  /// rows separate (another person registering), null = cancelled.
+  Future<String?> _askDuplicatePhone(String names) {
+    final l10n = context.l10n;
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.studentsFamilyDuplicateTitle),
+        content: Text(l10n.studentsFamilyDuplicateMessage(names)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop('other'),
+            child: Text(l10n.studentsFamilyDifferent),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop('same'),
+            child: Text(l10n.studentsFamilySame),
           ),
         ],
       ),
@@ -784,6 +979,22 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              initialValue:
+                  _relationPresets(l10n).contains(_relation) ? _relation : null,
+              decoration: InputDecoration(
+                labelText: l10n.studentsParentRelation,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              items: [
+                for (final r in _relationPresets(l10n))
+                  DropdownMenuItem(value: r, child: Text(r)),
+              ],
+              onChanged: (v) => setState(() => _relation = v),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -915,6 +1126,16 @@ class StudentDetailScreen extends ConsumerStatefulWidget {
 
 class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
   final TextEditingController _noteController = TextEditingController();
+  Future<Map<String, int>>? _noteReceipts;
+
+  @override
+  void initState() {
+    super.initState();
+    _noteReceipts = ref.read(apiProvider).receiptCounts(
+          studentId: widget.studentId,
+          kind: 'note',
+        );
+  }
 
   @override
   void dispose() {
@@ -1192,9 +1413,29 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
           await api.deleteSlot(slot.id);
         }
         ref.invalidate(slotsProvider);
+        ref.invalidate(studentsProvider);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.studentSlotsDeleted)),
+          SnackBar(
+            content: Text(l10n.studentSlotsDeleted),
+            action: SnackBarAction(
+              label: l10n.studentsMarkGraduated,
+              onPressed: () async {
+                try {
+                  await ref
+                      .read(apiProvider)
+                      .updateStudent(student.id, status: 'graduated');
+                  ref.invalidate(studentsProvider);
+                } catch (_) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.commonError)),
+                    );
+                  }
+                }
+              },
+            ),
+          ),
         );
       } catch (_) {
         if (mounted) {
@@ -1331,6 +1572,8 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               _headerCard(context, l10n, student),
+              const SizedBox(height: 16),
+              _familySection(context, l10n, student, students),
               const SizedBox(height: 16),
               SectionCard(
                 title: l10n.studentsParentLink,
@@ -1500,32 +1743,77 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                           style: Theme.of(context).textTheme.bodySmall,
                         );
                       }
-                      return Column(
-                        children: [
-                          for (final note in list)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.sticky_note_2_outlined, size: 18),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(note.body),
-                                        Text(
-                                          _noteCreatedLabel(note),
-                                          style: Theme.of(context).textTheme.bodySmall,
+                      return FutureBuilder<Map<String, int>>(
+                        future: _noteReceipts,
+                        builder: (context, snap) {
+                          final counts =
+                              snap.data ?? const <String, int>{};
+                          return Column(
+                            children: [
+                              for (final note in list)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 4),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Icon(Icons.sticky_note_2_outlined,
+                                          size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(note.body),
+                                            Text(
+                                              _noteCreatedLabel(note),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall,
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      if ((counts[note.id] ?? 0) > 0)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.only(
+                                                  start: 8, top: 2),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.done_all,
+                                                size: 14,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                              ),
+                                              const SizedBox(width: 2),
+                                              Text(
+                                                '${counts[note.id]}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelSmall
+                                                    ?.copyWith(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
-                        ],
+                                ),
+                            ],
+                          );
+                        },
                       );
                     }),
                     const SizedBox(height: 8),
@@ -1645,6 +1933,196 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
     );
   }
 
+  Widget _familySection(
+    BuildContext context,
+    AppLocalizations l10n,
+    Student student,
+    List<Student> all,
+  ) {
+    final fid = student.familyId;
+    final siblings = (fid == null || fid.isEmpty)
+        ? const <Student>[]
+        : all
+            .where((s) => s.id != student.id && s.familyId == fid)
+            .toList();
+    return SectionCard(
+      title: l10n.studentsFamilyTitle,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (siblings.isEmpty)
+            Text(
+              l10n.studentsFamilyNone,
+              style: Theme.of(context).textTheme.bodySmall,
+            )
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final sib in siblings)
+                  InputChip(
+                    label: Text(sib.name),
+                    avatar: CircleAvatar(child: Text(_initial(sib.name))),
+                    onPressed: () => _openStudentDetail(context, sib.id),
+                    onDeleted: () => _unlinkFamilyMember(sib),
+                  ),
+              ],
+            ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => _showLinkPicker(student, all),
+            icon: const Icon(Icons.person_add_alt_outlined),
+            label: Text(l10n.studentsFamilyLink),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _unlinkFamilyMember(Student member) async {
+    final l10n = context.l10n;
+    try {
+      await ref.read(apiProvider).updateStudent(member.id, clearFamily: true);
+      ref.invalidate(studentsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.studentsFamilyUnlinked)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+    }
+  }
+
+  Future<void> _showLinkPicker(Student student, List<Student> all) async {
+    final l10n = context.l10n;
+    final candidates = all
+        .where((s) =>
+            s.id != student.id &&
+            (s.familyId == null ||
+                s.familyId!.isEmpty ||
+                s.familyId != student.familyId))
+        .toList();
+    String? picked;
+    final link = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.studentsFamilyLink),
+        content: candidates.isEmpty
+            ? Text(l10n.commonEmpty)
+            : StatefulBuilder(
+                builder: (ctx2, setDialogState) =>
+                    DropdownButtonFormField<String>(
+                  initialValue: picked,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  items: [
+                    for (final c in candidates)
+                      DropdownMenuItem(value: c.id, child: Text(c.name)),
+                  ],
+                  onChanged: (v) => setDialogState(() => picked = v),
+                ),
+              ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.studentsFamilyLink),
+          ),
+        ],
+      ),
+    );
+    if (link != true || picked == null || !mounted) return;
+    try {
+      final api = ref.read(apiProvider);
+      final target = resolveFamilyId([
+        student.familyId,
+        candidates.firstWhere((c) => c.id == picked).familyId,
+      ]);
+      await api.updateStudent(picked!, familyId: target);
+      if ((student.familyId ?? '').isEmpty) {
+        await api.updateStudent(student.id, familyId: target);
+      }
+      ref.invalidate(studentsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.studentsFamilyLinked)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+    }
+  }
+
+  Future<void> _changeStatus(Student student) async {
+    final l10n = context.l10n;
+    const values = ['active', 'paused', 'dropped', 'graduated'];
+    var picked = student.status;
+    final chosen = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.studentsStatusTitle),
+        content: StatefulBuilder(
+          builder: (ctx2, setDialogState) => RadioGroup<String>(
+            groupValue: picked,
+            onChanged: (nv) => setDialogState(() => picked = nv ?? picked),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final v in values)
+                  RadioListTile<String>(
+                    title: Text(_statusLabel(l10n, v)),
+                    value: v,
+                  ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(picked),
+            child: Text(l10n.commonSave),
+          ),
+        ],
+      ),
+    );
+    if (chosen == null || chosen == student.status || !mounted) return;
+    try {
+      await ref.read(apiProvider).updateStudent(student.id, status: chosen);
+      ref.invalidate(studentsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.studentsStatusUpdated)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.commonError)),
+        );
+      }
+    }
+  }
+
   Widget _headerCard(
     BuildContext context,
     AppLocalizations l10n,
@@ -1669,6 +2147,11 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                 Expanded(
                   child: Text(student.name, style: theme.textTheme.titleLarge),
                 ),
+                IconButton(
+                  tooltip: l10n.studentsStatusTitle,
+                  onPressed: () => _changeStatus(student),
+                  icon: const Icon(Icons.manage_accounts_outlined),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -1676,6 +2159,11 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
               spacing: 8,
               runSpacing: 8,
               children: [
+                _infoChip(
+                  context,
+                  Icons.flag_outlined,
+                  _statusLabel(l10n, student.status),
+                ),
                 if (grade != null && grade.isNotEmpty)
                   _infoChip(context, Icons.school_outlined, grade),
                 if (location.isNotEmpty)
@@ -2685,7 +3173,19 @@ String _studentSubtitle(AppLocalizations l10n, Student student) {
   if (parentName != null && parentName.isNotEmpty) {
     parts.add('${l10n.studentsParentName}: $parentName');
   }
+  if (student.status != 'active') {
+    parts.add(_statusLabel(l10n, student.status));
+  }
   return parts.isEmpty ? l10n.commonEmpty : parts.join(' • ');
+}
+
+String _statusLabel(AppLocalizations l10n, String status) {
+  return switch (status) {
+    'paused' => l10n.studentsStatusPaused,
+    'dropped' => l10n.studentsStatusDropped,
+    'graduated' => l10n.studentsStatusGraduated,
+    _ => l10n.studentsStatusActive,
+  };
 }
 
 String _locationLabel(AppLocalizations l10n, String? location) {

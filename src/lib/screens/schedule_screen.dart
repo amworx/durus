@@ -167,8 +167,14 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final isToday = dayKey == todayKey;
 
     // Recurring slots for the selected weekday, sorted by start time.
+    // Non-active students leave the timeline (their recorded history,
+    // including untimed rows, still shows below).
+    final statusByStudent = {for (final st in students) st.id: st.status};
     final daySlots = slots
-        .where((s) => s.dayOfWeek == day.weekday && s.active)
+        .where((s) =>
+            s.dayOfWeek == day.weekday &&
+            s.active &&
+            (statusByStudent[s.studentId] ?? 'active') == 'active')
         .toList()
       ..sort((a, b) => a.startMinutes.compareTo(b.startMinutes));
 

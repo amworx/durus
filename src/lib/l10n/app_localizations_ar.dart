@@ -627,6 +627,189 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get studentsParentRelation => 'صلة القرابة';
+
+  @override
+  String get studentsRelationFather => 'أب';
+
+  @override
+  String get studentsRelationMother => 'أم';
+
+  @override
+  String get studentsRelationBrother => 'أخ';
+
+  @override
+  String get studentsRelationSister => 'أخت';
+
+  @override
+  String get studentsRelationUncle => 'عم';
+
+  @override
+  String get studentsRelationAuntPaternal => 'عمة';
+
+  @override
+  String get studentsRelationUncleMaternal => 'خال';
+
+  @override
+  String get studentsRelationAuntMaternal => 'خالة';
+
+  @override
+  String get studentsRelationGrandfather => 'جد';
+
+  @override
+  String get studentsRelationGrandmother => 'جدة';
+
+  @override
+  String get studentsRelationOther => 'أخرى';
+
+  @override
+  String get studentsFamilyDuplicateTitle => 'رقم مسجل مسبقًا';
+
+  @override
+  String studentsFamilyDuplicateMessage(String names) {
+    return 'هذا الرقم مسجل لـ: $names. هل الطالب الجديد من نفس العائلة؟';
+  }
+
+  @override
+  String get studentsFamilySame => 'نفس العائلة';
+
+  @override
+  String get studentsFamilyDifferent => 'شخص مختلف';
+
+  @override
+  String get studentsFamilyTitle => 'العائلة';
+
+  @override
+  String get studentsFamilyNone => 'لا إخوة مربوطين بعد';
+
+  @override
+  String get studentsFamilyLink => 'ربط طالب';
+
+  @override
+  String get studentsFamilyLinked => 'تم الربط العائلي';
+
+  @override
+  String get studentsFamilyUnlinked => 'تم فك الربط';
+
+  @override
+  String get studentsStatusFilter => 'الحالة';
+
+  @override
+  String get studentsStatusAll => 'الكل';
+
+  @override
+  String get studentsStatusActive => 'نشط';
+
+  @override
+  String get studentsStatusPaused => 'موقوف مؤقتًا';
+
+  @override
+  String get studentsStatusDropped => 'منقطع';
+
+  @override
+  String get studentsStatusGraduated => 'متخرج';
+
+  @override
+  String get studentsStatusTitle => 'حالة الطالب';
+
+  @override
+  String get studentsStatusUpdated => 'تم تحديث الحالة';
+
+  @override
+  String get studentsMarkGraduated => 'تعيين كمتخرج';
+
+  @override
+  String get studentsPromote => 'ترحيل الصفوف';
+
+  @override
+  String get studentsPromoteTitle => 'ترحيل للصف التالي';
+
+  @override
+  String studentsPromoteConfirm(int count) {
+    return 'ترقية $count طلاب للصف التالي؟';
+  }
+
+  @override
+  String studentsPromoteDone(int promoted, int skipped) {
+    return 'تمت ترقية $promoted (تم تخطي $skipped)';
+  }
+
+  @override
+  String get studentsPromoteNone => 'لا يوجد طلاب قابلون للترقية';
+
+  @override
+  String get studentsDuplicateTitle => 'طالب مشابه موجود';
+
+  @override
+  String studentsDuplicateMessage(String name) {
+    return 'يوجد طالب بنفس الاسم والرقم: $name. المتابعة ستنشئ سجلًا مكررًا.';
+  }
+
+  @override
+  String get feesAllocate => 'توزيع دفعة';
+
+  @override
+  String get feesAllocateDone => 'تم توزيع الدفعة';
+
+  @override
+  String feesAllocateLeftover(String left) {
+    return 'مبلغ زائد لم يوزع: $left';
+  }
+
+  @override
+  String get feesWaive => 'إعفاء من المتبقي';
+
+  @override
+  String feesWaiveConfirm(String amount) {
+    return 'سيُسجل $amount كإعفاء ويُغلق القسط.';
+  }
+
+  @override
+  String get feesWaiveNote => 'إعفاء';
+
+  @override
+  String get feesWaived => 'تم تسجيل الإعفاء';
+
+  @override
+  String get portalFamilyChildren => 'الأبناء';
+
+  @override
+  String get portalAbsenceTitle => 'الإبلاغ عن غياب';
+
+  @override
+  String get portalAbsenceDate => 'اليوم';
+
+  @override
+  String get portalAbsenceChange => 'تغيير';
+
+  @override
+  String get portalAbsenceReason => 'سبب الغياب';
+
+  @override
+  String get portalAbsenceSend => 'إرسال العذر';
+
+  @override
+  String get portalAbsenceSent => 'تم إرسال العذر إلى المعلم';
+
+  @override
+  String get portalAbsenceExists => 'تم إرسال عذر لهذا اليوم مسبقًا';
+
+  @override
+  String get portalAbsenceRequired => 'اكتب السبب واختر اليوم';
+
+  @override
+  String get portalAbsenceHistory => 'الأعذار المرسلة';
+
+  @override
+  String get portalConfirmRead => 'تأكيد القراءة';
+
+  @override
+  String get portalReadDone => 'تمت القراءة';
+
+  @override
+  String get portalActionFailed => 'تعذّر تنفيذ الإجراء';
+
+  @override
   String get feesFutureMonth => 'شهر مستقبلي';
 
   @override

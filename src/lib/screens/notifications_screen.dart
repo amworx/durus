@@ -153,6 +153,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       'announcement' => l10n.notificationsCategoryAnnouncements,
       'teacher' => l10n.notificationsCategoryGeneral,
       'session_change' => l10n.notificationsCategoryAttendance,
+      'absence_excuse' => l10n.notificationsCategoryAttendance,
       _ => type,
     };
   }

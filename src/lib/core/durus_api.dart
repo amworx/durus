@@ -243,6 +243,7 @@ class DurusApi {
     String? assignedTeacherId,
     String? parentName,
     String? parentPhone,
+    String? parentRelation,
     String? notes,
   }) async {
     final school = await _schoolIdOrThrow();
@@ -257,6 +258,7 @@ class DurusApi {
           'assigned_teacher_id': assignedTeacherId ?? _uidOrThrow(),
           'parent_name': ?parentName,
           'parent_phone': ?parentPhone,
+          'parent_relation': ?parentRelation,
           'notes': ?notes,
         })
         .select()
@@ -273,7 +275,11 @@ class DurusApi {
     String? assignedTeacherId,
     String? parentName,
     String? parentPhone,
+    String? parentRelation,
     String? notes,
+    String? familyId,
+    bool clearFamily = false,
+    String? status,
   }) async {
     await _c.from('students').update({
       'name': ?name,
@@ -283,8 +289,55 @@ class DurusApi {
       'assigned_teacher_id': ?assignedTeacherId,
       'parent_name': ?parentName,
       'parent_phone': ?parentPhone,
+      'parent_relation': ?parentRelation,
       'notes': ?notes,
+      'family_id': ?familyId,
+      'status': ?status,
     }).eq('id', id);
+    if (clearFamily) {
+      await _c.from('students').update({'family_id': null}).eq('id', id);
+    }
+  }
+
+  /// Distributes one payment across the student's oldest unpaid months
+  /// first, creating one payment row per touched fee. Returns the
+  /// unallocated leftover (0 when everything fit). Throws on bad input
+  /// so the UI fails closed instead of recording half a distribution.
+  Future<double> allocatePayment({
+    required String studentId,
+    required double amount,
+    String? paidAt,
+    String method = 'cash',
+    String? note,
+  }) async {
+    if (amount <= 0) throw ArgumentError('amount must be positive');
+    final school = await _schoolIdOrThrow();
+    final feeRows = await _c
+        .from('fees')
+        .select('id,amount,paid_amount')
+        .eq('student_id', studentId)
+        .order('month');
+    var left = amount;
+    for (final row in (feeRows as List)) {
+      if (left <= 0) break;
+      final map = row as Map<String, dynamic>;
+      final total = ((map['amount'] ?? 0) as num).toDouble();
+      final paid = ((map['paid_amount'] ?? 0) as num).toDouble();
+      final remaining = total - paid;
+      if (remaining <= 0) continue;
+      final pay = left >= remaining ? remaining : left;
+      await _c.from('payments').insert({
+        'school_id': school,
+        'fee_id': map['id'],
+        'student_id': studentId,
+        'amount': pay,
+        'paid_at': paidAt ?? _isoToday(),
+        'method': method,
+        if (note != null && note.isNotEmpty) 'note': note,
+      });
+      left -= pay;
+    }
+    return left;
   }
 
   Future<void> deleteStudent(String id) async {
@@ -727,6 +780,73 @@ class DurusApi {
       'parent_mark_read',
       params: {'p_token': token, 'p_ids': ids},
     );
+  }
+
+  /// Linked siblings for the portal child switcher (manual family links).
+  /// Returns [{id, name, grade, token}]; single row when unlinked.
+  Future<List<Map<String, dynamic>>> parentFamily(String token) async {
+    final res = await _c.rpc('parent_family', params: {'p_token': token});
+    if (res is! List) return const [];
+    return [for (final e in res) if (e is Map<String, dynamic>) e];
+  }
+
+  /// Reports an absence excuse for the token's student. Throws when the
+  /// excuse already exists for the date ('already_exists' in the message).
+  Future<void> parentReportAbsence({
+    required String token,
+    required String date,
+    required String reason,
+  }) async {
+    await _c.rpc('parent_report_absence', params: {
+      'p_token': token,
+      'p_date': date,
+      'p_reason': reason,
+    });
+  }
+
+  /// Excuses already sent by this parent, newest first.
+  Future<List<Map<String, dynamic>>> parentExcuses(String token) async {
+    final res = await _c.rpc('parent_excuses', params: {'p_token': token});
+    if (res is! List) return const [];
+    return [for (final e in res) if (e is Map<String, dynamic>) e];
+  }
+
+  /// Confirms the parent read a note or announcement.
+  Future<void> parentConfirmRead({
+    required String token,
+    required String kind,
+    required String itemId,
+  }) async {
+    await _c.rpc('parent_confirm_read', params: {
+      'p_token': token,
+      'p_kind': kind,
+      'p_item_id': itemId,
+    });
+  }
+
+  /// Confirmed receipts as 'kind:itemId' keys for instant UI lookup.
+  Future<Set<String>> parentReceipts(String token) async {
+    final res = await _c.rpc('parent_receipts', params: {'p_token': token});
+    if (res is! List) return const {};
+    return {
+      for (final e in res)
+        if (e is Map<String, dynamic>) '${e['kind']}:${e['item_id']}',
+    };
+  }
+
+  /// Read-receipt counts grouped by item id (teachers only, school-scoped
+  /// RLS). Optionally filtered by student and/or kind.
+  Future<Map<String, int>> receiptCounts({String? studentId, String? kind}) async {
+    var query = _c.from('parent_receipts').select('item_id');
+    if (studentId != null) query = query.eq('student_id', studentId);
+    if (kind != null) query = query.eq('kind', kind);
+    final rows = await query;
+    final counts = <String, int>{};
+    for (final row in (rows as List)) {
+      final id = (row as Map<String, dynamic>)['item_id'] as String?;
+      if (id != null) counts[id] = (counts[id] ?? 0) + 1;
+    }
+    return counts;
   }
 
   // ---------- Monthly reports ----------

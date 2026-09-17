@@ -24,6 +24,25 @@ void main() {
       expect(monthKey(DateTime(2026, 1, 1)), '2026-01');
     });
 
+    test('promoteGrade steps through grades, stops at edges', () {
+      expect(promoteGrade('الأول'), 'الثاني');
+      expect(promoteGrade('الخامس'), 'السادس');
+      expect(promoteGrade('السادس'), isNull);
+      expect(promoteGrade('typo'), isNull);
+      expect(promoteGrade(''), isNull);
+    });
+
+    test('resolveFamilyId reuses first id else mints uuid', () {
+      expect(resolveFamilyId(['f1', 'f2']), 'f1');
+      expect(resolveFamilyId([null, '', 'f9']), 'f9');
+      final fresh = resolveFamilyId(const [null, null]);
+      expect(
+        fresh,
+        matches(RegExp(
+            r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$')),
+      );
+    });
+
     test('minutesOfDay and timeFromMinutes', () {
       expect(minutesOfDay(9, 5), 545);
       expect(timeFromMinutes(90), '01:30');
@@ -133,6 +152,37 @@ void main() {
       expect(d.avatarTheme, 'fatin-verse');
       expect(d.avatarGender, isNull);
       expect(d.avatarSeed, isNull);
+    });
+
+    test('Student.fromJson maps family/relation fields with defaults', () {
+      final s = Student.fromJson({
+        'id': 's1',
+        'school_id': 'sc',
+        'name': 'أحمد',
+        'assigned_teacher_id': 't1',
+        'parent_relation': 'أم',
+        'family_id': 'f1',
+      });
+      expect(s.parentRelation, 'أم');
+      expect(s.familyId, 'f1');
+      final d = Student.fromJson({
+        'id': 's2',
+        'school_id': 'sc',
+        'name': 'سارة',
+        'assigned_teacher_id': 't1',
+      });
+      expect(d.parentRelation, isNull);
+      expect(d.familyId, isNull);
+    });
+
+    test('Student status defaults to active', () {
+      final d = Student.fromJson({
+        'id': 's2',
+        'school_id': 'sc',
+        'name': 'سارة',
+        'assigned_teacher_id': 't1',
+      });
+      expect(d.status, 'active');
     });
 
     test('Student.fromJson/toJson round-trips', () {

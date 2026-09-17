@@ -15,6 +15,24 @@ String makeUuid() {
 String monthKey(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}';
 
+/// Picks the family id when linking students: reuses the first existing
+/// family id (implicitly merging families), else mints a fresh one.
+String resolveFamilyId(List<String?> existing) {
+  for (final id in existing) {
+    if (id != null && id.isNotEmpty) return id;
+  }
+  return makeUuid();
+}
+
+/// September-rollover helper: next school grade, or null when the grade
+/// is unknown (typo) or terminal (السادس graduates manually, never auto).
+String? promoteGrade(String grade) {
+  const order = ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'];
+  final i = order.indexOf(grade.trim());
+  if (i < 0 || i >= order.length - 1) return null;
+  return order[i + 1];
+}
+
 /// 'yyyy-MM-dd' for a DateTime (PostgREST date column format).
 String isoDate(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-'

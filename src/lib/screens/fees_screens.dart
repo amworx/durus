@@ -57,6 +57,95 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
   final Set<String> _selected = {};
   bool get _selecting => _selected.isNotEmpty;
 
+  Future<void> _allocateDialog(String studentId) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final amountCtrl = TextEditingController();
+    var method = 'cash';
+    var amount = 0.0;
+    var valid = false;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.feesAllocate),
+        content: StatefulBuilder(
+          builder: (ctx2, setD) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: amountCtrl,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: l10n.feesAmount,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                onChanged: (v) {
+                  final a = double.tryParse(v.trim());
+                  setD(() {
+                    amount = a ?? 0;
+                    valid = a != null && a > 0;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: method,
+                decoration: InputDecoration(
+                  labelText: l10n.feesPaymentMethod,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                items: [
+                  DropdownMenuItem(
+                      value: 'cash', child: Text(l10n.feesMethodCash)),
+                  DropdownMenuItem(
+                      value: 'transfer',
+                      child: Text(l10n.feesMethodTransfer)),
+                  DropdownMenuItem(
+                      value: 'other', child: Text(l10n.feesMethodOther)),
+                ],
+                onChanged: (v) => setD(() => method = v ?? 'cash'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: valid ? () => Navigator.of(ctx).pop(true) : null,
+            child: Text(l10n.feesAllocate),
+          ),
+        ],
+      ),
+    );
+    amountCtrl.dispose();
+    if (confirmed != true || !mounted) return;
+    try {
+      final leftover = await ref.read(apiProvider).allocatePayment(
+            studentId: studentId,
+            amount: amount,
+            method: method,
+          );
+      ref.invalidate(feesProvider);
+      ref.invalidate(paymentsProvider);
+      if (!mounted) return;
+      var msg = l10n.feesAllocateDone;
+      if (leftover > 0) {
+        msg += ' • ${l10n.feesAllocateLeftover(_fmtAmount(leftover))}';
+      }
+      messenger.showSnackBar(SnackBar(content: Text(msg)));
+    } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.commonError)));
+      }
+    }
+  }
+
   void _openFeeForm(Fee fee) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => FeeFormScreen(fee: fee)),
@@ -311,6 +400,20 @@ class _FeesBodyState extends ConsumerState<_FeesBody> {
             ),
           ),
         ),
+        Builder(builder: (context) {
+          final sid = _filterStudentId;
+          if (sid == null || sid == _allStudents) {
+            return const SizedBox.shrink();
+          }
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: OutlinedButton.icon(
+              onPressed: () => _allocateDialog(sid),
+              icon: const Icon(Icons.auto_awesome_outlined),
+              label: Text(l10n.feesAllocate),
+            ),
+          );
+        }),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Row(
@@ -777,6 +880,40 @@ class _PaymentsSheetState extends ConsumerState<PaymentsSheet> {
     }
   }
 
+  /// Records the remaining balance as a waiver (method 'other', note
+  /// 'إعفاء'): the trigger flips the fee to paid while history honestly
+  /// shows it was forgiven, not paid in cash.
+  Future<void> _waiveRemaining(Fee fee) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final remaining = (fee.amount - fee.paidAmount).toDouble();
+    if (remaining <= 0) return;
+    final ok = await confirmDialog(
+      context,
+      title: l10n.feesWaive,
+      message: l10n.feesWaiveConfirm(_fmtAmount(remaining)),
+    );
+    if (!ok || !mounted) return;
+    try {
+      await ref.read(apiProvider).createPayment(
+            feeId: fee.id,
+            studentId: fee.studentId,
+            amount: remaining,
+            method: 'other',
+            note: l10n.feesWaiveNote,
+          );
+      ref.invalidate(paymentsProvider);
+      ref.invalidate(feesProvider);
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.feesWaived)));
+      }
+    } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.commonError)));
+      }
+    }
+  }
+
   Future<void> _deletePayment(Payment payment) async {
     final l10n = context.l10n;
     final confirmed = await confirmDialog(
@@ -919,6 +1056,15 @@ class _PaymentsSheetState extends ConsumerState<PaymentsSheet> {
                       : const Icon(Icons.add),
                   label: Text(l10n.commonAdd),
                 ),
+                if ((widget.fee.amount - widget.fee.paidAmount).toDouble() >
+                    0) ...[
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => _waiveRemaining(widget.fee),
+                    icon: const Icon(Icons.card_giftcard_outlined),
+                    label: Text(l10n.feesWaive),
+                  ),
+                ],
               ],
             ),
           ),

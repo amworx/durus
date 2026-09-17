@@ -22,6 +22,15 @@ class AnnouncementsScreen extends ConsumerStatefulWidget {
 }
 
 class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
+  Future<Map<String, int>>? _announcementReads;
+
+  @override
+  void initState() {
+    super.initState();
+    _announcementReads =
+        ref.read(apiProvider).receiptCounts(kind: 'announcement');
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -58,19 +67,26 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
               final bt = b.createdAt?.millisecondsSinceEpoch ?? 0;
               return bt.compareTo(at);
             });
-          return RefreshIndicator(
-            onRefresh: () async =>
-                ref.invalidate(announcementsProvider),
-            child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(12),
-              itemCount: sorted.length,
-              itemBuilder: (context, index) => _AnnouncementTile(
-                announcement: sorted[index],
-                onEdit: () =>
-                    _compose(context, l10n, edit: sorted[index]),
-              ),
-            ),
+          return FutureBuilder<Map<String, int>>(
+            future: _announcementReads,
+            builder: (context, snap) {
+              final counts = snap.data ?? const <String, int>{};
+              return RefreshIndicator(
+                onRefresh: () async =>
+                    ref.invalidate(announcementsProvider),
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(12),
+                  itemCount: sorted.length,
+                  itemBuilder: (context, index) => _AnnouncementTile(
+                    announcement: sorted[index],
+                    readCount: counts[sorted[index].id] ?? 0,
+                    onEdit: () =>
+                        _compose(context, l10n, edit: sorted[index]),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -124,10 +140,17 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
 }
 
 class _AnnouncementTile extends ConsumerWidget {
-  const _AnnouncementTile({required this.announcement, required this.onEdit});
+  const _AnnouncementTile({
+    required this.announcement,
+    required this.onEdit,
+    this.readCount = 0,
+  });
 
   final Announcement announcement;
   final VoidCallback onEdit;
+
+  /// Parents that confirmed reading (receipts); 0 hides the chip.
+  final int readCount;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -214,6 +237,13 @@ class _AnnouncementTile extends ConsumerWidget {
                 children: [
                   _Chip(label: audienceLabel, icon: Icons.group_outlined),
                   const SizedBox(width: 8),
+                  if (readCount > 0) ...[
+                    _Chip(
+                      label: '✓ $readCount',
+                      icon: Icons.done_all_outlined,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   if (item.expiresAt != null)
                     _Chip(
                       label:

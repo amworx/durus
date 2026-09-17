@@ -142,6 +142,9 @@ class Student {
     this.parentName,
     this.parentPhone,
     this.parentToken,
+    this.parentRelation,
+    this.familyId,
+    this.status = 'active',
     this.notes,
     this.createdAt,
   });
@@ -156,6 +159,13 @@ class Student {
   final String? parentName;
   final String? parentPhone;
   final String? parentToken;
+  /// Guardian kinship (أب/أم/أخ/...), free text from preset labels.
+  final String? parentRelation;
+  /// Manual family link: siblings share one id; null = unlinked.
+  final String? familyId;
+  /// Lifecycle: active | paused | dropped | graduated. History is never
+  /// touched by status changes — only lists and the schedule filter on it.
+  final String status;
   final String? notes;
   final DateTime? createdAt;
 
@@ -170,6 +180,9 @@ class Student {
         parentName: json['parent_name'] as String?,
         parentPhone: json['parent_phone'] as String?,
         parentToken: json['parent_token'] as String?,
+        parentRelation: json['parent_relation'] as String?,
+        familyId: json['family_id'] as String?,
+        status: json['status'] as String? ?? 'active',
         notes: json['notes'] as String?,
         createdAt: _parseTs(json['created_at']),
       );
@@ -187,6 +200,9 @@ class Student {
       if (parentName != null) 'parent_name': parentName,
       if (parentPhone != null) 'parent_phone': parentPhone,
       if (parentToken != null) 'parent_token': parentToken,
+      if (parentRelation != null) 'parent_relation': parentRelation,
+      if (familyId != null) 'family_id': familyId,
+      'status': status,
       if (notes != null) 'notes': notes,
       if (created != null) 'created_at': created.toIso8601String(),
     };
