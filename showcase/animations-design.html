@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:," />
+<title>دروس — الحركة بأسلوب Anime.js: 3 عروض حية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<style>
+  :root {
+    --paper: #FAF8F4;
+    --ink: #14213D;
+    --muted: #6F7A8C;
+    --teal: #0E7C66;
+    --teal-container: #DFF3EC;
+    --on-teal-container: #0A3B2E;
+    --ember: #E8622B;
+    --border: #ECEAE3;
+    --white: #fff;
+    --radius: 26px;
+    --font: 'Zain', 'Noto Sans Arabic', sans-serif;
+    --green: #2E7D32;
+    --green-bg: #E4F2E4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--paper); color: var(--ink); line-height: 1.6; padding-bottom: 90px; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  .hero { background: linear-gradient(160deg, #0A3B2E 0%, #0E7C66 60%, #12A083 100%); color: #fff; border-radius: 0 0 40px 40px; padding: 48px 0 56px; margin-bottom: -24px; }
+  .hero .tag { display: inline-block; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 700; color: #E6F6F1; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(28px, 5vw, 46px); font-weight: 800; line-height: 1.25; margin-bottom: 10px; }
+  .hero p.sub { font-size: clamp(15px, 2vw, 19px); opacity: .92; max-width: 860px; }
+  .hero .meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero .meta span { background: rgba(255,255,255,.12); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 700; }
+
+  .problem { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 30px; margin-bottom: 40px; box-shadow: 0 6px 24px rgba(20,33,61,.05); }
+  .problem h2 { font-size: 24px; font-weight: 800; margin-bottom: 12px; color: var(--teal); }
+  .problem p { font-size: 17px; color: #33415F; max-width: 940px; }
+  .problem ul { margin-top: 14px; padding-right: 20px; display: grid; gap: 6px; }
+  .problem li { font-size: 16px; color: #33415F; }
+  .problem li b { color: var(--ember); }
+
+  #voteBanner { position: sticky; top: 12px; z-index: 50; display: none; background: var(--ink); color: #fff; border-radius: 999px; padding: 12px 22px; box-shadow: 0 10px 30px rgba(20,33,61,.35); justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 18px; }
+  #voteBanner.show { display: flex; }
+  #voteBanner button { background: var(--ember); color: #fff; border: 0; border-radius: 999px; padding: 6px 18px; font-family: var(--font); font-size: 15px; font-weight: 700; cursor: pointer; }
+
+  .demo { background: var(--white); border: 1px solid var(--border); border-radius: 28px; padding: 24px; margin-bottom: 28px; box-shadow: 0 6px 24px rgba(20,33,61,.05); }
+  .demo h3 { font-size: 22px; font-weight: 800; }
+  .demo .tech { display: inline-block; font-size: 12px; font-weight: 700; color: var(--teal); background: var(--teal-container); border-radius: 999px; padding: 2px 12px; margin: 6px 0 8px; direction: ltr; }
+  .demo p.desc { font-size: 15px; color: #33415F; margin-bottom: 6px; }
+  .demo p.flutter { font-size: 14px; color: var(--muted); background: var(--paper); border: 1px dashed var(--border); border-radius: 12px; padding: 8px 12px; margin: 10px 0 14px; }
+  .demo p.flutter b { color: var(--teal); }
+  .demobar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .demobar button { border: 0; border-radius: 12px; padding: 9px 20px; font-family: var(--font); font-size: 15px; font-weight: 800; cursor: pointer; }
+  .btn-p { background: var(--teal); color: #fff; }
+  .btn-o { background: var(--white); color: var(--ink); border: 1.5px solid var(--border); }
+  .btn-o.picked { border-color: var(--teal); color: var(--teal); }
+
+  .stage { background: var(--paper); border: 1px solid var(--border); border-radius: 20px; padding: 18px; max-width: 460px; margin: 0 auto; position: relative; overflow: hidden; }
+  .st-row { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; }
+  .st-row:last-child { margin-bottom: 0; }
+  .st-av { width: 38px; height: 38px; border-radius: 50%; background: var(--teal-container); color: var(--on-teal-container); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px; flex: none; }
+  .st-row .nm { flex: 1; font-weight: 700; font-size: 15px; }
+  .st-chip { font-size: 11px; font-weight: 800; border-radius: 999px; padding: 2px 10px; background: var(--green-bg); color: var(--green); }
+  .st-chip.warn { background: #FFF3D6; color: #B7791F; }
+
+  .bignum { font-size: 44px; font-weight: 800; color: var(--teal); line-height: 1.2; }
+  .ratebar { height: 12px; border-radius: 999px; background: #E7E2D6; overflow: hidden; margin: 10px 0 14px; }
+  .ratebar i { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #0E7C66, #12A083); }
+  .kv { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
+  .kv:last-child { border-bottom: 0; }
+  .kv > span { color: var(--muted); }
+  .kv > b { font-weight: 700; }
+
+  .miniscreen { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 14px; position: relative; min-height: 220px; }
+  .minichips { display: flex; gap: 8px; margin-bottom: 12px; }
+  .minichip { border: 1.5px solid var(--border); background: #fff; border-radius: 999px; padding: 6px 16px; font-family: var(--font); font-size: 14px; font-weight: 700; color: var(--muted); cursor: pointer; }
+  .minichip.on { border-color: var(--teal); color: var(--teal); background: var(--teal-container); }
+  .minifab { position: absolute; bottom: 14px; left: 14px; width: 54px; height: 54px; border-radius: 50%; border: 0; background: var(--teal); color: #fff; font-size: 26px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px rgba(14,124,102,.45); font-family: var(--font); line-height: 1; }
+  .toast { position: fixed; bottom: 24px; right: 50%; transform: translate(50%, 20px); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 999px; font-size: 14px; font-weight: 700; opacity: 0; transition: .25s; pointer-events: none; z-index: 60; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translate(50%, 0); }
+
+  table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; font-size: 15px; margin-top: 16px; }
+  table.cmp th { background: var(--ink); color: #fff; padding: 12px 14px; text-align: right; font-weight: 800; }
+  table.cmp td { padding: 12px 14px; border-top: 1px solid var(--border); vertical-align: top; color: #33415F; }
+  table.cmp tr td:first-child { font-weight: 800; color: var(--ink); }
+  table.cmp code { direction: ltr; display: inline-block; background: var(--paper); border: 1px solid var(--border); border-radius: 6px; padding: 0 6px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">anime.js حقيقي — يعمل الآن في هذه الصفحة</span>
+    <h1>ماذا نبني بحركة Anime.js؟ 3 عروض حية</h1>
+    <p class="sub">هذه الصفحة نفسها تشغّل مكتبة Anime.js من CDN — كل زر أدناه يشغّل التأثير الحقيقي. كل عرض مرفق بمقابله الحرفي في Flutter (بدون حزم جديدة). ملاحظة تصميم: تجنّبنا عمدًا مؤثرات النصوص الحرفية — العربية متصلة وتتكسّر بالتقسيم.</p>
+    <div class="meta"><span>مكتبة حقيقية تعمل</span><span>3 عروض تفاعلية</span><span>مقابل Flutter لكل عرض</span><span>عربي RTL</span></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="problem">
+    <h2>القواعد قبل اللعب</h2>
+    <p>الحركة هنا خادمة وليست زينة: تُظهر وصول البيانات، وتؤكد الأفعال، وتبقى خفيفة على الهواتف الضعيفة (شفافية وتحويل فقط — تعمل على معالج الرسوم).</p>
+    <ul>
+      <li>إن لم تتحرك العروض، فالـ CDN محجوب عندك — <b>المحتوى يبقى ظاهرًا</b> والزر يعلمك</li>
+      <li>صوّت بزر <b>أريد هذه</b> تحت العرض الذي يعجبك — تُحفظ الأصوات لتناقشها معًا</li>
+    </ul>
+  </div>
+
+  <div id="voteBanner"><span>المختار: <b id="bannerNames"></b></span><span><button onclick="clearVotes()">تراجع</button></span></div>
+
+  <!-- ══════════ 1 · STAGGER ══════════ -->
+  <div class="demo" id="demo1">
+    <h3>1 — دخول متتابع للقوائم (Stagger)</h3>
+    <span class="tech">anime({ targets, delay: anime.stagger(60) })</span>
+    <p class="desc">صفوف الطلاب تدخل واحدًا تلو الآخر بدل الظهور الفجائي. اضغط إعادة وشاهد الفرق — هذه أكثر ترقية محسوسة في التطبيق.</p>
+    <p class="flutter">في Flutter: <b>Interval(i * 0.05)‎</b> لكل صف على controller واحد — ~30 سطرًا في ودجت مشترك، بلا حزم.</p>
+    <div class="demobar">
+      <button class="btn-p" onclick="playStagger()">▶ إعادة العرض</button>
+      <button class="btn-o" id="vote1" onclick="vote(1)">👍 أريد هذه</button>
+    </div>
+    <div class="stage" id="stage1"></div>
+  </div>
+
+  <!-- ══════════ 2 · COUNTERS ══════════ -->
+  <div class="demo" id="demo2">
+    <h3>2 — عدّادات تتصاعد (Animated counters)</h3>
+    <span class="tech">anime({ targets: obj, v: [0, N], easing: easeOutExpo })</span>
+    <p class="desc">أرقام الدخل في تقرير الرسوم تعدّ صعودًا وشريط النسبة يمتلئ — أشهر تأثيرات Anime.js شهرة. اضغط إعادة.</p>
+    <p class="flutter">في Flutter: <b>Tween&lt;int&gt;</b> على controller واحد — ~15 سطرًا.</p>
+    <div class="demobar">
+      <button class="btn-p" onclick="playCounters()">▶ إعادة العرض</button>
+      <button class="btn-o" id="vote2" onclick="vote(2)">👍 أريد هذه</button>
+    </div>
+    <div class="stage">
+      <div class="bignum" id="bigNum">460,000</div>
+      <div class="muted">المحصّل هذا الشهر (ل.س)</div>
+      <div class="ratebar"><i id="rateFill"></i></div>
+      <div class="kv"><span>المستحق</span><b>590,000</b></div>
+      <div class="kv"><span>المتبقي</span><b id="leftNum">130,000</b></div>
+    </div>
+  </div>
+
+  <!-- ══════════ 3 · SPRINGS ══════════ -->
+  <div class="demo" id="demo3">
+    <h3>3 — فيزياء مرنة للأزرار (Springs)</h3>
+    <span class="tech">easing: 'spring(1, 80, 10, 0)'</span>
+    <p class="desc">زر الإضافة يرتد بفيزياء زنبرك حقيقية عند الضغط، ورقائق الفلتر تنبض عند الاختيار — تأكيد لمسي لكل فعل.</p>
+    <p class="flutter">في Flutter: <b>Curves.elasticOut</b> أو SpringSimulation — سطران على أي زر موجود.</p>
+    <div class="demobar">
+      <button class="btn-p" onclick="toast('جرّب الزر العائم والرقائق داخل المشهد')">▶ كيف أجرّب؟</button>
+      <button class="btn-o" id="vote3" onclick="vote(3)">👍 أريد هذه</button>
+    </div>
+    <div class="miniscreen">
+      <div style="font-weight:800;font-size:17px;margin-bottom:10px;">الطلاب</div>
+      <div class="minichips" id="miniChips">
+        <button class="minichip on" onclick="pickChip(this)">الكل</button>
+        <button class="minichip" onclick="pickChip(this)">نشط</button>
+        <button class="minichip" onclick="pickChip(this)">متخرج</button>
+      </div>
+      <div class="muted">قائمة مصغرة — الحركة هنا في الزر والرقائق نفسها.</div>
+      <button class="minifab" id="miniFab" onclick="bounceFab()">+</button>
+    </div>
+  </div>
+
+  <table class="cmp">
+    <tr><th>العرض</th><th>تقنية Anime.js</th><th>مقابل Flutter</th><th>التكلفة</th><th>يصلح لـ</th></tr>
+    <tr><td>1 — التتابع</td><td><code>stagger()</code> + fade/slide</td><td><code>Interval</code> لكل عنصر</td><td>ودجت مشترك واحد</td><td>قوائم الطلاب/الرسوم/الإشعارات</td></tr>
+    <tr><td>2 — العدّادات</td><td>tween عددي + <code>easeOutExpo</code></td><td><code>Tween&lt;int&gt;</code></td><td>ودجت عدّاد واحد</td><td>تقرير الدخل، إحصائيات البروفايل</td></tr>
+    <tr><td>3 — الزنبرك</td><td><code>spring(mass, stiffness…)</code></td><td><code>elasticOut</code> / زنبرك</td><td>سطران لكل زر</td><td>FAB، الرقائق، الشارات</td></tr>
+  </table>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  var STUDENTS = [
+    { n: 'أحمد الحسن', g: 'الخامس', ok: true },
+    { n: 'سارة خالد', g: 'الثاني', ok: true },
+    { n: 'لين يوسف', g: 'الثاني', ok: true },
+    { n: 'عمر ناصر', g: 'الثالث', ok: false },
+    { n: 'كريم حداد', g: 'الخامس', ok: true },
+    { n: 'نور الهدى', g: 'الأول', ok: true },
+    { n: 'يوسف عادل', g: 'السادس', ok: false },
+    { n: 'جنى سامي', g: 'الثاني', ok: true }
+  ];
+
+  function sce(id) { return document.getElementById(id); }
+  function hasAnime() { return typeof window.anime !== 'undefined'; }
+  function needLib() { toast('تعذر تحميل مكتبة العرض — تحقق من الإنترنت'); }
+
+  function toast(msg) {
+    var el = sce('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove('show'); }, 1600);
+  }
+
+  // ── demo 1: stagger ──
+  function buildRows() {
+    sce('stage1').innerHTML = STUDENTS.map(function (s) {
+      return '<div class="st-row"><div class="st-av">' + s.n.charAt(0) + '</div>'
+        + '<div class="nm">' + s.n + '</div>'
+        + '<span class="st-chip' + (s.ok ? '' : ' warn') + '">' + s.g + '</span></div>';
+    }).join('');
+  }
+  function playStagger() {
+    if (!hasAnime()) { needLib(); return; }
+    buildRows();
+    anime({
+      targets: '#stage1 .st-row',
+      translateX: [40, 0],
+      opacity: [0, 1],
+      delay: anime.stagger(60),
+      duration: 500,
+      easing: 'easeOutCubic'
+    });
+  }
+
+  // ── demo 2: counters ──
+  function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+  function playCounters() {
+    if (!hasAnime()) { needLib(); return; }
+    var o = { v: 0, r: 0 };
+    sce('bigNum').textContent = '0';
+    sce('leftNum').textContent = '130,000';
+    anime({
+      targets: o,
+      v: 460000,
+      r: 78,
+      duration: 1200,
+      easing: 'easeOutExpo',
+      update: function () {
+        sce('bigNum').textContent = fmt(o.v);
+        sce('rateFill').style.width = o.r + '%';
+      }
+    });
+  }
+
+  // ── demo 3: springs ──
+  function bounceFab() {
+    if (!hasAnime()) { needLib(); return; }
+    anime({
+      targets: '#miniFab',
+      scale: [1, 1.3, 1],
+      duration: 450,
+      easing: 'spring(1, 80, 10, 0)'
+    });
+    toast('تمت الإضافة (تجريبي)');
+  }
+  function pickChip(btn) {
+    document.querySelectorAll('#miniChips .minichip').forEach(function (b) {
+      b.classList.remove('on');
+    });
+    btn.classList.add('on');
+    if (!hasAnime()) return;
+    anime({
+      targets: btn,
+      scale: [1, 1.18, 1],
+      duration: 350,
+      easing: 'spring(1, 120, 9, 0)'
+    });
+  }
+
+  // ── votes ──
+  function getVotes() {
+    try { return JSON.parse(localStorage.getItem('durus-animations-votes') || '[]'); }
+    catch (e) { return []; }
+  }
+  function paintVotes() {
+    var v = getVotes();
+    [1, 2, 3].forEach(function (n) {
+      var b = sce('vote' + n);
+      if (b) b.classList.toggle('picked', v.indexOf(n) >= 0);
+    });
+    var bar = sce('voteBanner');
+    if (v.length > 0) {
+      sce('bannerNames').textContent = v.slice().sort().join('، ');
+      bar.classList.add('show');
+    } else {
+      bar.classList.remove('show');
+    }
+  }
+  function vote(n) {
+    var v = getVotes();
+    var i = v.indexOf(n);
+    if (i >= 0) v.splice(i, 1);
+    else v.push(n);
+    try { localStorage.setItem('durus-animations-votes', JSON.stringify(v)); } catch (e) {}
+    paintVotes();
+  }
+  function clearVotes() {
+    try { localStorage.removeItem('durus-animations-votes'); } catch (e) {}
+    paintVotes();
+  }
+
+  (function init() {
+    buildRows();
+    paintVotes();
+    setTimeout(playStagger, 400);
+    setTimeout(playCounters, 600);
+  })();
+</script>
+</body>
+</html>
