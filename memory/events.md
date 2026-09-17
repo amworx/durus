@@ -649,6 +649,102 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - lessons: (1) Any parent-supplied date/number must be validated against the student's reality server-side — pickers are UX, RPC checks are the lock. (2) When regrouping long scrolls into tabs, move each section verbatim (zero redesign inside) so risk stays in navigation only. (3) Pure rule functions shared by UI + tests (+ mirrored SQL) beat duplicated inline logic.
 - tags: build, portal, excuses, integrity, navbar, tabs, ux, verification
 
+## EVT-20260916-0041
+- id: EVT-20260916-0041
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: portal design 3 — cycle switcher + card dock, implemented
+- summary: User picked portal mockup 3 (cycle + dots + dock). Implemented natively: family chips replaced by a gradient cycle card (tap = next child with rotateY flip-in via AnimatedSwitcher, tappable dots for direct jumps, each child keeps its token + didUpdateWidget reload), pill navbar replaced by a floating white card dock (active = glowing primary pill with label). Added portalFamilyHint key ×3. Uiverse sources unfetchable (403) and miscategorized (Card / flip-switch), so genre rebuild stood in — offered pixel-match on pasted CSS. Analyze 8 infos, tests 34/34. Uncommitted.
+- result: success — portal chrome matches confirmed design
+- files: src/lib/screens/portal_screens.dart, src/lib/l10n/* (3) (not committed)
+- errors: 0
+- lessons: (1) AnimatedSwitcher + rotateY half-flip transition reads as a card flip with zero backface bookkeeping — prefer over manual controllers. (2) Reuse TeacherAvatar in the portal (same app, responsive web) instead of inventing a second avatar.
+- tags: build, portal, switcher, navbar, dock, flip, ux
+
+## EVT-20260916-0042
+- id: EVT-20260916-0042
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: serve fresh portal (design-3 chrome) for user exploration
+- summary: User asked to open the new portal. It is uncommitted/unreleased, so built web fresh from the working tree (default base-href) and served build/web on :8128. Verified boot + full portal data load in-browser via RPC fingerprinting (portal/notifications/family/excuses/receipts all called). Demo sisters still linked. Handed the local portal link + chrome tour.
+- result: success — explorable locally with the new switcher card, dots, and dock
+- files: none (build output + static server only)
+- errors: 0
+- lessons: Browser restarted mid-session (page ids invalidated) — always list_pages after a reconnect before navigating.
+- tags: portal, serve, explore, verification
+
+## EVT-20260916-0044
+- id: EVT-20260916-0044
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: concentric first-run intro (fluttertemplates design, MIT)
+- summary: User asked to integrate the free Concentric Animation Onboarding. Fetched the real source via GitHub API (thin wrapper over concentric_transition 1.0.3, MIT, zero deps — resolved cleanly despite its age). Built screens/intro_screen.dart faithfully (same widget/values) with Durus adaptations: Arabic RTL 3 pages in brand colors, finite pages, per-page skip + final ابدأ, RTL-forward chevron (forward points left), (index,[value]) shim compatible with either itemBuilder signature. Gating: IntroGate at '/' reads intro_seen from SharedPreferences (per install) and swaps to AuthGate — zero router changes, portal routes untouched. 8 l10n keys ×3. Test pumps the real widget (first title + skip → onDone); fixed a harness-only failure (PageView needs bounded constraints — no scroll-view wrapper). Analyze 8 infos, tests 35/35. Uncommitted.
+- result: success — first run now greets with concentric animation, then existing flow
+- files: src/lib/screens/intro_screen.dart (new), src/lib/router.dart, src/lib/l10n/* (3), src/pubspec.yaml (+concentric_transition), src/test/widget_test.dart (not committed)
+- errors: 1 test failure (harness unbounded height), fixed — app code was correct
+- lessons: (1) Old-but-MIT + zero-deps packages are safe to adopt when version solving passes on the first try — verify with a widget test, not just analyze. (2) itemBuilder signature drift between README and code is real — optional-positional shim covers both. (3) Test failures in wrapper harnesses (unbounded constraints) are harness bugs until proven otherwise.
+- tags: build, onboarding, intro, concentric, rtl, l10n, mit
+
+## EVT-20260916-0045
+- id: EVT-20260916-0045
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: serve fresh web (intro build) for user testing
+- summary: User asked to open the web version for a quick intro test. Rebuilt web from the working tree (includes uncommitted intro) and served the existing :8128 static server. Verified boot (title دروس) in-browser. Handed the root link + test checklist (circle bloom, RTL direction, skip/start, no reshow).
+- result: success — explorable locally
+- files: none (build output only)
+- errors: 0
+- lessons: Local :8128 serves the working tree's build/web, so it is always ahead of the live site — state which surface a link points at.
+- tags: serve, web, intro, explore
+
+## EVT-20260916-0047
+- id: EVT-20260916-0047
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: live concentric-motion demo (all 5 palettes) on the public site
+- summary: User rightly dismissed static color mockups — the wanted feature is the motion. Built a standalone Flutter web demo (temp project, same concentric_transition 1.0.3 + template values, RTL, 5 switchable Durus palettes with live dots) and published it to gh-pages showcase/concentric/ (correct --base-href), linked from the intro mockup page. Caught + fixed a wrong-refspec push that silently pushed nothing (local branch name ≠ remote — verify the pushed SHA range, not just exit code). Verified 200 + Arabic title live. Left the demo unlinked from the app (decision tool, not product).
+- result: success — true concentric physics explorable on any phone
+- files: gh-pages showcase/concentric/* (pushed); temp project outside repo
+- errors: 1 silent no-op push (wrong refspec), fixed by gh-pages2:gh-pages + SHA check
+- lessons: (1) When the deliverable IS motion, screenshots and color grids are worthless — ship the smallest runnable that moves. (2) git push exit 0 with "Everything up-to-date" after a worktree dance means the refspec missed — always confirm the SHA range advanced.
+- tags: showcase, concentric, motion, pages, deploy, verification
+
+## EVT-20260916-0046
+- id: EVT-20260916-0046
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: publish design showcases to GitHub Pages for phone testing
+- summary: User couldn't reach localhost mockups from their phone. Tried Supabase Storage first: durus-apk bucket rejects text/html (415 InvalidMimeType); new durus-showcase bucket accepted upload but serves text/plain+nosniff (unrenderable) — cleaned both up. Published docs/*.html (intro, portal, profile) to gh-pages under showcase/ instead; verified 200 + text/html after Pages deploy lag (~2 min 404 window). Public links now work on any device with full interactivity.
+- result: success — showcases phone-accessible
+- files: gh-pages showcase/*.html (3 files, pushed)
+- errors: 2 dead ends (bucket MIME block, text/plain serving), recovered via Pages
+- lessons: (1) Supabase Storage is a file host, not a web host — never assume it renders HTML; verify Content-Type as served, not as uploaded. (2) GitHub Pages needs ~2 min after push before new paths resolve — recheck, don't panic at first 404. (3) Localhost links are dev-machine-only; anything the user must touch goes on a public URL from the start.
+- tags: showcase, pages, hosting, storage, mobile-testing
+
+## EVT-20260916-0047
+- id: EVT-20260916-0047
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: intro palettes 6-7 from ColorHunt + trim page to the new two
+- summary: User rejected all 5 palettes (harsh, off-brand) and supplied 2 ColorHunt palettes (teal family 007979/24B1B1/FFF0E4/FFE0C5, navy family 111844/4B5694/7288AE/EAE0CF — hex parsed from URLs). Added as opt6 (soft teal progression) and opt7 (navy/bone/periwinkle, easiest on eyes). Discovered the user had concurrently pushed a LIVE Flutter concentric demo + link to gh-pages; my clobber-copy had wiped their link line — found via git log, restored verbatim, and will diff shared branches before overwriting from now on. User then asked to show only the 2 new designs: filtered grid + trimmed table + retitled page (data kept for reversibility). Verified locally (2 options, cycling, choice persist, zero console errors) and republished; public page confirmed serving opt6/7 + restored link.
+- result: success — page shows exactly the two new palettes + live-demo link
+- files: docs/intro-design.html (local), gh-pages showcase/intro-design.html (pushed ×2)
+- errors: 1 JS TypeError (CUR map missing new keys — new screens need new state entries, caught by console check)
+- lessons: (1) Never clobber-copy onto a shared branch without diffing first — fetch, diff, merge. some copilot-style agent or the user may be pushing concurrently. (2) When adding the Nth dynamic screen, extend every parallel structure (data + state map + render loop), not just data.
+- tags: showcase, palettes, colorhunt, intro, ux, collaboration
+
+## EVT-20260916-0043
+- id: EVT-20260916-0043
+- timestamp: 2026-09-16
+- mode: BUILD
+- action: persistent family switcher across all portal tabs
+- summary: User noted the switcher lived only on the home tab. Moved it above the IndexedStack so it shows on every tab, and removed the tab-reset on child switch so parents stay put (fee-vs-fee comparison works). Fumbled the Column closers twice while restructuring (fixed by reading exact text, not guessing). Analyze 8 infos, tests 34/34. Uncommitted.
+- result: success — switcher persistent, tab preserved across switches
+- files: src/lib/screens/portal_screens.dart (not committed)
+- errors: 2 self-inflicted syntax errors during restructure, fixed
+- lessons: (1) When moving a widget across nesting levels, read the exact bracket structure first — guessing closers compounds. (2) Persistent chrome + preserved tab is the correct switcher contract, not reset-to-home.
+- tags: build, portal, switcher, tabs, ux
+
 ## EVT-20260916-0040
 - id: EVT-20260916-0040
 - timestamp: 2026-09-16
