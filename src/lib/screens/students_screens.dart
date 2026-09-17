@@ -32,13 +32,11 @@ class StudentsListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: DurusTopBar(
         title: l10n.studentsTitle,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_add_alt),
-            tooltip: l10n.studentsAddTitle,
-            onPressed: () => _openStudentForm(context, null),
-          ),
-        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        tooltip: l10n.studentsAddTitle,
+        onPressed: () => _openStudentForm(context, null),
+        child: const Icon(Icons.add),
       ),
       body: const _StudentsListBody(),
     );
@@ -288,6 +286,26 @@ class _StudentsListBodyState extends ConsumerState<_StudentsListBody> {
       ),
     );
     if (picked == null || !mounted) return;
+    // Cross-grade guard across the whole selection: unknown grades can't
+    // be judged (allowed silently), known mismatches need one confirmation.
+    final all = ref.read(studentsProvider).valueOrNull ?? const <Student>[];
+    final byId = <String, Student>{for (final s in all) s.id: s};
+    final bad = [
+      for (final id in _selected)
+        if (!gradesCompatible(
+          studentGrade: byId[id]?.grade,
+          subjectGrade: picked.grade,
+        ))
+          byId[id]?.name ?? '',
+    ].where((n) => n.isNotEmpty).take(4).toList();
+    if (bad.isNotEmpty) {
+      final ok = await confirmDialog(
+        context,
+        title: l10n.studentsGradeMismatchTitle,
+        message: l10n.studentsGradeMismatchBulk(bad.length, bad.join('، ')),
+      );
+      if (!ok || !mounted) return;
+    }
     try {
       final api = ref.read(apiProvider);
       await api.assignSubjectToStudents(_selected.toList(), picked.id);
@@ -1033,13 +1051,35 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                           ),
                         ),
                         selected: _selectedSubjectIds.contains(subject.id),
-                        onSelected: (selected) => setState(() {
-                          if (selected) {
-                            _selectedSubjectIds.add(subject.id);
-                          } else {
-                            _selectedSubjectIds.remove(subject.id);
+                        onSelected: (selected) async {
+                          // Cross-grade guard: warn (don't block) so
+                          // legitimate revision material still works.
+                          if (selected &&
+                              !gradesCompatible(
+                                studentGrade: _gradeController.text,
+                                subjectGrade: subject.grade,
+                              )) {
+                            final l10n = context.l10n;
+                            final ok = await confirmDialog(
+                              context,
+                              title: l10n.studentsGradeMismatchTitle,
+                              message: l10n.studentsGradeMismatchMessage(
+                                subject.displayLabel,
+                                _gradeController.text.trim().isEmpty
+                                    ? l10n.commonNone
+                                    : _gradeController.text.trim(),
+                              ),
+                            );
+                            if (!ok || !mounted) return;
                           }
-                        }),
+                          setState(() {
+                            if (selected) {
+                              _selectedSubjectIds.add(subject.id);
+                            } else {
+                              _selectedSubjectIds.remove(subject.id);
+                            }
+                          });
+                        },
                       ),
                   ],
                 );
@@ -1962,7 +2002,11 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
               children: [
                 for (final sib in siblings)
                   InputChip(
-                    label: Text(sib.name),
+                    label: Text(
+                      (sib.parentRelation ?? '').isNotEmpty
+                          ? '${sib.name} • ${sib.parentRelation}'
+                          : sib.name,
+                    ),
                     avatar: CircleAvatar(child: Text(_initial(sib.name))),
                     onPressed: () => _openStudentDetail(context, sib.id),
                     onDeleted: () => _unlinkFamilyMember(sib),
@@ -2724,14 +2768,27 @@ class _SlotFormSheetState extends ConsumerState<_SlotFormSheet> {
     final l10n = context.l10n;
     final subjectsAsync = ref.watch(subjectsProvider);
     final subjects = subjectsAsync.value ?? const <Subject>[];
+    String? studentGrade;
+    for (final s in ref.watch(studentsProvider).value ?? const <Student>[]) {
+      if (s.id == widget.studentId) studentGrade = s.grade;
+    }
 
     final dayItems = <DropdownMenuItem<int>>[
       for (var i = 1; i <= 7; i++)
         DropdownMenuItem(value: i, child: Text(_dayLabel(i))),
     ];
+    final enrolled = {
+      for (final r in ref.watch(studentSubjectRefsProvider).value ??
+          const <StudentSubjectRef>[])
+        if (r.studentId == widget.studentId) r.subjectId,
+    };
+    if (_subjectId != null) enrolled.add(_subjectId!);
+    // Strictly the student's own subjects: a slot/test can't belong to
+    // unassigned material (legacy rows keep working via the union above).
     final subjectItems = <DropdownMenuItem<String>>[
       for (final subject in subjects)
-        DropdownMenuItem(value: subject.id, child: Text(subject.displayLabel)),
+        if (enrolled.contains(subject.id))
+          DropdownMenuItem(value: subject.id, child: Text(subject.displayLabel)),
     ];
     final locationItems = <DropdownMenuItem<String>>[
       DropdownMenuItem(value: 'student_home', child: Text(l10n.studentsLocationHome)),
@@ -2765,10 +2822,44 @@ class _SlotFormSheetState extends ConsumerState<_SlotFormSheet> {
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   items: subjectItems,
-                  onChanged: (value) => setState(() => _subjectId = value),
+                  onChanged: (value) async {
+                    Subject? chosen;
+                    for (final s in subjects) {
+                      if (s.id == value) chosen = s;
+                    }
+                    if (value != null &&
+                        chosen != null &&
+                        !gradesCompatible(
+                          studentGrade: studentGrade,
+                          subjectGrade: chosen.grade,
+                        )) {
+                      final ok = await confirmDialog(
+                        context,
+                        title: l10n.studentsGradeMismatchTitle,
+                        message: l10n.studentsGradeMismatchMessage(
+                          chosen.displayLabel,
+                          (studentGrade ?? '').isEmpty
+                              ? l10n.commonNone
+                              : studentGrade!,
+                        ),
+                      );
+                      if (!ok || !mounted) return;
+                    }
+                    setState(() => _subjectId = value);
+                  },
                   validator: (value) =>
                       value == null ? l10n.commonRequired : null,
                 ),
+                if (subjectItems.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      l10n.subjectsNoneAssigned,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                    ),
+                  ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<int>(
                   initialValue: _initialIfPresent(dayItems, _dayOfWeek),
@@ -2980,9 +3071,18 @@ class _TestSheetState extends ConsumerState<_TestSheet> {
     final l10n = context.l10n;
     final subjectsAsync = ref.watch(subjectsProvider);
     final subjects = subjectsAsync.value ?? const <Subject>[];
+    // Only the student's enrolled subjects (plus the current one when
+    // editing legacy rows) — a test can't belong to unassigned material.
+    final enrolled = {
+      for (final r in ref.watch(studentSubjectRefsProvider).value ??
+          const <StudentSubjectRef>[])
+        if (r.studentId == widget.studentId) r.subjectId,
+    };
+    if (_subjectId != null) enrolled.add(_subjectId!);
     final subjectItems = <DropdownMenuItem<String>>[
       for (final subject in subjects)
-        DropdownMenuItem(value: subject.id, child: Text(subject.displayLabel)),
+        if (enrolled.contains(subject.id))
+          DropdownMenuItem(value: subject.id, child: Text(subject.displayLabel)),
     ];
     final typeItems = <DropdownMenuItem<String>>[
       DropdownMenuItem(value: 'monthly', child: Text(l10n.testsTypeMonthly)),
@@ -3023,6 +3123,16 @@ class _TestSheetState extends ConsumerState<_TestSheet> {
                   validator: (value) =>
                       value == null ? l10n.commonRequired : null,
                 ),
+                if (subjectItems.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      l10n.subjectsNoneAssigned,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                    ),
+                  ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: _initialIfPresent(typeItems, _type),

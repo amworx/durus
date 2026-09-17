@@ -609,6 +609,23 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get studentsGradeMismatchTitle => 'عدم تطابق الصف';
+
+  @override
+  String studentsGradeMismatchMessage(String subject, String grade) {
+    return 'المادة $subject لصف مختلف عن صف الطالب ($grade). إسنادها على أي حال؟';
+  }
+
+  @override
+  String studentsGradeMismatchBulk(int count, String names) {
+    return 'من المحددين: $count في صفوف مختلفة ($names). إسناد المادة للجميع؟';
+  }
+
+  @override
+  String get subjectsNoneAssigned =>
+      'لا مواد مسندة لهذا الطالب — أسند مادة أولًا';
+
+  @override
   String get studentsGradeReasonTitle => 'سبب تغيير الصف';
 
   @override
@@ -769,6 +786,52 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get feesWaived => 'تم تسجيل الإعفاء';
+
+  @override
+  String get scheduleZoomIn => 'تكبير الجدول';
+
+  @override
+  String get scheduleZoomOut => 'تصغير الجدول';
+
+  @override
+  String get subjectsStatsTitle => 'إحصائيات المادة';
+
+  @override
+  String get subjectsBadgeStudents => 'طالب';
+
+  @override
+  String get subjectsBadgeSessions => 'حصة';
+
+  @override
+  String get subjectsBadgePass => 'ناجح';
+
+  @override
+  String get subjectsBadgeIncome => 'دخل~';
+
+  @override
+  String get subjectsIncomeNote =>
+      'تقديري: يوزع مدفوع كل طالب على مواده بالتساوي';
+
+  @override
+  String get incomeTitle => 'تقارير الدخل';
+
+  @override
+  String get incomeByMonth => 'حسب الشهر';
+
+  @override
+  String get incomeByMethod => 'حسب الطريقة';
+
+  @override
+  String get incomeDebtors => 'مستحقات متأخرة';
+
+  @override
+  String get incomeCollectionRate => 'نسبة التحصيل';
+
+  @override
+  String get incomeWaived => 'إعفاءات';
+
+  @override
+  String get incomeAdvance => 'مدفوع مقدمًا';
 
   @override
   String get portalFamilyChildren => 'الأبناء';

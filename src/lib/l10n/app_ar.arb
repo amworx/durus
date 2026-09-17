@@ -288,6 +288,32 @@
       }
     }
   },
+  "studentsGradeMismatchTitle": "عدم تطابق الصف",
+  "studentsGradeMismatchMessage": "المادة {subject} لصف مختلف عن صف الطالب ({grade}). إسنادها على أي حال؟",
+  "@studentsGradeMismatchMessage": {
+    "description": "Cross-grade assignment warning",
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      },
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "studentsGradeMismatchBulk": "من المحددين: {count} في صفوف مختلفة ({names}). إسناد المادة للجميع؟",
+  "@studentsGradeMismatchBulk": {
+    "description": "Bulk cross-grade warning with count and names",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "subjectsNoneAssigned": "لا مواد مسندة لهذا الطالب — أسند مادة أولًا",
   "studentsGradeReasonTitle": "سبب تغيير الصف",
   "studentsGradeReasonMessage": "التصحيح يحفظ بهدوء. الانتقال إلى صف جديد يذكّرك بمراجعة المواد والحصص الأسبوعية.",
   "studentsGradeReasonMistake": "خطأ إدخال",
@@ -396,6 +422,21 @@
   },
   "feesWaiveNote": "إعفاء",
   "feesWaived": "تم تسجيل الإعفاء",
+  "scheduleZoomIn": "تكبير الجدول",
+  "scheduleZoomOut": "تصغير الجدول",
+  "subjectsStatsTitle": "إحصائيات المادة",
+  "subjectsBadgeStudents": "طالب",
+  "subjectsBadgeSessions": "حصة",
+  "subjectsBadgePass": "ناجح",
+  "subjectsBadgeIncome": "دخل~",
+  "subjectsIncomeNote": "تقديري: يوزع مدفوع كل طالب على مواده بالتساوي",
+  "incomeTitle": "تقارير الدخل",
+  "incomeByMonth": "حسب الشهر",
+  "incomeByMethod": "حسب الطريقة",
+  "incomeDebtors": "مستحقات متأخرة",
+  "incomeCollectionRate": "نسبة التحصيل",
+  "incomeWaived": "إعفاءات",
+  "incomeAdvance": "مدفوع مقدمًا",
   "portalFamilyChildren": "الأبناء",
   "portalFamilyHint": "اضغط للتبديل بين الأبناء",
   "portalAbsenceTitle": "الإبلاغ عن غياب",

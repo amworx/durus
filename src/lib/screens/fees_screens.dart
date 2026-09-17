@@ -10,6 +10,7 @@ import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
+import 'package:durus/screens/income_report_screen.dart';
 import 'package:durus/widgets/durus_top_bar.dart';
 import 'package:durus/widgets/widgets.dart';
 
@@ -28,13 +29,21 @@ class FeesScreen extends ConsumerWidget {
         title: l10n.feesTitle,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: l10n.feesAddFee,
+            icon: const Icon(Icons.assessment_outlined),
+            tooltip: l10n.incomeTitle,
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const FeeFormScreen()),
+              MaterialPageRoute<void>(
+                  builder: (_) => const IncomeReportScreen()),
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        tooltip: l10n.feesAddFee,
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => const FeeFormScreen()),
+        ),
+        child: const Icon(Icons.add),
       ),
       body: const _FeesBody(),
     );

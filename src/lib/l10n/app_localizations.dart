@@ -1240,6 +1240,30 @@ abstract class AppLocalizations {
   /// **'كل المحددين ({blocked}) لديهم جلسات مسجلة — لا يمكن حذف أي منهم.'**
   String bulkDeleteBlockedNone(int blocked);
 
+  /// No description provided for @studentsGradeMismatchTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'عدم تطابق الصف'**
+  String get studentsGradeMismatchTitle;
+
+  /// Cross-grade assignment warning
+  ///
+  /// In ar, this message translates to:
+  /// **'المادة {subject} لصف مختلف عن صف الطالب ({grade}). إسنادها على أي حال؟'**
+  String studentsGradeMismatchMessage(String subject, String grade);
+
+  /// Bulk cross-grade warning with count and names
+  ///
+  /// In ar, this message translates to:
+  /// **'من المحددين: {count} في صفوف مختلفة ({names}). إسناد المادة للجميع؟'**
+  String studentsGradeMismatchBulk(int count, String names);
+
+  /// No description provided for @subjectsNoneAssigned.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا مواد مسندة لهذا الطالب — أسند مادة أولًا'**
+  String get subjectsNoneAssigned;
+
   /// No description provided for @studentsGradeReasonTitle.
   ///
   /// In ar, this message translates to:
@@ -1533,6 +1557,96 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تم تسجيل الإعفاء'**
   String get feesWaived;
+
+  /// No description provided for @scheduleZoomIn.
+  ///
+  /// In ar, this message translates to:
+  /// **'تكبير الجدول'**
+  String get scheduleZoomIn;
+
+  /// No description provided for @scheduleZoomOut.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصغير الجدول'**
+  String get scheduleZoomOut;
+
+  /// No description provided for @subjectsStatsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إحصائيات المادة'**
+  String get subjectsStatsTitle;
+
+  /// No description provided for @subjectsBadgeStudents.
+  ///
+  /// In ar, this message translates to:
+  /// **'طالب'**
+  String get subjectsBadgeStudents;
+
+  /// No description provided for @subjectsBadgeSessions.
+  ///
+  /// In ar, this message translates to:
+  /// **'حصة'**
+  String get subjectsBadgeSessions;
+
+  /// No description provided for @subjectsBadgePass.
+  ///
+  /// In ar, this message translates to:
+  /// **'ناجح'**
+  String get subjectsBadgePass;
+
+  /// No description provided for @subjectsBadgeIncome.
+  ///
+  /// In ar, this message translates to:
+  /// **'دخل~'**
+  String get subjectsBadgeIncome;
+
+  /// No description provided for @subjectsIncomeNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقديري: يوزع مدفوع كل طالب على مواده بالتساوي'**
+  String get subjectsIncomeNote;
+
+  /// No description provided for @incomeTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقارير الدخل'**
+  String get incomeTitle;
+
+  /// No description provided for @incomeByMonth.
+  ///
+  /// In ar, this message translates to:
+  /// **'حسب الشهر'**
+  String get incomeByMonth;
+
+  /// No description provided for @incomeByMethod.
+  ///
+  /// In ar, this message translates to:
+  /// **'حسب الطريقة'**
+  String get incomeByMethod;
+
+  /// No description provided for @incomeDebtors.
+  ///
+  /// In ar, this message translates to:
+  /// **'مستحقات متأخرة'**
+  String get incomeDebtors;
+
+  /// No description provided for @incomeCollectionRate.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسبة التحصيل'**
+  String get incomeCollectionRate;
+
+  /// No description provided for @incomeWaived.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعفاءات'**
+  String get incomeWaived;
+
+  /// No description provided for @incomeAdvance.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدفوع مقدمًا'**
+  String get incomeAdvance;
 
   /// No description provided for @portalFamilyChildren.
   ///

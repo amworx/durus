@@ -52,17 +52,28 @@ class ScheduleScreen extends ConsumerStatefulWidget {
 class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   late DateTime _weekStart;
   int _selectedIndex = 0; // 0 = Monday .. 6 = Sunday
+  double _pxPerMin = 50 / 90; // timeline zoom (persisted)
 
   @override
   void initState() {
     super.initState();
     _weekStart = _mondayOf(DateTime.now());
     _selectedIndex = DateTime.now().weekday - 1;
+    _pxPerMin =
+        (ref.read(sharedPrefsProvider).getDouble('schedule_zoom') ?? 50 / 90)
+            .clamp(0.4, 1.2);
   }
 
   DateTime _mondayOf(DateTime d) {
     final weekday = d.weekday; // 1 = Mon .. 7 = Sun
     return DateTime(d.year, d.month, d.day - (weekday - 1));
+  }
+
+  void _setZoom(double delta) {
+    final next = (_pxPerMin + delta).clamp(0.4, 1.2);
+    if (next == _pxPerMin) return;
+    setState(() => _pxPerMin = next);
+    ref.read(sharedPrefsProvider).setDouble('schedule_zoom', next);
   }
 
   void _shiftWeek(int delta) {
@@ -89,6 +100,28 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       body: Column(
         children: [
           _weekHeader(context, l10n),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  tooltip: l10n.scheduleZoomOut,
+                  visualDensity: VisualDensity.compact,
+                  onPressed:
+                      _pxPerMin <= 0.4 ? null : () => _setZoom(-0.15),
+                  icon: const Icon(Icons.zoom_out_outlined),
+                ),
+                IconButton(
+                  tooltip: l10n.scheduleZoomIn,
+                  visualDensity: VisualDensity.compact,
+                  onPressed:
+                      _pxPerMin >= 1.2 ? null : () => _setZoom(0.15),
+                  icon: const Icon(Icons.zoom_in_outlined),
+                ),
+              ],
+            ),
+          ),
           const Divider(height: 1),
           Expanded(
             child: slotsAsync.when(
@@ -474,7 +507,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     List<RecurringSlot> slots,
   ) {
     final scheme = Theme.of(context).colorScheme;
-    const pxPerMin = 50 / 90; // 90 min = 50 px, per the design spec
+    final pxPerMin = _pxPerMin; // persisted zoom (default 90 min = 50 px)
 
     var gridStart = 480; // 08:00
     var gridEnd = 1020; // 17:00

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:durus/core/durus_api.dart';
+import 'package:durus/core/utils.dart';
+import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
@@ -15,6 +17,57 @@ import 'package:durus/widgets/widgets.dart';
 // Subjects list
 // ---------------------------------------------------------------------------
 
+/// Aggregates for one subject: enrolled students, this-month sessions,
+/// tests (+passed at >=50%), and estimated income (each student's paid
+/// total split evenly across their subjects — an estimate, never exact
+/// when students take several subjects).
+({int students, int sessions, int tests, int passed, double income})
+    _subjectStats(
+  String subjectId, {
+  required List<StudentSubjectRef> refs,
+  required List<LessonSession> lessons,
+  required List<TestResult> tests,
+  required List<Fee> fees,
+  required List<Student> students,
+  required String month,
+}) {
+  final enrolled = {
+    for (final r in refs)
+      if (r.subjectId == subjectId) r.studentId,
+  };
+  var sessions = 0;
+  for (final l in lessons) {
+    if (l.subjectId == subjectId && l.date.startsWith(month)) sessions++;
+  }
+  var testCount = 0;
+  var passed = 0;
+  for (final t in tests) {
+    if (t.subjectId != subjectId) continue;
+    testCount++;
+    final max = (t.maxScore ?? 0).toDouble();
+    if (max > 0 && (t.score ?? 0).toDouble() / max >= 0.5) passed++;
+  }
+  var income = 0.0;
+  for (final id in enrolled) {
+    var paid = 0.0;
+    for (final f in fees) {
+      if (f.studentId == id) paid += f.paidAmount;
+    }
+    var shares = 0;
+    for (final r in refs) {
+      if (r.studentId == id) shares++;
+    }
+    if (shares > 0) income += paid / shares;
+  }
+  return (
+    students: enrolled.length,
+    sessions: sessions,
+    tests: testCount,
+    passed: passed,
+    income: income,
+  );
+}
+
 class SubjectsScreen extends ConsumerWidget {
   const SubjectsScreen({super.key});
 
@@ -24,13 +77,11 @@ class SubjectsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: DurusTopBar(
         title: l10n.subjectsTitle,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: l10n.subjectsAddTitle,
-            onPressed: () => _openSubjectForm(context, null),
-          ),
-        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        tooltip: l10n.subjectsAddTitle,
+        onPressed: () => _openSubjectForm(context, null),
+        child: const Icon(Icons.add),
       ),
       body: const _SubjectsBody(),
     );
@@ -181,6 +232,11 @@ class _SubjectsBodyState extends ConsumerState<_SubjectsBody> {
     final l10n = context.l10n;
     final subjectsAsync = ref.watch(subjectsProvider);
     final refsAsync = ref.watch(studentSubjectRefsProvider);
+    final lessons = ref.watch(lessonsProvider).value ?? const <LessonSession>[];
+    final tests = ref.watch(testsProvider).value ?? const <TestResult>[];
+    final fees = ref.watch(feesProvider).value ?? const <Fee>[];
+    final students = ref.watch(studentsProvider).value ?? const <Student>[];
+    final nowMonth = monthKey(DateTime.now());
     return Column(
       children: [
         // ── search + filter row ──
@@ -248,8 +304,17 @@ class _SubjectsBodyState extends ConsumerState<_SubjectsBody> {
                   separatorBuilder: (context, index) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final subject = visible[index];
-                    final count =
-                        refs.where((r) => r.subjectId == subject.id).length;
+                    final scheme = Theme.of(context).colorScheme;
+                    final stats = _subjectStats(
+                      subject.id,
+                      refs: refs,
+                      lessons: lessons,
+                      tests: tests,
+                      fees: fees,
+                      students: students,
+                      month: nowMonth,
+                    );
+                    final count = stats.students;
                     final grade = subject.grade;
                     final subtitleParts = <String>[
                       if (grade != null && grade.isNotEmpty)
@@ -265,7 +330,39 @@ class _SubjectsBodyState extends ConsumerState<_SubjectsBody> {
                             )
                           : const CircleAvatar(child: Icon(Icons.menu_book_outlined)),
                       title: Text(subject.name),
-                      subtitle: Text(subtitleParts.join(' • ')),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(subtitleParts.join(' • ')),
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            children: [
+                              StatusChip(
+                                label:
+                                    '${stats.students} ${l10n.subjectsBadgeStudents}',
+                                color: scheme.primary,
+                              ),
+                              StatusChip(
+                                label:
+                                    '${stats.sessions} ${l10n.subjectsBadgeSessions}',
+                                color: scheme.tertiary,
+                              ),
+                              StatusChip(
+                                label:
+                                    '${stats.passed}/${stats.tests} ${l10n.subjectsBadgePass}',
+                                color: Colors.green.shade700,
+                              ),
+                              StatusChip(
+                                label:
+                                    '~${stats.income.toStringAsFixed(0)} ${l10n.subjectsBadgeIncome}',
+                                color: Colors.orange.shade800,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                       trailing: _selecting
                           ? null
                           : IconButton(
@@ -365,6 +462,71 @@ class _SubjectFormScreenState extends ConsumerState<SubjectFormScreen> {
     super.dispose();
   }
 
+  Widget _statRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _subjectStatsCard(
+    BuildContext context,
+    AppLocalizations l10n,
+    Subject subject,
+  ) {
+    final refs =
+        ref.watch(studentSubjectRefsProvider).value ?? const <StudentSubjectRef>[];
+    final stats = _subjectStats(
+      subject.id,
+      refs: refs,
+      lessons: ref.watch(lessonsProvider).value ?? const <LessonSession>[],
+      tests: ref.watch(testsProvider).value ?? const <TestResult>[],
+      fees: ref.watch(feesProvider).value ?? const <Fee>[],
+      students: ref.watch(studentsProvider).value ?? const <Student>[],
+      month: monthKey(DateTime.now()),
+    );
+    return SectionCard(
+      title: l10n.subjectsStatsTitle,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _statRow(
+            l10n.subjectsBadgeStudents,
+            '${stats.students}',
+          ),
+          _statRow(
+            l10n.subjectsBadgeSessions,
+            '${stats.sessions}',
+          ),
+          _statRow(
+            l10n.subjectsBadgePass,
+            '${stats.passed}/${stats.tests}',
+          ),
+          _statRow(
+            l10n.subjectsBadgeIncome,
+            '~${stats.income.toStringAsFixed(0)}',
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.subjectsIncomeNote,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final l10n = context.l10n;
@@ -440,6 +602,10 @@ class _SubjectFormScreenState extends ConsumerState<SubjectFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (subject != null) ...[
+              _subjectStatsCard(context, l10n, subject),
+              const SizedBox(height: 16),
+            ],
             TextFormField(
               controller: _nameController,
               textInputAction: TextInputAction.next,

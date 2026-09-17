@@ -46,6 +46,25 @@ String? promoteGrade(String grade) {
   return order[i + 1];
 }
 
+/// Arabic school-grade ordinal (الأول=1 .. السادس=6), or null when the
+/// grade is empty/unknown. Shared by promotion and cross-grade checks.
+int? gradeOrdinal(String? grade) {
+  if (grade == null) return null;
+  const order = ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'];
+  final i = order.indexOf(grade.trim());
+  return i < 0 ? null : i + 1;
+}
+
+/// True when a subject fits a student's grade. Either side unknown means
+/// "can't judge" (allowed — the caller warns only on known mismatches so
+/// legitimate cross-grade revision still works with confirmation).
+bool gradesCompatible({String? studentGrade, String? subjectGrade}) {
+  final s = gradeOrdinal(studentGrade);
+  final g = gradeOrdinal(subjectGrade);
+  if (s == null || g == null) return true;
+  return s == g;
+}
+
 /// 'yyyy-MM-dd' for a DateTime (PostgREST date column format).
 String isoDate(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-'

@@ -25,6 +25,38 @@ void main() {
       expect(monthKey(DateTime(2026, 1, 1)), '2026-01');
     });
 
+    test('gradeOrdinal maps Arabic grades, null on unknown', () {
+      expect(gradeOrdinal('الأول'), 1);
+      expect(gradeOrdinal('السادس'), 6);
+      expect(gradeOrdinal('  الثالث  '), 3);
+      expect(gradeOrdinal(null), isNull);
+      expect(gradeOrdinal(''), isNull);
+      expect(gradeOrdinal('typo'), isNull);
+    });
+
+    test('gradesCompatible warns only on known mismatches', () {
+      expect(
+        gradesCompatible(studentGrade: 'الثالث', subjectGrade: 'الثالث'),
+        isTrue,
+      );
+      expect(
+        gradesCompatible(studentGrade: 'الأول', subjectGrade: 'السادس'),
+        isFalse,
+      );
+      expect(
+        gradesCompatible(studentGrade: null, subjectGrade: 'السادس'),
+        isTrue,
+      );
+      expect(
+        gradesCompatible(studentGrade: 'الثالث', subjectGrade: null),
+        isTrue,
+      );
+      expect(
+        gradesCompatible(studentGrade: 'typo', subjectGrade: 'السادس'),
+        isTrue,
+      );
+    });
+
     test('promoteGrade steps through grades, stops at edges', () {
       expect(promoteGrade('الأول'), 'الثاني');
       expect(promoteGrade('الخامس'), 'السادس');
@@ -214,6 +246,57 @@ void main() {
         'assigned_teacher_id': 't1',
       });
       expect(d.status, 'active');
+    });
+
+    test('incomeMonthTotals and incomeByMethod aggregate correctly', () {
+      const fees = [
+        Fee(
+            id: 'f1',
+            schoolId: 'sc',
+            studentId: 's1',
+            month: '2026-09',
+            amount: 50000,
+            paidAmount: 20000),
+        Fee(
+            id: 'f2',
+            schoolId: 'sc',
+            studentId: 's1',
+            month: '2026-09',
+            amount: 30000,
+            paidAmount: 30000),
+        Fee(
+            id: 'f3',
+            schoolId: 'sc',
+            studentId: 's1',
+            month: '2026-10',
+            amount: 50000,
+            paidAmount: 0),
+      ];
+      final sep = incomeMonthTotals(fees, '2026-09');
+      expect(sep.due, 80000);
+      expect(sep.collected, 50000);
+      const payments = [
+        Payment(
+            id: 'p1',
+            schoolId: 'sc',
+            feeId: 'f1',
+            studentId: 's1',
+            amount: 20000,
+            paidAt: '2026-09-05',
+            method: 'cash'),
+        Payment(
+            id: 'p2',
+            schoolId: 'sc',
+            feeId: 'f2',
+            studentId: 's1',
+            amount: 30000,
+            paidAt: '2026-09-06',
+            method: 'transfer'),
+      ];
+      final byMethod = incomeByMethod(payments);
+      expect(byMethod['cash'], 20000);
+      expect(byMethod['transfer'], 30000);
+      expect(byMethod.containsKey('other'), isFalse);
     });
 
     test('Student.fromJson/toJson round-trips', () {

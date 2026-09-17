@@ -39,13 +39,11 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.announcementsTitle),
-        actions: [
-          IconButton(
-            tooltip: l10n.announcementsAdd,
-            onPressed: () => _compose(context, l10n),
-            icon: const Icon(Icons.add),
-          ),
-        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        tooltip: l10n.announcementsAdd,
+        onPressed: () => _compose(context, l10n),
+        child: const Icon(Icons.add),
       ),
       body: announcementsAsync.when(
         loading: () => const LoadingView(),

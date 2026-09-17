@@ -961,3 +961,25 @@ class MonthlyReport {
         'notes': notes.map((n) => n.toJson()).toList(),
       };
 }
+
+/// Due vs collected totals for one month (income report).
+({double due, double collected}) incomeMonthTotals(
+    List<Fee> fees, String month) {
+  var due = 0.0;
+  var collected = 0.0;
+  for (final f in fees) {
+    if (f.month != month) continue;
+    due += f.amount;
+    collected += f.paidAmount;
+  }
+  return (due: due, collected: collected);
+}
+
+/// Collected totals grouped by payment method (income report).
+Map<String, double> incomeByMethod(List<Payment> payments) {
+  final totals = <String, double>{};
+  for (final p in payments) {
+    totals[p.method] = (totals[p.method] ?? 0) + p.amount;
+  }
+  return totals;
+}
