@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,7 +30,38 @@ final currentProfileProvider = FutureProvider<Profile?>((ref) async {
   if (u == null) {
     return null;
   }
+  // Deployed-state telemetry: one guarded upsert per uid per launch.
+  // Never awaited, never throws (offline-safe).
+  unawaited(ref.read(apiProvider).reportHeartbeat());
   return ref.read(apiProvider).currentProfile();
+});
+
+/// Server-decided app ownership (owner dashboard gate). False when signed
+/// out or on any failure — the section simply stays hidden.
+final isOwnerProvider = FutureProvider<bool>((ref) async {
+  ref.watch(authSessionProvider);
+  return ref.read(apiProvider).amIOwner();
+});
+
+/// The caller's school's feature/edit requests (RLS school-scoped).
+final featureRequestsProvider =
+    FutureProvider<List<FeatureRequest>>((ref) async {
+  ref.watch(authSessionProvider);
+  return ref.read(apiProvider).featureRequests();
+});
+
+/// Whole-product snapshot for the owner dashboard. The RPC fails closed
+/// for non-owners; the entry point is hidden unless [isOwnerProvider].
+final ownerOverviewProvider = FutureProvider<OwnerOverview>((ref) async {
+  ref.watch(authSessionProvider);
+  return ref.read(apiProvider).ownerOverview();
+});
+
+/// Latest client error reports (owner-only RPC).
+final ownerErrorsProvider =
+    FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  ref.watch(authSessionProvider);
+  return ref.read(apiProvider).ownerErrors();
 });
 
 final currentSchoolIdProvider = Provider<String?>((ref) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:durus/core/config.dart';
+import 'package:durus/core/durus_api.dart';
 import 'package:durus/core/links.dart';
 import 'package:durus/core/updater.dart';
 import 'package:durus/core/utils.dart';
@@ -9,6 +10,7 @@ import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/models/models.dart';
 import 'package:durus/providers/providers.dart';
+import 'package:durus/screens/owner_screen.dart';
 import 'package:durus/screens/teachers_screen.dart';
 import 'package:durus/theme/themes.dart';
 import 'package:durus/widgets/durus_top_bar.dart';
@@ -64,6 +66,12 @@ class SettingsScreen extends ConsumerWidget {
                   child: const _TeachersSection(),
                 ),
               ],
+              const SizedBox(height: 16),
+              SectionCard(
+                title: l10n.featReqTitle,
+                child: const _FeatureRequestSection(),
+              ),
+              const _OwnerSection(),
               const SizedBox(height: 16),
               _LogoutButton(),
             ],
@@ -730,4 +738,246 @@ String _modeText(
 String _teacherName(AppLocalizations l10n, Profile teacher) {
   final name = teacher.fullName?.trim() ?? '';
   return name.isEmpty ? l10n.commonNone : name;
+}
+
+/// The school's feature/edit requests with a compose entry point. Visible
+/// to every signed-in teacher; RLS keeps each school's list to itself.
+class _FeatureRequestSection extends ConsumerWidget {
+  const _FeatureRequestSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final requestsAsync = ref.watch(featureRequestsProvider);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        requestsAsync.when(
+          loading: () => const LoadingView(),
+          error: (e, _) => ErrorRetry(
+            message: l10n.commonError,
+            onRetry: () => ref.invalidate(featureRequestsProvider),
+          ),
+          data: (requests) {
+            if (requests.isEmpty) {
+              return EmptyState(
+                icon: Icons.lightbulb_outline,
+                message: l10n.featReqEmpty,
+              );
+            }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final r in requests)
+                  ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      r.title,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    subtitle: Text(
+                      r.type == 'edit'
+                          ? l10n.featReqEdit
+                          : l10n.featReqFeature,
+                    ),
+                    trailing: StatusChip(
+                      label: featureRequestStatusLabel(r.status, l10n),
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () => showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            builder: (_) => const _FeatureRequestSheet(),
+          ),
+          icon: const Icon(Icons.add),
+          label: Text(l10n.featReqNew),
+        ),
+      ],
+    );
+  }
+}
+
+class _FeatureRequestSheet extends ConsumerStatefulWidget {
+  const _FeatureRequestSheet();
+
+  @override
+  ConsumerState<_FeatureRequestSheet> createState() =>
+      _FeatureRequestSheetState();
+}
+
+class _FeatureRequestSheetState extends ConsumerState<_FeatureRequestSheet> {
+  final _titleCtrl = TextEditingController();
+  final _bodyCtrl = TextEditingController();
+  String _type = 'feature';
+  bool _sending = false;
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _bodyCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    if (_sending) return;
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final err = validateFeatureRequest(
+      title: _titleCtrl.text,
+      body: _bodyCtrl.text,
+    );
+    if (err != null) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            err == 'required' ? l10n.commonRequired : l10n.commonError,
+          ),
+        ),
+      );
+      return;
+    }
+    setState(() => _sending = true);
+    try {
+      await ref.read(apiProvider).submitFeatureRequest(
+            title: _titleCtrl.text,
+            body: _bodyCtrl.text,
+            type: _type,
+          );
+      ref.invalidate(featureRequestsProvider);
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.featReqSent)));
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(friendlyError(e, l10n))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l10n.featReqNew,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.featReqType,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 8,
+            children: [
+              ChoiceChip(
+                label: Text(l10n.featReqFeature),
+                selected: _type == 'feature',
+                onSelected: (_) => setState(() => _type = 'feature'),
+              ),
+              ChoiceChip(
+                label: Text(l10n.featReqEdit),
+                selected: _type == 'edit',
+                onSelected: (_) => setState(() => _type = 'edit'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _titleCtrl,
+            maxLength: 150,
+            textInputAction: TextInputAction.next,
+            decoration: InputDecoration(
+              labelText: l10n.featReqSubject,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _bodyCtrl,
+            maxLength: 2000,
+            maxLines: 4,
+            decoration: InputDecoration(
+              labelText: l10n.featReqDetails,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: _sending ? null : _send,
+            child: _sending
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.featReqSend),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Owner entry point. Rendered only when the server confirms ownership;
+/// everyone else never sees the section.
+class _OwnerSection extends ConsumerWidget {
+  const _OwnerSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isOwner = ref.watch(isOwnerProvider).valueOrNull ?? false;
+    if (!isOwner) {
+      return const SizedBox.shrink();
+    }
+    final l10n = context.l10n;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 16),
+        SectionCard(
+          title: l10n.ownerTitle,
+          child: OutlinedButton.icon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const OwnerDashboardScreen(),
+              ),
+            ),
+            icon: const Icon(Icons.dashboard_outlined),
+            label: Text(l10n.ownerTitle),
+          ),
+        ),
+      ],
+    );
+  }
 }

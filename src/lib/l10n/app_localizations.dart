@@ -3219,6 +3219,174 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'الأحد'**
   String get weekSun;
+
+  /// No description provided for @featReqTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقتراحات التحسين'**
+  String get featReqTitle;
+
+  /// No description provided for @featReqNew.
+  ///
+  /// In ar, this message translates to:
+  /// **'اقتراح جديد'**
+  String get featReqNew;
+
+  /// No description provided for @featReqSubject.
+  ///
+  /// In ar, this message translates to:
+  /// **'العنوان'**
+  String get featReqSubject;
+
+  /// No description provided for @featReqDetails.
+  ///
+  /// In ar, this message translates to:
+  /// **'التفاصيل'**
+  String get featReqDetails;
+
+  /// No description provided for @featReqType.
+  ///
+  /// In ar, this message translates to:
+  /// **'النوع'**
+  String get featReqType;
+
+  /// No description provided for @featReqFeature.
+  ///
+  /// In ar, this message translates to:
+  /// **'ميزة جديدة'**
+  String get featReqFeature;
+
+  /// No description provided for @featReqEdit.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل على موجود'**
+  String get featReqEdit;
+
+  /// No description provided for @featReqSend.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال الاقتراح'**
+  String get featReqSend;
+
+  /// No description provided for @featReqSent.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال اقتراحك — شكرًا لك'**
+  String get featReqSent;
+
+  /// No description provided for @featReqEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد اقتراحات بعد — كن أول من يقترح'**
+  String get featReqEmpty;
+
+  /// No description provided for @featReqStatusNew.
+  ///
+  /// In ar, this message translates to:
+  /// **'جديد'**
+  String get featReqStatusNew;
+
+  /// No description provided for @featReqStatusReviewing.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد المراجعة'**
+  String get featReqStatusReviewing;
+
+  /// No description provided for @featReqStatusPlanned.
+  ///
+  /// In ar, this message translates to:
+  /// **'مخطط له'**
+  String get featReqStatusPlanned;
+
+  /// No description provided for @featReqStatusDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تنفيذه'**
+  String get featReqStatusDone;
+
+  /// No description provided for @featReqStatusRejected.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرفوض'**
+  String get featReqStatusRejected;
+
+  /// No description provided for @ownerTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'لوحة المالك'**
+  String get ownerTitle;
+
+  /// No description provided for @ownerUsers.
+  ///
+  /// In ar, this message translates to:
+  /// **'المستخدمون'**
+  String get ownerUsers;
+
+  /// No description provided for @ownerActiveToday.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشط اليوم'**
+  String get ownerActiveToday;
+
+  /// No description provided for @ownerActiveWeek.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشط هذا الأسبوع'**
+  String get ownerActiveWeek;
+
+  /// No description provided for @ownerVersions.
+  ///
+  /// In ar, this message translates to:
+  /// **'النسخ المستخدمة'**
+  String get ownerVersions;
+
+  /// No description provided for @ownerSchools.
+  ///
+  /// In ar, this message translates to:
+  /// **'المدارس'**
+  String get ownerSchools;
+
+  /// No description provided for @ownerDead.
+  ///
+  /// In ar, this message translates to:
+  /// **'خاملة'**
+  String get ownerDead;
+
+  /// No description provided for @ownerRequests.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلبات الميزات'**
+  String get ownerRequests;
+
+  /// No description provided for @ownerErrors.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقارير الأخطاء'**
+  String get ownerErrors;
+
+  /// No description provided for @ownerCollected.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحصّل هذا الشهر'**
+  String get ownerCollected;
+
+  /// No description provided for @ownerOutstanding.
+  ///
+  /// In ar, this message translates to:
+  /// **'المستحق غير المحصّل'**
+  String get ownerOutstanding;
+
+  /// No description provided for @ownerSignups.
+  ///
+  /// In ar, this message translates to:
+  /// **'التسجيلات الأسبوعية'**
+  String get ownerSignups;
+
+  /// No description provided for @ownerEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا بيانات بعد'**
+  String get ownerEmpty;
 }
 
 class _AppLocalizationsDelegate

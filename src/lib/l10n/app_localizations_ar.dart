@@ -1637,4 +1637,88 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get weekSun => 'الأحد';
+
+  @override
+  String get featReqTitle => 'اقتراحات التحسين';
+
+  @override
+  String get featReqNew => 'اقتراح جديد';
+
+  @override
+  String get featReqSubject => 'العنوان';
+
+  @override
+  String get featReqDetails => 'التفاصيل';
+
+  @override
+  String get featReqType => 'النوع';
+
+  @override
+  String get featReqFeature => 'ميزة جديدة';
+
+  @override
+  String get featReqEdit => 'تعديل على موجود';
+
+  @override
+  String get featReqSend => 'إرسال الاقتراح';
+
+  @override
+  String get featReqSent => 'تم إرسال اقتراحك — شكرًا لك';
+
+  @override
+  String get featReqEmpty => 'لا توجد اقتراحات بعد — كن أول من يقترح';
+
+  @override
+  String get featReqStatusNew => 'جديد';
+
+  @override
+  String get featReqStatusReviewing => 'قيد المراجعة';
+
+  @override
+  String get featReqStatusPlanned => 'مخطط له';
+
+  @override
+  String get featReqStatusDone => 'تم تنفيذه';
+
+  @override
+  String get featReqStatusRejected => 'مرفوض';
+
+  @override
+  String get ownerTitle => 'لوحة المالك';
+
+  @override
+  String get ownerUsers => 'المستخدمون';
+
+  @override
+  String get ownerActiveToday => 'نشط اليوم';
+
+  @override
+  String get ownerActiveWeek => 'نشط هذا الأسبوع';
+
+  @override
+  String get ownerVersions => 'النسخ المستخدمة';
+
+  @override
+  String get ownerSchools => 'المدارس';
+
+  @override
+  String get ownerDead => 'خاملة';
+
+  @override
+  String get ownerRequests => 'طلبات الميزات';
+
+  @override
+  String get ownerErrors => 'تقارير الأخطاء';
+
+  @override
+  String get ownerCollected => 'المحصّل هذا الشهر';
+
+  @override
+  String get ownerOutstanding => 'المستحق غير المحصّل';
+
+  @override
+  String get ownerSignups => 'التسجيلات الأسبوعية';
+
+  @override
+  String get ownerEmpty => 'لا بيانات بعد';
 }

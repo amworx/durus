@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:durus/core/durus_api.dart';
+import 'package:durus/core/error_report.dart';
 import 'package:durus/core/google_auth.dart';
 import 'package:durus/core/links.dart';
 import 'package:durus/core/utils.dart';
@@ -510,6 +511,51 @@ void main() {
       expect(l10n.authGoogleOr, isNotEmpty);
       expect(l10n.authGoogleNotConfigured, isNotEmpty);
     });
+
+    testWidgets('feature-request + owner l10n keys resolve to Arabic text',
+        (tester) async {
+      late AppLocalizations l10n;
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ar'),
+        home: Builder(
+          builder: (context) {
+            l10n = AppLocalizations.of(context);
+            return const SizedBox();
+          },
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(l10n.featReqTitle, isNotEmpty);
+      expect(l10n.featReqNew, isNotEmpty);
+      expect(l10n.featReqSubject, isNotEmpty);
+      expect(l10n.featReqDetails, isNotEmpty);
+      expect(l10n.featReqType, isNotEmpty);
+      expect(l10n.featReqFeature, isNotEmpty);
+      expect(l10n.featReqEdit, isNotEmpty);
+      expect(l10n.featReqSend, isNotEmpty);
+      expect(l10n.featReqSent, isNotEmpty);
+      expect(l10n.featReqEmpty, isNotEmpty);
+      expect(l10n.featReqStatusNew, isNotEmpty);
+      expect(l10n.featReqStatusReviewing, isNotEmpty);
+      expect(l10n.featReqStatusPlanned, isNotEmpty);
+      expect(l10n.featReqStatusDone, isNotEmpty);
+      expect(l10n.featReqStatusRejected, isNotEmpty);
+      expect(l10n.ownerTitle, isNotEmpty);
+      expect(l10n.ownerUsers, isNotEmpty);
+      expect(l10n.ownerActiveToday, isNotEmpty);
+      expect(l10n.ownerActiveWeek, isNotEmpty);
+      expect(l10n.ownerVersions, isNotEmpty);
+      expect(l10n.ownerSchools, isNotEmpty);
+      expect(l10n.ownerDead, isNotEmpty);
+      expect(l10n.ownerRequests, isNotEmpty);
+      expect(l10n.ownerSignups, isNotEmpty);
+      expect(l10n.ownerCollected, isNotEmpty);
+      expect(l10n.ownerOutstanding, isNotEmpty);
+      expect(l10n.ownerEmpty, isNotEmpty);
+      expect(l10n.ownerErrors, isNotEmpty);
+    });
   });
 
   group('google auth', () {
@@ -574,6 +620,45 @@ void main() {
       );
       // Unknown state — fail open to the historical behavior.
       expect(showPasswordForm(identityProviders: const []), isTrue);
+    });
+
+    test('validateFeatureRequest rejects empty/oversize input', () {
+      expect(
+        validateFeatureRequest(title: '  ', body: 'x'),
+        'required',
+      );
+      expect(
+        validateFeatureRequest(title: 'x' * 151, body: ''),
+        'too_long',
+      );
+      expect(
+        validateFeatureRequest(title: 'عنوان', body: 'y' * 2001),
+        'too_long',
+      );
+      expect(
+        validateFeatureRequest(title: 'عنوان', body: 'تفاصيل'),
+        isNull,
+      );
+    });
+
+    test('error-report throttle allows first, dedupes repeats', () {
+      resetErrorReportThrottle();
+      final t0 = DateTime(2026, 9, 18, 12);
+      expect(shouldReportError('a', now: t0), isTrue);
+      expect(
+        shouldReportError('a', now: t0.add(const Duration(minutes: 4))),
+        isFalse,
+      );
+      expect(
+        shouldReportError('a', now: t0.add(const Duration(minutes: 6))),
+        isTrue,
+      );
+      expect(shouldReportError('b', now: t0), isTrue);
+    });
+
+    test('truncateErrorText caps overlong texts', () {
+      expect(truncateErrorText('abc', 5), 'abc');
+      expect(truncateErrorText('abcdef', 5).length, 5);
     });
   });
 }

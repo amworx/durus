@@ -983,3 +983,93 @@ Map<String, double> incomeByMethod(List<Payment> payments) {
   }
   return totals;
 }
+
+/// A user-submitted feature/edit request. School-scoped for teachers;
+/// the owner sees all rows with author details attached.
+class FeatureRequest {
+  const FeatureRequest({
+    required this.id,
+    this.authorId,
+    this.authorName,
+    this.authorEmail,
+    required this.type,
+    required this.title,
+    required this.body,
+    required this.status,
+    this.createdAt,
+  });
+
+  final String id;
+  final String? authorId;
+  final String? authorName;
+  final String? authorEmail;
+  final String type; // 'feature' | 'edit'
+  final String title;
+  final String body;
+  final String status; // 'new' | 'reviewing' | 'planned' | 'done' | 'rejected'
+  final DateTime? createdAt;
+
+  factory FeatureRequest.fromJson(Map<String, dynamic> json) =>
+      FeatureRequest(
+        id: json['id'] as String,
+        authorId: json['author_id'] as String?,
+        authorName: json['author_name'] as String?,
+        authorEmail: json['author_email'] as String?,
+        type: json['type'] as String? ?? 'feature',
+        title: json['title'] as String? ?? '',
+        body: json['body'] as String? ?? '',
+        status: json['status'] as String? ?? 'new',
+        createdAt: _parseTs(json['created_at']),
+      );
+}
+
+/// Whole-product snapshot from the `owner_overview` RPC. Nested sections
+/// stay loose maps/lists with defensive defaults — the dashboard tolerates
+/// missing keys rather than crashing on schema drift.
+class OwnerOverview {
+  const OwnerOverview({
+    required this.totals,
+    required this.activeToday,
+    required this.activeWeek,
+    required this.versions,
+    required this.signupsPerWeek,
+    required this.schools,
+    required this.requests,
+  });
+
+  final Map<String, dynamic> totals;
+  final int activeToday;
+  final int activeWeek;
+  final List<Map<String, dynamic>> versions;
+  final List<Map<String, dynamic>> signupsPerWeek;
+  final List<Map<String, dynamic>> schools;
+  final List<FeatureRequest> requests;
+
+  static List<Map<String, dynamic>> _mapList(dynamic v) => [
+        for (final e in (v as List<dynamic>? ?? const []))
+          if (e is Map<String, dynamic>) e,
+      ];
+
+  factory OwnerOverview.fromJson(Map<String, dynamic> json) =>
+      OwnerOverview(
+        totals: json['totals'] is Map<String, dynamic>
+            ? json['totals'] as Map<String, dynamic>
+            : const {},
+        activeToday: (json['active_today'] as num?)?.toInt() ?? 0,
+        activeWeek: (json['active_week'] as num?)?.toInt() ?? 0,
+        versions: _mapList(json['versions']),
+        signupsPerWeek: _mapList(json['signups_per_week']),
+        schools: _mapList(json['schools']),
+        requests: _jsonList(json['requests'], FeatureRequest.fromJson),
+      );
+
+  factory OwnerOverview.empty() => const OwnerOverview(
+        totals: {},
+        activeToday: 0,
+        activeWeek: 0,
+        versions: [],
+        signupsPerWeek: [],
+        schools: [],
+        requests: [],
+      );
+}

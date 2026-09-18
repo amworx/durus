@@ -2,10 +2,25 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/models.dart';
+import 'config.dart';
 import 'db.dart';
+import 'error_report.dart';
 import 'google_auth.dart';
 import 'updater.dart';
 import 'utils.dart';
+
+/// Validates a feature/edit request before submit. Returns an error code
+/// (`'required'` / `'too_long'`) or null when the input is acceptable.
+/// Mirrors the DB bounds (title 1–150, body ≤ 2000).
+String? validateFeatureRequest({required String title, required String body}) {
+  if (title.trim().isEmpty) {
+    return 'required';
+  }
+  if (title.trim().length > 150 || body.trim().length > 2000) {
+    return 'too_long';
+  }
+  return null;
+}
 
 /// Typed service layer over the shared Supabase client (Auth + PostgREST +
 /// RPCs). All mutating methods derive the caller's school from their profile.
@@ -72,6 +87,135 @@ class DurusApi {
   }
 
   Future<void> signOut() => _c.auth.signOut();
+
+  // ---------- Owner dashboard / telemetry ----------
+
+  /// Heartbeat reporters, one entry per uid per app launch. Called from the
+  /// profile provider whenever a session exists; failures are swallowed so
+  /// telemetry can never break the app (offline included).
+  ///
+  /// NOTE: implemented as insert-then-patch, NOT upsert. PostgREST's
+  /// `resolution=merge-duplicates` (ON CONFLICT DO UPDATE) is rejected by
+  /// RLS on this table even though plain INSERT and PATCH both pass their
+  /// policies — verified live 2026-09-18. Do not "simplify" back to upsert.
+  static final Set<String> _heartbeatDone = {};
+
+  Future<void> reportHeartbeat() async {
+    final uid = currentUserId();
+    if (uid == null || !_heartbeatDone.add(uid)) {
+      return;
+    }
+    final row = {
+      'user_id': uid,
+      'app_version': AppConfig.appVersion,
+      'platform': kIsWeb ? 'web' : defaultTargetPlatform.name,
+      'last_seen': DateTime.now().toIso8601String(),
+    };
+    try {
+      await _c.from('client_heartbeats').insert(row);
+    } on PostgrestException catch (e) {
+      // Row already exists (409) — patch it instead.
+      if (e.code != '409') {
+        _heartbeatDone.remove(uid);
+        return;
+      }
+      try {
+        await _c
+            .from('client_heartbeats')
+            .update({
+              'app_version': row['app_version'],
+              'platform': row['platform'],
+              'last_seen': row['last_seen'],
+            })
+            .eq('user_id', uid);
+      } catch (_) {
+        _heartbeatDone.remove(uid);
+      }
+    } catch (_) {
+      // Retry on the next provider refresh; stay silent.
+      _heartbeatDone.remove(uid);
+    }
+  }
+
+  /// True when the signed-in user is listed in `app_owners`. Server-decided
+  /// via the `is_app_owner` RPC; false on any failure (signed out included).
+  Future<bool> amIOwner() async {
+    try {
+      return await _c.rpc('is_app_owner') == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Whole-product snapshot for the owner dashboard. Throws for non-owners
+  /// (`not_owner` from the RPC guard). Failures are reported to the
+  /// owner-visible error log first — the dashboard's own errors must never
+  /// again be detail-less.
+  Future<OwnerOverview> ownerOverview() async {
+    try {
+      final res = await _c.rpc('owner_overview');
+      if (res is Map<String, dynamic>) {
+        return OwnerOverview.fromJson(res);
+      }
+      return OwnerOverview.empty();
+    } catch (e) {
+      reportClientError(e, screen: 'owner');
+      rethrow;
+    }
+  }
+
+  /// Latest client error reports with author details (owner-only RPC).
+  Future<List<Map<String, dynamic>>> ownerErrors() async {
+    final res = await _c.rpc('owner_errors');
+    return [
+      for (final e in (res as List? ?? const []))
+        if (e is Map<String, dynamic>) e,
+    ];
+  }
+
+  // ---------- Feature / edit requests ----------
+
+  /// The caller's school's requests, newest first (RLS school-scoped).
+  Future<List<FeatureRequest>> featureRequests() async => _mapList(
+        await _c
+            .from('feature_requests')
+            .select()
+            .order('created_at', ascending: false),
+        FeatureRequest.fromJson,
+      );
+
+  /// Submits a feature/edit request for the caller's school. Throws
+  /// [ArgumentError] on invalid input so the UI fails closed.
+  Future<void> submitFeatureRequest({
+    required String title,
+    required String body,
+    String type = 'feature',
+  }) async {
+    final err = validateFeatureRequest(title: title, body: body);
+    if (err != null) {
+      throw ArgumentError(err);
+    }
+    if (type != 'feature' && type != 'edit') {
+      throw ArgumentError('type');
+    }
+    final school = await _schoolIdOrThrow();
+    await _c.from('feature_requests').insert({
+      'school_id': school,
+      'author_id': _uidOrThrow(),
+      'type': type,
+      'title': title.trim(),
+      'body': body.trim(),
+    });
+  }
+
+  /// Owner-only status move (RLS `is_app_owner` gates; throws otherwise).
+  Future<void> setFeatureRequestStatus(String id, String status) async {
+    const allowed = {'new', 'reviewing', 'planned', 'done', 'rejected'};
+    if (!allowed.contains(status)) {
+      throw ArgumentError('status');
+    }
+    await _c.from('feature_requests').update({'status': status}).eq('id', id);
+  }
 
   // ---------- Profile / school ----------
 

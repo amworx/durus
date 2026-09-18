@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:durus/l10n/app_localizations.dart';
 import 'package:durus/l10n/l10n_ext.dart';
 import 'package:durus/core/config.dart';
+import 'package:durus/core/error_report.dart';
 import 'package:durus/providers/providers.dart';
 import 'package:durus/widgets/widgets.dart';
 
@@ -189,6 +190,7 @@ class _GoogleSignInButtonState extends ConsumerState<_GoogleSignInButton> {
         );
       }
     } catch (e) {
+      reportClientError(e, screen: 'auth');
       if (mounted) {
         messenger.showSnackBar(SnackBar(content: Text(friendlyError(e, l10n))));
       }
