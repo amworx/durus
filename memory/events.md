@@ -925,6 +925,18 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - lessons: Throttle tables need check-and-reserve in one call, else tests (and floods) slip through the gap.
 - tags: build, error-reporting, telemetry, owner-dashboard, verification
 
+## EVT-20260918-0065
+- id: EVT-20260918-0065
+- timestamp: 2026-09-18
+- mode: BUILD
+- action: v1.1.18 shipped (owner batch)
+- summary: Full pipeline on user 'push': tests 49/49 → version 1.1.18+3 (build number incremented per the +N rule) → app_meta v128 migration + push (verified live 1.1.18) → feat + release commits → tag v1.1.18 → master+tags pushed → release splits rebuilt (arm64 aapt2 2003 > 2002, 1.1.18, Google-ID string proof) → web build + gh-pages via shallow temp clone (full clone timed out twice on filtered network; shallow worked) preserving showcase/ (44) + .nojekyll → draft release → 3 APKs --clobber → published. Verified: draft false, 3 assets, apk/page/site HTTP 200, pages built. Network lesson: use shallow single-branch clones for gh-pages on this machine.
+- result: success — https://github.com/amworx/durus/releases/tag/v1.1.18
+- files: committed (feat + release e64ca7f); web on gh-pages cc4f101
+- errors: gh-pages clone timeouts (worked around with --depth 1); one malformed jq in verification (re-ran clean)
+- lessons: (1) Shallow-clone gh-pages here — full history times out. (2) Do web + APK builds only after the version bump, and re-verify versionCode > previous release asset every time.
+- tags: build, release, deploy, github-pages, verification
+
 ## EVT-20260916-0043
 - id: EVT-20260916-0043
 - timestamp: 2026-09-16
