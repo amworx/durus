@@ -889,6 +889,42 @@ Append-only. Format: `EVT-YYYYMMDD-XXXX`.
 - lessons: (1) Always verify `gh release view --json isDraft,assets` after create — it can time out into a stray draft. (2) gh-pages temp-clone flow must exclude showcase/+.nojekyll from the wipe, and never set global git identity for it.
 - tags: build, release, deploy, github-pages, verification
 
+## EVT-20260918-0062
+- id: EVT-20260918-0062
+- timestamp: 2026-09-18
+- mode: BUILD
+- action: Owner dashboard + feature requests built, verified, test APK ready (uncommitted)
+- summary: User approved both. Migration 034 (app_owners seeded amworxx@gmail.com, client_heartbeats, feature_requests, is_app_owner + owner_overview RPCs) — first push failed on function/policy ordering (fixed by moving gate up), second applied. Live probes: anon+service owner_overview → not_owner, anon requests → [], seed present. Caught real quirk: PostgREST merge-duplicates upsert 403s under RLS while plain INSERT and PATCH both pass — heartbeat rewritten as insert-then-patch (both branches live-proven), documented in code. App: reportHeartbeat (once/uid/launch, silent), amIOwner/owner_overview/feature-request API, Owner screen (stats, versions, signup bars, dead-school flags, request status dropdown), Settings feature-request section + compose sheet, owner-gated entry, 27 new l10n keys ×3. Tests 47/47 (red-first validate), analyze 8 pre-existing. Throwaway cleaned (cascade verified). Debug test APK built for user's owner happy-path test.
+- result: success — code verified except owner-session happy path (needs user's amworxx@gmail.com login on device)
+- files: supabase/migrations/20260918181625_owner_dashboard.sql (pushed), src/lib/core/durus_api.dart, src/lib/core/google_auth.dart, src/lib/models/models.dart, src/lib/providers/providers.dart, src/lib/screens/owner_screen.dart (new), src/lib/screens/settings_screen.dart, src/lib/l10n/* (3), src/test/widget_test.dart (not committed)
+- errors: migration ordering (fixed), upsert/RLS quirk (worked around, see lessons)
+- lessons: (1) PostgREST ON CONFLICT DO UPDATE can fail RLS even when matching INSERT and UPDATE policies both pass alone — prefer insert-then-patch for single-row own upserts. (2) Verify security-definer RPCs against anon AND service keys — service must also fail closed when no user session exists.
+- tags: build, owner-dashboard, feature-requests, rls, heartbeat, verification
+
+## EVT-20260918-0063
+- id: EVT-20260918-0063
+- timestamp: 2026-09-18
+- mode: BUILD
+- action: owner_overview 42803 fixed live (no app update needed)
+- summary: User reported dashboard error-with-no-details. Reproduced with full fidelity via temp owner (throwaway user + temp app_owners row): exact error 42803 'subquery uses ungrouped column p.school_id' — correlated subqueries on bare profile columns inside the GROUP BY schools block. Fixed in migration 035 by grouping a distinct-school driver first (subqueries reference grouped key only). Pushed, re-probed full payload OK (7 users/5 schools/14 students, heartbeats already flowing from 2 real devices on 1.1.17). Probe fully removed (only amworxx@gmail.com remains owner). User just pulls-to-refresh — server-side fix, no reinstall.
+- result: success
+- files: supabase/migrations/20260918184654_owner_overview_fix.sql (pushed, uncommitted)
+- errors: the grouping bug itself (slipped past review — single-row aggregates don't hit this, only GROUP BY + correlated subqueries)
+- lessons: (1) Any GROUP BY query with correlated subqueries must reference only grouped expressions — reproduce security-definer RPCs as a temp privileged user to get exact SQL errors. (2) Dashboard errors should log the server message for the owner (future: client_errors table).
+- tags: build, owner-dashboard, sql, grouping, verification
+
+## EVT-20260918-0064
+- id: EVT-20260918-0064
+- timestamp: 2026-09-18
+- mode: BUILD
+- action: client error reporting built + installed on user phone (uncommitted)
+- summary: User said 'fix' (approved error-log proposal). Migration 036: client_errors (own-insert, owner-select, append-only) + owner_errors RPC — pushed, probed (anon 401/[]/not_owner). App: core/error_report.dart (throttled silent reporter: 5-min dedupe, 20/launch cap, unattributed skipped), global handlers in main, explicit reports in ownerOverview + Google-button unexpected path, owner dashboard تقارير الأخطاء section, 1 new l10n key ×3. Tests 49/49 (red-first throttle/truncate), analyze 8 pre-existing. Release splits rebuilt + adb-installed over test build (session kept).
+- result: success — on device, awaiting user retry of dashboard + error-section sighting
+- files: supabase/migrations/20260918184914_client_errors.sql (pushed), src/lib/core/error_report.dart (new), main/durus_api/auth_screens/providers/owner_screen/l10n×3/test (not committed)
+- errors: none
+- lessons: Throttle tables need check-and-reserve in one call, else tests (and floods) slip through the gap.
+- tags: build, error-reporting, telemetry, owner-dashboard, verification
+
 ## EVT-20260916-0043
 - id: EVT-20260916-0043
 - timestamp: 2026-09-16
