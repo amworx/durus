@@ -1,0 +1,1055 @@
+﻿<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>دروس — جدول الأسبوع: 5 تصاميم مقترحة (اختيار التصميم)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #FAF8F4;
+    --ink: #14213D;
+    --muted: #6F7A8C;
+    --teal: #0E7C66;
+    --teal-container: #DFF3EC;
+    --on-teal-container: #0A3B2E;
+    --ember: #E8622B;
+    --ember-container: #FDE8D9;
+    --on-ember-container: #5A2A12;
+    --border: #ECEAE3;
+    --outline: #E7E2D6;
+    --white: #fff;
+    --radius: 26px;
+    --font: 'Zain', 'Noto Sans Arabic', sans-serif;
+    --green: #2E7D32;
+    --green-bg: #E4F2E4;
+    --red: #B3382C;
+    --red-bg: #FBE3E3;
+    --amber: #F9A825;
+    --amber-bg: #FFF3D6;
+    --orange: #EF6C00;
+    --orange-bg: #FFE8D1;
+    --slate: #78909C;
+    --slate-bg: #ECEFF1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    padding-bottom: 90px;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── header ── */
+  .hero {
+    background: linear-gradient(160deg, #0A3B2E 0%, #0E7C66 60%, #12A083 100%);
+    color: #fff;
+    border-radius: 0 0 40px 40px;
+    padding: 48px 0 56px;
+    margin-bottom: -24px;
+  }
+  .hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #E6F6F1;
+    margin-bottom: 14px;
+  }
+  .hero h1 { font-size: clamp(30px, 5vw, 52px); font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+  .hero p.sub { font-size: clamp(16px, 2vw, 20px); opacity: .92; max-width: 820px; font-weight: 400; }
+  .hero .meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero .meta span {
+    background: rgba(255,255,255,.12);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ── problem card ── */
+  .problem {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 6px 24px rgba(20,33,61,.05);
+  }
+  .problem h2 { font-size: 24px; font-weight: 800; margin-bottom: 12px; color: var(--teal); }
+  .problem p { font-size: 17px; color: #33415F; max-width: 900px; }
+  .problem ul { margin-top: 14px; padding-right: 20px; display: grid; gap: 6px; }
+  .problem li { font-size: 16px; color: #33415F; }
+  .problem li b { color: var(--ember); }
+
+  /* ── choice banner ── */
+  #choiceBanner {
+    position: sticky;
+    top: 12px;
+    z-index: 50;
+    display: none;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 999px;
+    padding: 12px 22px;
+    box-shadow: 0 10px 30px rgba(20,33,61,.35);
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  #choiceBanner.show { display: flex; }
+  #choiceBanner button {
+    background: var(--ember);
+    color: #fff;
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── section titles ── */
+  h2.sec { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+  p.secsub { color: var(--muted); font-size: 16px; margin-bottom: 24px; max-width: 760px; }
+
+  /* ── option cards grid ── */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 26px; }
+  .option {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow .25s, transform .25s, border-color .25s;
+  }
+  .option:hover { box-shadow: 0 12px 32px rgba(20,33,61,.08); transform: translateY(-3px); }
+  .option.selected { border: 2px solid var(--teal); box-shadow: 0 0 0 4px rgba(14,124,102,.15), 0 12px 32px rgba(20,33,61,.08); }
+  .option-head { padding: 20px 22px 12px; display: flex; align-items: flex-start; gap: 12px; }
+  .option-head .num {
+    width: 40px; height: 40px;
+    border-radius: 14px;
+    background: var(--teal-container);
+    color: var(--on-teal-container);
+    font-weight: 800;
+    font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .option-head h3 { font-size: 21px; font-weight: 800; line-height: 1.3; }
+  .option-head .dim { color: var(--muted); font-size: 14px; font-weight: 400; }
+  .ttl { margin: 0 22px 4px; font-size: 14px; color: var(--muted); font-weight: 700; }
+  .pros { margin: 0 22px 6px; font-size: 14px; color: #33415F; }
+  .pros b { color: var(--teal); }
+  .cons { margin: 0 22px 14px; font-size: 14px; color: #33415F; }
+  .cons b { color: var(--ember); }
+
+  /* ── phone mockup ── */
+  .demo { background: var(--paper); padding: 20px 22px 16px; display: flex; justify-content: center; }
+  .phone {
+    width: 272px;
+    background: var(--white);
+    border-radius: 38px;
+    border: 8px solid var(--ink);
+    box-shadow: 0 16px 40px rgba(20,33,61,.22);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone .statusbar {
+    background: var(--paper);
+    height: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 14px;
+    font-size: 8px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .phone .notch { width: 70px; height: 13px; background: var(--ink); border-radius: 0 0 10px 10px; margin: 0 auto; margin-top: -18px; }
+  .phone .appbar {
+    background: var(--white);
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--outline);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .phone .appbar .t { font-size: 15px; font-weight: 800; }
+  .phone .appbar .a { background: var(--teal-container); color: var(--teal); border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 700; }
+  .phone .content { flex: 1; padding: 8px 10px 10px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .phone .scroll { flex: 1; overflow-y: auto; min-height: 0; }
+  .phone .scroll::-webkit-scrollbar { width: 3px; }
+  .phone .footbar { border-top: 1px solid var(--outline); background: var(--white); display: flex; justify-content: space-around; padding: 5px 8px 0; margin-top: 6px; }
+  .phone .footbar .fb { display: flex; flex-direction: column; align-items: center; font-size: 8px; font-weight: 700; color: var(--muted); gap: 1px; padding: 2px 6px 4px; border-radius: 10px 10px 0 0; }
+  .phone .footbar .fb.on { color: var(--teal); background: var(--teal-container); }
+  .phone .footbar .fb .ic { font-size: 11px; }
+  .phone .chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; font-size: 9px; font-weight: 700; padding: 1px 8px; white-space: nowrap; }
+
+  /* generic time pill + subject chip */
+  .tp { color: var(--muted); font-size: 9.5px; font-weight: 700; letter-spacing: .2px; }
+  .sub-chip { background: var(--teal-container); color: var(--on-teal-container); border-radius: 999px; font-size: 9px; font-weight: 700; padding: 1px 8px; white-space: nowrap; }
+
+  /* ===== option 1: timeline (agenda) ===== */
+  .tl { position: relative; }
+  .tl-daytabs { display: flex; gap: 4px; margin-bottom: 6px; }
+  .tl-daytabs .dt {
+    flex: 1; text-align: center; padding: 4px 0 3px; border-radius: 10px;
+    background: var(--white); border: 1px solid var(--outline);
+    font-size: 9px; font-weight: 700; color: var(--muted); cursor: pointer;
+  }
+  .tl-daytabs .dt.on { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .tl-body {
+    position: relative; border-right: 2px solid var(--outline); margin-right: 34px; height: 320px;
+  }
+  .tl-hour { position: absolute; right: -34px; width: 30px; text-align: left; font-size: 8px; color: var(--muted); font-weight: 700; transform: translateY(-5px); }
+  .tl-line { position: absolute; right: 0; left: 0; border-top: 1px dashed var(--outline); }
+  .tl-block {
+    position: absolute; right: 2px; left: 2px; border-radius: 10px; padding: 3px 7px;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .tl-block .r1 { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+  .tl-block .nm { font-size: 9.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tl-block .sb { font-size: 8px; font-weight: 700; opacity: .85; }
+  .tl-block.rec { background: var(--teal-container); border: 1px dashed var(--teal); color: var(--on-teal-container); }
+  .tl-block.pst { background: var(--green-bg); border-right: 3px solid var(--green); color: var(--ink); }
+  .tl-block.late { background: var(--amber-bg); border-right: 3px solid var(--amber); }
+  .tl-block.abs { background: var(--red-bg); border-right: 3px solid var(--red); }
+
+  /* ===== option 2: week grid ===== */
+  .wg { font-size: 8px; }
+  .wg-top { font-weight: 800; margin-bottom: 2px; }
+  .wg-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .wg-day { text-align: center; padding: 3px 0 4px; border-radius: 8px; font-weight: 700; color: var(--muted); }
+  .wg-day.td { background: var(--teal); color: #fff; }
+  .wg-day .dn { font-size: 9px; display: block; }
+  .wg-day .dd { font-size: 12px; display: block; font-weight: 800; }
+  .wg-col { display: flex; flex-direction: column; gap: 2px; min-height: 260px; border-radius: 8px; padding: 3px 2px; background: var(--paper); border: 1px solid var(--outline); }
+  .wg-col.td { border-color: var(--teal); background: var(--teal-container); box-shadow: 0 0 0 1px var(--teal); }
+  .wg-col .sess { border-radius: 6px; padding: 2px 3px; font-size: 7.2px; font-weight: 700; line-height: 1.25; }
+  .wg-col .sess.rec { background: rgba(14,124,102,.16); color: var(--on-teal-container); border: 1px dashed var(--teal); }
+  .wg-col .sess.pst { background: var(--green); color: #fff; }
+  .wg-col .sess.late { background: var(--amber); color: var(--ink); }
+  .wg-col .sess.abs { background: var(--red); color: #fff; }
+  .wg-col .sess .st { display: block; font-size: 6.5px; opacity: .85; font-weight: 700; }
+  .wg-lead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .wg-lead .lr { font-size: 9px; font-weight: 700; color: var(--muted); }
+  .wg-detail { margin-top: 6px; border: 1px solid var(--border); border-radius: 12px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
+  .wg-detail .dr { display: flex; align-items: center; justify-content: space-between; font-size: 9px; font-weight: 700; }
+
+  /* ===== option 3: session cards + sticky headers ===== */
+  .sc { display: flex; flex-direction: column; }
+  .sc-day {
+    position: sticky; top: 0; z-index: 2;
+    background: linear-gradient(90deg, var(--teal-container), #fff);
+    margin: 6px -2px 4px;
+    padding: 5px 10px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sc-day .wd { font-size: 11.5px; font-weight: 800; color: var(--on-teal-container); }
+  .sc-day .dt { font-size: 9px; font-weight: 700; color: var(--teal); }
+  .sc-card {
+    border: 1px solid var(--border); border-radius: 14px;
+    margin-bottom: 6px; padding: 7px 9px;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--white);
+  }
+  .sc-card.rec { background: #F4F9F6; border-style: dashed; }
+  .sc-card .av {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; flex-shrink: 0;
+    color: var(--on-teal-container); background: var(--teal-container);
+  }
+  .sc-card .mid { flex: 1; min-width: 0; }
+  .sc-card .nm { font-size: 11.5px; font-weight: 800; line-height: 1.2; }
+  .sc-card .sub { font-size: 9px; color: var(--muted); font-weight: 700; display: flex; align-items: center; gap: 4px; }
+  .sc-card .side { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+  .sc-card .stat { display: inline-flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 800; }
+  .st-present { color: var(--green); }
+  .st-absent { color: var(--red); }
+  .st-late { color: var(--orange); }
+  .st-cancel { color: var(--slate); }
+
+  /* ===== option 4: today-first + week pills ===== */
+  .tf-hero {
+    background: linear-gradient(160deg, #0E7C66, #12A083);
+    border-radius: 18px;
+    padding: 12px 14px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .tf-hero .lbl { font-size: 10px; font-weight: 700; opacity: .85; }
+  .tf-hero .now { font-size: 20px; font-weight: 800; margin: 2px 0 4px; }
+  .tf-hero .next { font-size: 11px; font-weight: 700; opacity: .95; }
+  .tf-pills { display: flex; gap: 4px; margin-bottom: 8px; }
+  .tf-pill {
+    flex: 1; text-align: center; padding: 4px 0;
+    border-radius: 10px; border: 1px solid var(--outline);
+    background: var(--white); cursor: pointer; font-size: 8.5px; font-weight: 700; color: var(--muted);
+  }
+  .tf-pill .pd { display: block; font-size: 11px; font-weight: 800; color: var(--ink); }
+  .tf-pill.on { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .tf-pill.on .pd { color: #fff; }
+  .tf-pill .dots { display: block; font-size: 7px; letter-spacing: 1px; color: var(--ember); }
+  .tf-list { display: flex; flex-direction: column; }
+  .tf-row {
+    display: flex; align-items: center; gap: 7px;
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 6px 8px; margin-bottom: 5px; background: var(--white);
+  }
+  .tf-row .tt { width: 40px; font-size: 9px; font-weight: 800; color: var(--teal); flex-shrink: 0; }
+  .tf-row .nn { flex: 1; font-size: 11px; font-weight: 800; line-height: 1.2; }
+  .tf-row .bb { flex: 1; font-size: 8.5px; color: var(--muted); font-weight: 700; }
+  .tf-row .sub-chip { font-size: 8px; padding: 1px 6px; }
+
+  /* ===== option 5: expandable week ===== */
+  .ex { display: flex; flex-direction: column; }
+  .ex-head { font-size: 11px; font-weight: 800; margin: 8px 2px 4px; color: var(--teal); }
+  .ex-day {
+    border: 1px solid var(--border); border-radius: 13px;
+    margin-bottom: 6px; overflow: hidden; background: var(--white);
+  }
+  .ex-day.open { border-color: var(--teal); }
+  .ex-bar {
+    width: 100%; background: transparent; border: 0; font-family: var(--font); text-align: right;
+    padding: 7px 10px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+  }
+  .ex-bar .em { font-size: 0; }
+  .ex-bar .ddn { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--muted); transition: transform .2s; flex-shrink: 0; }
+  .ex-day.open .ddn { transform: rotate(180deg); }
+  .ex-bar .wd { font-size: 11.5px; font-weight: 800; }
+  .ex-bar .dt { font-size: 9px; color: var(--muted); font-weight: 700; }
+  .ex-bar .cnt { margin-right: auto; background: var(--ember-container); color: var(--on-ember-container); border-radius: 999px; font-size: 9px; font-weight: 800; padding: 1px 8px; }
+  .ex-bar .cnt.today { background: var(--teal); color: #fff; }
+  .ex-body { display: none; padding: 0 10px 8px; flex-direction: column; gap: 4px; border-top: 1px solid var(--outline); background: #FBFCFA; }
+  .ex-day.open .ex-body { display: flex; }
+  .ex-row { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; padding: 3px 0; }
+  .ex-row .tm { color: var(--muted); font-size: 9px; width: 30px; flex-shrink: 0; }
+  .ex-row .nm { flex: 1; }
+  .ex-row .stt { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .s-present { background: var(--green); }
+  .s-absent { background: var(--red); }
+  .s-late { background: var(--amber); }
+  .s-recur { background: var(--teal); border: 1px dashed var(--white); }
+
+  /* ===== combo: timeline + today hero (design 1 + 4) ===== */
+  .combo-sect { margin-bottom: 48px; }
+  .combo-tag {
+    display: inline-block;
+    background: var(--ember-container);
+    color: var(--on-ember-container);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .combo-hero {
+    background: linear-gradient(135deg, #0A3B2E 0%, #0E7C66 55%, #12A083 100%);
+    border-radius: 20px;
+    padding: 14px 16px;
+    color: #fff;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .combo-hero::after {
+    content: ''; position: absolute; left: -30px; top: -40px;
+    width: 130px; height: 130px; border-radius: 50%;
+    background: rgba(255,255,255,.08);
+  }
+  .combo-hero::before {
+    content: ''; position: absolute; left: 30px; bottom: -50px;
+    width: 100px; height: 100px; border-radius: 50%;
+    background: rgba(255,255,255,.06);
+  }
+  .combo-hero .lbl { font-size: 10px; font-weight: 700; opacity: .9; position: relative; z-index: 1; }
+  .combo-hero .now { font-size: 22px; font-weight: 800; margin: 2px 0 4px; position: relative; z-index: 1; }
+  .combo-hero .next { font-size: 11px; font-weight: 700; opacity: .95; position: relative; z-index: 1; }
+  .combo-hero .meta-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 10px; position: relative; z-index: 1;
+  }
+  .combo-hero .meta-row .cnt {
+    font-size: 10px; font-weight: 800;
+    background: rgba(255,255,255,.16);
+    border-radius: 999px; padding: 2px 10px;
+  }
+  .combo-hero .meta-row .soon { font-size: 10px; font-weight: 800; opacity: .9; }
+  .tl-daytabs .dt.today { border-color: var(--teal); color: var(--teal); background: var(--teal-container); }
+  .tl-daytabs .dt.today.on { color: #fff; background: var(--teal); border-color: var(--teal); }
+
+  /* footer */
+  .impl {
+    margin: 0 22px 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: #F1F3F8;
+    color: #33415F;
+    font-size: 12.5px;
+    font-weight: 700;
+    border: 1px solid #E2E7F1;
+  }
+  .impl code { background: #E2E7F1; border-radius: 6px; padding: 1px 6px; font-size: 11.5px; direction: ltr; display: inline-block; }
+  .choose {
+    margin: 0 22px 22px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 0;
+    background: var(--ember);
+    color: #fff;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .choose:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(232,98,43,.3); }
+  .foot { margin-top: 30px; text-align: center; color: var(--muted); font-size: 15px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">قرار تصميم — جدول الأسبوع</span>
+    <h1>5 تصاميم مقترحة لتبويب الجدول</h1>
+    <p class="sub">الهدف: قراءة أسرع وأوضح لمواعيد الأسبوع (الجلسات المتكررة + الجلسات المسجّلة بالحضور)، دون فقدان مزايا الشاشة الحالية.</p>
+    <div class="meta">
+      <span>RTL + عربي</span>
+      <span>نوع خط Zain</span>
+      <span>ثيم فسيفساء</span>
+      <span>جلسات متكررة + حضور</span>
+      <span>5 اتجاهات مختلفة</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div id="choiceBanner">
+    <span>اختيارك الحالي: <b id="bannerName"></b></span>
+    <button onclick="clearChoice()">إلغاء الاختيار</button>
+  </div>
+
+  <div class="problem">
+    <h2>لماذا الشاشة الحالية صعبة القراءة؟</h2>
+    <p>الشاشة الحالية تعرض 7 بطاقات (يوم لكل بطاقة) بشكل رأسي، وداخل كل بطاقة صفوف كثيرة متشابهة بصرياً — ما يصعّب تمييز المواعيد المتكررة من الجلسات المسجّلة، ولا توجد إشارة واضحة للوقت أو الحالة أو انشغال اليوم.</p>
+    <ul>
+      <li><b>كل الصفوف متشابهة</b> — صفّ الموعد المتكرر وصفّ الجلسة المسجّلة يبدوان كأنهما صنف واحد.</li>
+      <li><b>الوقت صغير وثانوي</b> — الوقت موجود في عمود ضيّق بدل أن يكون عنصراً أساسياً.</li>
+      <li><b>حالة الحضور منفصلة بصرياً</b> — دائرة صغيرة + شارة، لا تترك أثراً في أثناء المسح السريع.</li>
+      <li><b>لا نظرة عامة على الأسبوع</b> — يجب التمرير الطويل لتقييم انشغال الأسبوع أو إيجاد يوم فارغ.</li>
+      <li><b>معرّف الجلسة مزدحم</b> — «اسم الطالب • المادة • المكان» كلها في سطر واحد ينقص (ellipsis).</li>
+    </ul>
+  </div>
+
+  <div class="grid">
+
+    <!-- ═══════════ COMBO — Timeline + Today hero (1 + 4) ═══════════ -->
+    <article class="option combo-sect" id="opt6" data-name="6 — التوليفة: الخط الزمني + بطاقة اليوم">
+      <div class="combo-tag">التوليفة المفضلة — دمج التصميمين 1 و 4</div>
+      <div class="option-head">
+        <div class="num">6</div>
+        <div>
+          <h3>الخط الزمني + بطاقة «اليوم»</h3>
+          <div class="dim">بطاقة اليوم الخضراء في الأعلى، والجدول الزمني أسفلها — لمسة واحدة</div>
+        </div>
+      </div>
+      <div class="demo" style="padding-top:6px">
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+          <div class="notch"></div>
+          <div class="appbar">
+            <span class="t">جدول الأسبوع</span>
+            <span class="a">الأربعاء</span>
+          </div>
+          <div class="content">
+            <div class="combo-hero" id="comboHero">
+              <div class="lbl" id="comboLbl">اليوم — الأربعاء 19</div>
+              <div class="now" id="comboNow">القادم الآن: 12:00</div>
+              <div class="next" id="comboNext">علوم مع يوسف علي • عند الطالب</div>
+              <div class="meta-row">
+                <span class="cnt" id="comboCnt">5 جلسات اليوم</span>
+                <span class="soon" id="comboSoon">بعد 30 دقيقة</span>
+              </div>
+            </div>
+            <div class="tl-daytabs" id="comboTabs">
+              <div class="dt today" onclick="comboDay(this,'أحد')">أحد</div>
+              <div class="dt" onclick="comboDay(this,'اثنين')">اثنين</div>
+              <div class="dt" onclick="comboDay(this,'ثلاثاء')">ثلاثاء</div>
+              <div class="dt today on" onclick="comboDay(this,'أربعاء')">أربعاء</div>
+              <div class="dt" onclick="comboDay(this,'خميس')">خميس</div>
+              <div class="dt" onclick="comboDay(this,'جمعة')">جمعة</div>
+              <div class="dt" onclick="comboDay(this,'سبت')">سبت</div>
+            </div>
+            <div class="scroll">
+              <div class="tl-body" id="comboBody" style="height:320px">
+                <div class="tl-hour" style="top:2px">08:00</div>
+                <div class="tl-line" style="top:2px"></div>
+                <div class="tl-hour" style="top:52px">09:30</div>
+                <div class="tl-line" style="top:52px"></div>
+                <div class="tl-hour" style="top:102px">11:00</div>
+                <div class="tl-line" style="top:102px"></div>
+                <div class="tl-hour" style="top:152px">12:30</div>
+                <div class="tl-line" style="top:152px"></div>
+                <div class="tl-hour" style="top:202px">14:00</div>
+                <div class="tl-line" style="top:202px"></div>
+                <div class="tl-hour" style="top:252px">15:30</div>
+                <div class="tl-line" style="top:252px"></div>
+                <div class="tl-hour" style="top:302px">17:00</div>
+                <div class="tl-line" style="top:302px"></div>
+
+                <div class="tl-block rec" style="top:8px; height:44px;">
+                  <div class="r1"><span class="nm">موعد متكرر</span><span class="chip" style="background:rgba(14,124,102,.15); color:var(--teal)">مكرر</span></div>
+                  <div class="sb">09:00 – 10:00 • أحمد خالد</div>
+                </div>
+                <div class="tl-block late" style="top:58px; height:40px;">
+                  <div class="r1"><span class="nm">سارة محمد</span><span class="chip" style="background:var(--white); color:var(--orange)">متأخر</span></div>
+                  <div class="sb">10:30 – 11:30 • لغة عربية</div>
+                </div>
+                <div class="tl-block rec" style="top:118px; height:44px;">
+                  <div class="r1"><span class="nm">يوسف علي</span><span class="chip" style="background:rgba(14,124,102,.15); color:var(--teal)">مكرر</span></div>
+                  <div class="sb">12:00 – 13:00 • علوم</div>
+                </div>
+                <div class="tl-block pst" style="top:178px; height:40px;">
+                  <div class="r1"><span class="nm">ليان حسن</span><span class="chip" style="background:var(--green); color:#fff">حاضر</span></div>
+                  <div class="sb">13:30 – 14:30 • قرآن</div>
+                </div>
+                <div class="tl-block abs" style="top:248px; height:40px;">
+                  <div class="r1"><span class="nm">عمر فارس</span><span class="chip" style="background:var(--white); color:var(--red)">غائب</span></div>
+                  <div class="sb">15:00 – 16:00 • إنجليزي</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footbar">
+            <div class="fb on"><span class="ic">▦</span>الرئيسية</div>
+            <div class="fb"><span class="ic">◫</span>الجدول</div>
+            <div class="fb"><span class="ic">◉</span>الطلاب</div>
+            <div class="fb"><span class="ic">◈</span>الرسوم</div>
+          </div>
+        </div>
+      </div>
+      <p class="ttl">الفكرة</p>
+      <p class="pros">بطاقة «اليوم» الخضراء تعطي <b>السياق والإجابة الفورية</b> («القادم الآن، بعده كذا دقيقة، كم جلسة اليوم»)، وبمجرد اختيار يوم آخر من الشريط تتحدث البطاقة وتتحول لـ«أول جلسة» — والجدول الزمني أسفلها يحفظ <b>قوة التصور الزمني</b> (الموعد المتكرر متقطع، المسجّل بلون الحضور). الأفضل للمدرّس الذي يحتاج «الآن» و«الأسبوع» معاً.</p>
+      <p class="cons">المساحة الرأسية أكبر — البطاقة + الشريط + الخط الزمني؛ والتعامل مع «لا جلسات اليوم» يجب أن يكون بأناقة (بطاقة تحوّل لحالة فارغة).</p>
+      <div class="impl">Flutter: <code>SliverToBoxAdapter</code> للبطاقة ثم <code>StickyHeader</code> للشريط ثم <code>CustomPaint</code> للمحور — أو <code>NestedScrollView</code> كامل</div>
+      <button class="choose" onclick="choose('opt6')">أعجبني — اختر هذا</button>
+    </article>
+
+    <!-- ═══════════ OPTION 1 — Timeline agenda ═══════════ -->
+    <article class="option" id="opt1" data-name="1 — الخط الزمني (Agenda)">
+      <div class="option-head">
+        <div class="num">1</div>
+        <div>
+          <h3>الخط الزمني — Agenda يومي</h3>
+          <div class="dim">قراءة الوقت كأنها دفتر مواعيد حقيقي</div>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+          <div class="notch"></div>
+          <div class="appbar">
+            <span class="t">جدول الأسبوع</span>
+            <span class="a">الأربعاء</span>
+          </div>
+          <div class="content">
+            <div class="tl-daytabs">
+              <div class="dt">أحد</div><div class="dt">اثنين</div><div class="dt">ثلاثاء</div><div class="dt on">أربعاء</div><div class="dt">خميس</div><div class="dt">جمعة</div><div class="dt">سبت</div>
+            </div>
+            <div class="tl-body">
+              <div class="tl-hour" style="top:2px">08:00</div>
+              <div class="tl-line" style="top:2px"></div>
+              <div class="tl-hour" style="top:52px">09:30</div>
+              <div class="tl-line" style="top:52px"></div>
+              <div class="tl-hour" style="top:102px">11:00</div>
+              <div class="tl-line" style="top:102px"></div>
+              <div class="tl-hour" style="top:152px">12:30</div>
+              <div class="tl-line" style="top:152px"></div>
+              <div class="tl-hour" style="top:202px">14:00</div>
+              <div class="tl-line" style="top:202px"></div>
+              <div class="tl-hour" style="top:252px">15:30</div>
+              <div class="tl-line" style="top:252px"></div>
+              <div class="tl-hour" style="top:302px">17:00</div>
+              <div class="tl-line" style="top:302px"></div>
+
+              <div class="tl-block rec" style="top:8px; height:44px;">
+                <div class="r1"><span class="nm">موعد متكرر</span><span class="chip" style="background:rgba(14,124,102,.15); color:var(--teal)">مكرر</span></div>
+                <div class="sb">09:00 – 10:00 • أحمد خالد</div>
+              </div>
+              <div class="tl-block late" style="top:58px; height:40px;">
+                <div class="r1"><span class="nm">سارة محمد</span><span class="chip" style="background:var(--white); color:var(--orange)">متأخر</span></div>
+                <div class="sb">10:30 – 11:30 • لغة عربية</div>
+              </div>
+              <div class="tl-block rec" style="top:118px; height:44px;">
+                <div class="r1"><span class="nm">يوسف علي</span><span class="chip" style="background:rgba(14,124,102,.15); color:var(--teal)">مكرر</span></div>
+                <div class="sb">12:00 – 13:00 • علوم</div>
+              </div>
+              <div class="tl-block pst" style="top:178px; height:40px;">
+                <div class="r1"><span class="nm">ليان حسن</span><span class="chip" style="background:var(--green); color:#fff">حاضر</span></div>
+                <div class="sb">13:30 – 14:30 • قرآن</div>
+              </div>
+              <div class="tl-block abs" style="top:248px; height:40px;">
+                <div class="r1"><span class="nm">عمر فارس</span><span class="chip" style="background:var(--white); color:var(--red)">غائب</span></div>
+                <div class="sb">15:00 – 16:00 • إنجليزي</div>
+              </div>
+            </div>
+          </div>
+          <div class="footbar">
+            <div class="fb on"><span class="ic">▦</span>الرئيسية</div>
+            <div class="fb"><span class="ic">◫</span>الجدول</div>
+            <div class="fb"><span class="ic">◉</span>الطلاب</div>
+            <div class="fb"><span class="ic">◈</span>الرسوم</div>
+          </div>
+        </div>
+      </div>
+      <p class="ttl">الفكرة</p>
+      <p class="pros">يوم واحد في كل مرة على محور زمني فعلي — الجلسات تُرسم ككتل بطولها الزمني الحقيقي، فترى <b>حجم اليوم وفراغاته</b> مباشرة، والفرق بين الموعد المتكرر (متقطع) والجلسة المسجّلة (صلبة بلون الحضور) واضح بالشكل وليس بالتسمية.</p>
+      <p class="cons">يتطلب <b>حسابات تخطيط دقيقة</b> للكتل المتداخلة، والوقت الفارغ الكبير يستهلك مساحة العمود.</p>
+      <div class="impl">Flutter: عمود أفقي من <code>Expanded</code> + كتل <code>Stack/Positioned</code> وقد تبني خطوطاً زمنية بـ <code>CustomPaint</code></div>
+      <button class="choose" onclick="choose('opt1')">أعجبني — اختر هذا</button>
+    </article>
+
+    <!-- ═══════════ OPTION 2 — Week grid ═══════════ -->
+    <article class="option" id="opt2" data-name="2 — شبكة الأسبوع الحقيقية">
+      <div class="option-head">
+        <div class="num">2</div>
+        <div>
+          <h3>شبكة الأسبوع الحقيقية</h3>
+          <div class="dim">7 أيام × ساعات — نظرة كاملة دفعة واحدة</div>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+          <div class="notch"></div>
+          <div class="appbar">
+            <span class="t">جدول الأسبوع</span>
+            <span class="a">هذا الأسبوع</span>
+          </div>
+          <div class="content wg">
+            <div class="wg-grid">
+              <div class="wg-day td"><span class="dn">أحد</span><span class="dd">16</span></div>
+              <div class="wg-day"><span class="dn">اثنين</span><span class="dd">17</span></div>
+              <div class="wg-day"><span class="dn">ثلاثاء</span><span class="dd">18</span></div>
+              <div class="wg-day"><span class="dn">أربعاء</span><span class="dd">19</span></div>
+              <div class="wg-day"><span class="dn">خميس</span><span class="dd">20</span></div>
+              <div class="wg-day"><span class="dn">جمعة</span><span class="dd">21</span></div>
+              <div class="wg-day"><span class="dn">سبت</span><span class="dd">22</span></div>
+            </div>
+            <div class="wg-grid">
+              <div class="wg-col td">
+                <div class="sess rec"><b>9:00</b><span class="st">رياضيات • أحمد</span></div>
+                <div class="sess pst"><b>10:30</b><span class="st">عربي • سارة</span></div>
+                <div class="sess rec"><b>12:00</b><span class="st">علوم • يوسف</span></div>
+                <div class="sess abs"><b>15:00</b><span class="st">إنجليزي • عمر</span></div>
+              </div>
+              <div class="wg-col">
+                <div class="sess rec"><b>9:00</b><span class="st">رياضيات • أحمد</span></div>
+                <div class="sess rec"><b>16:00</b><span class="st">قرآن • ليان</span></div>
+              </div>
+              <div class="wg-col">
+                <div class="sess late"><b>11:00</b><span class="st">عربي • سارة</span></div>
+                <div class="sess rec"><b>17:00</b><span class="st">علوم • يوسف</span></div>
+              </div>
+              <div class="wg-col">
+                <div class="sess rec"><b>10:00</b><span class="st">رياضيات • أحمد</span></div>
+              </div>
+              <div class="wg-col">
+                <div class="sess pst"><b>9:30</b><span class="st">قرآن • ليان</span></div>
+                <div class="sess rec"><b>14:00</b><span class="st">إنجليزي • عمر</span></div>
+              </div>
+              <div class="wg-col">
+                <div class="sess rec"><b>11:00</b><span class="st">عربي • سارة</span></div>
+              </div>
+              <div class="wg-col">
+                <div class="sess rec"><b>10:00</b><span class="st">علوم • يوسف</span></div>
+                <div class="sess rec"><b>13:00</b><span class="st">قرآن • ليان</span></div>
+              </div>
+            </div>
+            <div class="wg-lead">
+              <span class="lr">الأحد 16 أيلول</span>
+              <span class="lr">إجمالي: 4 جلسات</span>
+            </div>
+            <div class="wg-detail">
+              <div class="dr"><span>09:00 – 10:00</span><span>رياضيات • أحمد خالد</span><span class="chip" style="background:rgba(14,124,102,.15); color:var(--teal)">مكرر</span></div>
+              <div class="dr"><span>10:30 – 11:30</span><span>لغة عربية • سارة محمد</span><span class="chip" style="background:var(--green); color:#fff">حاضر</span></div>
+              <div class="dr"><span>12:00 – 13:00</span><span>علوم • يوسف علي</span><span class="chip" style="background:rgba(14,124,102,.15); color:var(--teal)">مكرر</span></div>
+              <div class="dr"><span>15:00 – 16:00</span><span>إنجليزي • عمر فارس</span><span class="chip" style="background:var(--white); color:var(--red)">غائب</span></div>
+            </div>
+          </div>
+          <div class="footbar">
+            <div class="fb"><span class="ic">▦</span>الرئيسية</div>
+            <div class="fb on"><span class="ic">◫</span>الجدول</div>
+            <div class="fb"><span class="ic">◉</span>الطلاب</div>
+            <div class="fb"><span class="ic">◈</span>الرسوم</div>
+          </div>
+        </div>
+      </div>
+      <p class="ttl">الفكرة</p>
+      <p class="pros">نموذج التقويم المعروف: عمود لكل يوم، ألوان الحالة داخل الخلايا — <b>كل الأسبوع أمامك</b> بدون تمرير لعرض الفروقات، واليوم الحالي مميّز بحقل ملوّن، والضغط على عمود يفتح تفاصيل اليوم.</p>
+      <p class="cons">الأعمدة السبعة على هاتف ضيّق <b>مزدحمة</b>؛ تحتاج خطاً أصغر ومناسباً للقراءة السريعة، وقد تكون أكثر تعقيداً للمستخدم غير المعتاد على التقويمات.</p>
+      <div class="impl">Flutter: <code>TableView</code>/<code>Row</code> لكل عمود داخل <code>SingleChildScrollView</code> أفقي + <code>Column</code> رأسي</div>
+      <button class="choose" onclick="choose('opt2')">أعجبني — اختر هذا</button>
+    </article>
+
+    <!-- ═══════════ OPTION 3 — Session cards + sticky headers ═══════════ -->
+    <article class="option" id="opt3" data-name="3 — بطاقات الجلسات + رؤوس ثابتة">
+      <div class="option-head">
+        <div class="num">3</div>
+        <div>
+          <h3>بطاقات الجلسات + رؤوس أيام ثابتة</h3>
+          <div class="dim">ترقية مباشرة للشاشة الحالية — كل جلسة بطاقة واضحة</div>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+          <div class="notch"></div>
+          <div class="appbar">
+            <span class="t">جدول الأسبوع</span>
+            <span class="a">الأربعاء</span>
+          </div>
+          <div class="content">
+            <div class="sc scroll">
+              <div class="sc-day"><span class="wd">الأحد</span><span class="dt">16 أيلول</span></div>
+              <div class="sc-card rec">
+                <div class="av">أ</div>
+                <div class="mid">
+                  <div class="nm">أحمد خالد</div>
+                  <div class="sub">رياضيات • عند الطالب</div>
+                </div>
+                <div class="side"><span class="tp">09:00 – 10:00</span><span class="chip" style="background:rgba(14,124,102,.12); color:var(--teal)">موعد متكرر</span></div>
+              </div>
+              <div class="sc-card">
+                <div class="av">س</div>
+                <div class="mid">
+                  <div class="nm">سارة محمد</div>
+                  <div class="sub">لغة عربية • عند المدرّس</div>
+                </div>
+                <div class="side"><span class="tp">10:30 – 11:30</span><span class="stat st-absent">● غائب</span></div>
+              </div>
+              <div class="sc-day"><span class="wd">الثلاثاء</span><span class="dt">18 أيلول</span></div>
+              <div class="sc-card rec">
+                <div class="av">ي</div>
+                <div class="mid">
+                  <div class="nm">يوسف علي</div>
+                  <div class="sub">علوم • عند الطالب</div>
+                </div>
+                <div class="side"><span class="tp">12:00 – 13:00</span><span class="chip" style="background:rgba(14,124,102,.12); color:var(--teal)">موعد متكرر</span></div>
+              </div>
+              <div class="sc-card">
+                <div class="av">ل</div>
+                <div class="mid">
+                  <div class="nm">ليان حسن</div>
+                  <div class="sub">قرآن • عند المدرّس</div>
+                </div>
+                <div class="side"><span class="tp">13:30 – 14:30</span><span class="stat st-late">◔ متأخر</span></div>
+              </div>
+              <div class="sc-day"><span class="wd">الأربعاء</span><span class="dt">19 أيلول</span></div>
+              <div class="sc-card rec">
+                <div class="av">ع</div>
+                <div class="mid">
+                  <div class="nm">عمر فارس</div>
+                  <div class="sub">إنجليزي • عند الطالب</div>
+                </div>
+                <div class="side"><span class="tp">15:00 – 16:00</span><span class="chip" style="background:rgba(14,124,102,.12); color:var(--teal)">موعد متكرر</span></div>
+              </div>
+              <div class="sc-card">
+                <div class="av">م</div>
+                <div class="mid">
+                  <div class="nm">مريم سامي</div>
+                  <div class="sub">رياضيات • عند المدرّس</div>
+                </div>
+                <div class="side"><span class="tp">17:00 – 18:00</span><span class="stat st-present">● حاضرة</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="footbar">
+            <div class="fb"><span class="ic">▦</span>الرئيسية</div>
+            <div class="fb on"><span class="ic">◫</span>الجدول</div>
+            <div class="fb"><span class="ic">◉</span>الطلاب</div>
+            <div class="fb"><span class="ic">◈</span>الرسوم</div>
+          </div>
+        </div>
+      </div>
+      <p class="ttl">الفكرة</p>
+      <p class="pros">أقرب تحسين للشاشة القائمة: كل جلسة بطاقة مستقلة فيها <b>صورة الطالب (حرف)</b> + الاسم + المادة + المكان + الوقت والحالة — والرؤوس اللاصقة تبقيك عارفاً أي يوم أنت فيه، والموعد المتكرر بحدود متقطعة تميّزه فورياً عن المسجّل.</p>
+      <p class="cons">أطول تمريراً من الخيار 1 (بطاقة لكل جلسة)، لكن الأفضل للقراءة عند كثرة الجلسات.</p>
+      <div class="impl">Flutter: <code>Card</code> لكل جلسة داخل <code>ListView</code> مع <code>SliverPersistentHeader</code> للأيام</div>
+      <button class="choose" onclick="choose('opt3')">أعجبني — اختر هذا</button>
+    </article>
+
+    <!-- ═══════════ OPTION 4 — Today-first + week pills ═══════════ -->
+    <article class="option" id="opt4" data-name="4 — اليوم أولاً + أقراص الأسبوع">
+      <div class="option-head">
+        <div class="num">4</div>
+        <div>
+          <h3>اليوم أولاً + أقراص الأسبوع</h3>
+          <div class="dim">تركيز على اليوم الحالي مع تنقّل سريع بين الأيام</div>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+          <div class="notch"></div>
+          <div class="appbar">
+            <span class="t">جدول الأسبوع</span>
+            <span class="a">الأربعاء</span>
+          </div>
+          <div class="content">
+            <div class="tf-hero">
+              <div class="lbl">اليوم — الأربعاء 19</div>
+              <div class="now">القادم الآن: 12:00</div>
+              <div class="next">علوم مع يوسف علي • عند الطالب • 60 دقيقة</div>
+            </div>
+            <div class="tf-pills">
+              <div class="tf-pill">أحد<span class="pd">16</span><span class="dots">●●</span></div>
+              <div class="tf-pill">اثنين<span class="pd">17</span></div>
+              <div class="tf-pill">ثلاثاء<span class="pd">18</span><span class="dots">●</span></div>
+              <div class="tf-pill on">أربعاء<span class="pd">19</span><span class="dots">●●●</span></div>
+              <div class="tf-pill">خميس<span class="pd">20</span><span class="dots">●</span></div>
+              <div class="tf-pill">جمعة<span class="pd">21</span></div>
+              <div class="tf-pill">سبت<span class="pd">22</span></div>
+            </div>
+            <div class="tf-list">
+              <div class="tf-row">
+                <span class="tt">09:00</span>
+                <span class="nn">أحمد خالد</span>
+                <span class="bb">رياضيات</span>
+                <span class="sub-chip">مكرر</span>
+              </div>
+              <div class="tf-row">
+                <span class="tt">10:30</span>
+                <span class="nn">سارة محمد</span>
+                <span class="bb">لغة عربية</span>
+                <span class="stat st-absent" style="font-size:9px">غائب</span>
+              </div>
+              <div class="tf-row">
+                <span class="tt">12:00</span>
+                <span class="nn">يوسف علي</span>
+                <span class="bb">علوم</span>
+                <span class="sub-chip">مكرر</span>
+              </div>
+              <div class="tf-row">
+                <span class="tt">15:00</span>
+                <span class="nn">عمر فارس</span>
+                <span class="bb">إنجليزي</span>
+                <span class="stat st-late" style="font-size:9px">متأخر</span>
+              </div>
+            </div>
+          </div>
+          <div class="footbar">
+            <div class="fb"><span class="ic">▦</span>الرئيسية</div>
+            <div class="fb on"><span class="ic">◫</span>الجدول</div>
+            <div class="fb"><span class="ic">◉</span>الطلاب</div>
+            <div class="fb"><span class="ic">◈</span>الرسوم</div>
+          </div>
+        </div>
+      </div>
+      <p class="ttl">الفكرة</p>
+      <p class="pros">بطاقة «اليوم» بارزة تعرض <b>الجلسة القادمة</b> مباشرة، ثم أقراص الأيام السبعة مع نقاط تدل على انشغال اليوم — تنقّل فوري بدون تمرير طويل. مثالي للمدرّس الذي يعيش «الآن» أكثر من نظرة المستقبل البعيد.</p>
+      <p class="cons">لا نظرة كاملة للأسبوع دفعة واحدة — <b>تتطلب نقرة</b> للانتقال ليوم آخر؛ نقاط الانشغال قد لا تكفي لمقارنة دقيقة.</p>
+      <div class="impl">Flutter: <code>Card</code> للـ hero + <code>ListView horizontal</code> من <code>ChoiceChip</code> بالأسابيع</div>
+      <button class="choose" onclick="choose('opt4')">أعجبني — اختر هذا</button>
+    </article>
+
+    <!-- ═══════════ OPTION 5 — Expandable week ═══════════ -->
+    <article class="option" id="opt5" data-name="5 — الأسبوع القابل للطي">
+      <div class="option-head">
+        <div class="num">5</div>
+        <div>
+          <h3>الأسبوع القابل للطي (Accordion)</h3>
+          <div class="dim">نظرة عامة مضغوطة + تفاصيل عند الطلب</div>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+          <div class="notch"></div>
+          <div class="appbar">
+            <span class="t">جدول الأسبوع</span>
+            <span class="a">هذا الأسبوع</span>
+          </div>
+          <div class="content">
+            <div class="ex scroll">
+              <div class="ex-head">نظرة عامة — 8 جلسات هذا الأسبوع</div>
+              <div class="ex-day open">
+                <button class="ex-bar">
+                  <span class="ddn"></span>
+                  <span class="wd">الأحد 16</span>
+                  <span class="dt">4 جلسات</span>
+                  <span class="cnt today">اليوم</span>
+                </button>
+                <div class="ex-body">
+                  <div class="ex-row"><span class="tm">09:00</span><span class="nm">رياضيات — أحمد خالد</span><span class="stt s-recur"></span></div>
+                  <div class="ex-row"><span class="tm">10:30</span><span class="nm">لغة عربية — سارة محمد</span><span class="stt s-absent"></span></div>
+                  <div class="ex-row"><span class="tm">12:00</span><span class="nm">علوم — يوسف علي</span><span class="stt s-recur"></span></div>
+                  <div class="ex-row"><span class="tm">15:00</span><span class="nm">إنجليزي — عمر فارس</span><span class="stt s-late"></span></div>
+                </div>
+              </div>
+              <div class="ex-day">
+                <button class="ex-bar">
+                  <span class="ddn"></span>
+                  <span class="wd">الاثنين 17</span>
+                  <span class="dt">2 جلسة</span>
+                  <span class="cnt">2</span>
+                </button>
+                <div class="ex-body">
+                  <div class="ex-row"><span class="tm">09:00</span><span class="nm">رياضيات — أحمد خالد</span><span class="stt s-recur"></span></div>
+                  <div class="ex-row"><span class="tm">16:00</span><span class="nm">قرآن — ليان حسن</span><span class="stt s-recur"></span></div>
+                </div>
+              </div>
+              <div class="ex-day">
+                <button class="ex-bar">
+                  <span class="ddn"></span>
+                  <span class="wd">الثلاثاء 18</span>
+                  <span class="dt">2 جلسة</span>
+                  <span class="cnt">2</span>
+                </button>
+                <div class="ex-body">
+                  <div class="ex-row"><span class="tm">11:00</span><span class="nm">لغة عربية — سارة محمد</span><span class="stt s-absent"></span></div>
+                  <div class="ex-row"><span class="tm">17:00</span><span class="nm">علوم — يوسف علي</span><span class="stt s-recur"></span></div>
+                </div>
+              </div>
+              <div class="ex-day">
+                <button class="ex-bar">
+                  <span class="ddn"></span>
+                  <span class="wd">الخميس 20</span>
+                  <span class="dt">2 جلسة</span>
+                  <span class="cnt">2</span>
+                </button>
+                <div class="ex-body">
+                  <div class="ex-row"><span class="tm">09:30</span><span class="nm">قرآن — ليان حسن</span><span class="stt s-present"></span></div>
+                  <div class="ex-row"><span class="tm">14:00</span><span class="nm">إنجليزي — عمر فارس</span><span class="stt s-recur"></span></div>
+                </div>
+              </div>
+              <div class="ex-day">
+                <button class="ex-bar">
+                  <span class="ddn"></span>
+                  <span class="wd">السبت 22</span>
+                  <span class="dt">3 جلسات</span>
+                  <span class="cnt">3</span>
+                </button>
+                <div class="ex-body">
+                  <div class="ex-row"><span class="tm">10:00</span><span class="nm">علوم — يوسف علي</span><span class="stt s-recur"></span></div>
+                  <div class="ex-row"><span class="tm">13:00</span><span class="nm">قرآن — ليان حسن</span><span class="stt s-recur"></span></div>
+                  <div class="ex-row"><span class="tm">16:00</span><span class="nm">رياضيات — مريم سامي</span><span class="stt s-present"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footbar">
+            <div class="fb"><span class="ic">▦</span>الرئيسية</div>
+            <div class="fb on"><span class="ic">◫</span>الجدول</div>
+            <div class="fb"><span class="ic">◉</span>الطلاب</div>
+            <div class="fb"><span class="ic">◈</span>الرسوم</div>
+          </div>
+        </div>
+      </div>
+      <p class="ttl">الفكرة</p>
+      <p class="pros">يمنحك <b>نظرة عامة مضغوطة</b> للأسبوع كله (7 صفوف فقط) مع عدد جلسات كل يوم، ويفتح التفاصيل عند الطلب — اليوم الحالي مفتوح افتراضياً. أقل تمريراً من البطاقات وأوضح من الشبكة المكتظة.</p>
+      <p class="cons">خفاء التفاصيل خلف الطي — <b>نقرتان</b> للوصول لجلسة معينة في يوم غير مفتوح؛ قد يخفي معلومات يريدها المستخدم دائماً مرئية.</p>
+      <div class="impl">Flutter: <code>ExpansionTile</code> أو <code>AnimatedSize</code> داخل كل يوم</div>
+      <button class="choose" onclick="choose('opt5')">أعجبني — اختر هذا</button>
+    </article>
+
+  </div>
+
+  <p class="foot">اختيارك محفوظ محلياً في متصفحك فقط — بعد الاختيار أخبر الفريق بالبديل المفضل لتطبيقه في كود دروس.</p>
+</div>
+
+<script>
+  // ── accordion (opt 5) ──
+  document.querySelectorAll('.ex-bar').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.parentElement.classList.toggle('open');
+    });
+  });
+
+  // ── combo (opt 6): day tabs switch hero + timeline labels ──
+  const comboDays = {
+    'أحد':    { label: 'اليوم — الأحد 16',  next: 'القادم الآن: 09:00', detail: 'رياضيات مع أحمد خالد • عند الطالب', count: '4 جلسات اليوم', sessions: ['09:00 — رياضيات • أحمد خالد', '10:30 — لغة عربية • سارة محمد', '12:00 — علوم • يوسف علي', '15:00 — إنجليزي • عمر فارس'] },
+    'اثنين':  { label: 'الاثنين 17',        next: 'أول جلسة: 09:00', detail: 'رياضيات مع أحمد خالد • عند الطالب', count: '2 جلسة', sessions: ['09:00 — رياضيات • أحمد خالد', '16:00 — قرآن • ليان حسن'] },
+    'ثلاثاء': { label: 'الثلاثاء 18',       next: 'أول جلسة: 11:00', detail: 'لغة عربية مع سارة محمد • عند المدرّس', count: '2 جلسة', sessions: ['11:00 — لغة عربية • سارة محمد', '17:00 — علوم • يوسف علي'] },
+    'أربعاء': { label: 'اليوم — الأربعاء 19', next: 'القادم الآن: 12:00', detail: 'علوم مع يوسف علي • عند الطالب', count: '5 جلسات اليوم', sessions: ['09:00 — رياضيات • أحمد خالد', '10:30 — لغة عربية • سارة محمد', '12:00 — علوم • يوسف علي', '13:30 — قرآن • ليان حسن', '15:00 — إنجليزي • عمر فارس'] },
+    'خميس':   { label: 'الخميس 20',        next: 'أول جلسة: 09:30', detail: 'قرآن مع ليان حسن • عند المدرّس', count: '2 جلسة', sessions: ['09:30 — قرآن • ليان حسن', '14:00 — إنجليزي • عمر فارس'] },
+    'جمعة':   { label: 'الجمعة 21',        next: 'لا جلسات هذا اليوم', detail: 'يوم فارغ — استمتع بوقتك', count: '0 جلسات', sessions: [] },
+    'سبت':    { label: 'السبت 22',         next: 'أول جلسة: 10:00', detail: 'علوم مع يوسف علي • عند الطالب', count: '3 جلسات', sessions: ['10:00 — علوم • يوسف علي', '13:00 — قرآن • ليان حسن', '16:00 — رياضيات • مريم سامي'] },
+  };
+  function comboDay(el, name) {
+    const tabs = document.getElementById('comboTabs');
+    tabs.querySelectorAll('.dt').forEach(t => t.classList.remove('on'));
+    el.classList.add('on');
+    const d = comboDays[name];
+    document.getElementById('comboLbl').textContent = d.label;
+    document.getElementById('comboNow').textContent = d.next;
+    document.getElementById('comboNext').textContent = d.detail;
+    document.getElementById('comboCnt').textContent = d.count;
+    document.getElementById('comboSoon').style.display = (name === 'جمعة') ? 'none' : '';
+    // rebuild timeline blocks (static demo: just show the first 3 as sample blocks)
+    const body = document.getElementById('comboBody');
+    body.querySelectorAll('.tl-block').forEach(b => b.remove());
+    const times = ['08:00','09:30','11:00','12:30','14:00','15:30','17:00'];
+    const tops  = [2,52,102,152,202,252,302];
+    const hts = [44,40,44,40,40,40,40];
+    d.sessions.slice(0, 5).forEach((s, i) => {
+      const [t, desc] = s.split(' — ');
+      const isRec = desc.includes('•') || desc.includes('مريم');
+      const isAbs = desc.includes('عمر');
+      const isLate = desc.includes('سارة') && !desc.includes('أحمد');
+      const cls = isAbs ? 'abs' : (isLate && i === 1 ? 'late' : (isRec ? 'rec' : 'pst'));
+      const block = document.createElement('div');
+      block.className = 'tl-block ' + cls;
+      block.style.top = tops[i] + 'px';
+      block.style.height = hts[i] + 'px';
+      let chip, chipBg, chipColor;
+      if (cls === 'rec') { chip = 'مكرر'; chipBg = 'rgba(14,124,102,.15)'; chipColor = 'var(--teal)'; }
+      else if (cls === 'abs') { chip = 'غائب'; chipBg = 'var(--white)'; chipColor = 'var(--red)'; }
+      else if (cls === 'late') { chip = 'متأخر'; chipBg = 'var(--white)'; chipColor = 'var(--orange)'; }
+      else { chip = 'حاضر'; chipBg = 'var(--green)'; chipColor = '#fff'; }
+      block.innerHTML = `<div class="r1"><span class="nm">${cls === 'rec' ? 'موعد متكرر' : desc.replace(/^[^\s]+ /, '')}</span><span class="chip" style="background:${chipBg}; color:${chipColor}">${chip}</span></div><div class="sb">${t} • ${desc.replace(/^(\w+ \d+:\d+)/, '')}</div>`;
+      body.appendChild(block);
+    });
+  }
+
+  // ── choice persistence ──
+  function choose(id) {
+    document.querySelectorAll('.option').forEach(c => c.classList.remove('selected'));
+    const card = document.getElementById(id);
+    card.classList.add('selected');
+    document.getElementById('bannerName').textContent = card.dataset.name;
+    document.getElementById('choiceBanner').classList.add('show');
+    try { localStorage.setItem('durus-schedule-design-choice', id); } catch (e) {}
+    document.getElementById('choiceBanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function clearChoice() {
+    document.querySelectorAll('.option').forEach(c => c.classList.remove('selected'));
+    document.getElementById('choiceBanner').classList.remove('show');
+    try { localStorage.removeItem('durus-schedule-design-choice'); } catch (e) {}
+  }
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      const saved = localStorage.getItem('durus-schedule-design-choice');
+      if (saved && document.getElementById(saved)) choose(saved);
+    } catch (e) {}
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>دروس — الشريط العلوي: 5 تصاميم مقترحة (الملف الشخصي + الإشعارات)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #FAF8F4;
+    --ink: #14213D;
+    --muted: #6F7A8C;
+    --teal: #0E7C66;
+    --teal-container: #DFF3EC;
+    --on-teal-container: #0A3B2E;
+    --ember: #E8622B;
+    --ember-container: #FDE8D9;
+    --on-ember-container: #5A2A12;
+    --border: #ECEAE3;
+    --outline: #E7E2D6;
+    --white: #fff;
+    --radius: 26px;
+    --font: 'Zain', 'Noto Sans Arabic', sans-serif;
+    --green: #2E7D32;
+    --green-bg: #E4F2E4;
+    --red: #B3382C;
+    --red-bg: #FBE3E3;
+    --amber: #F9A825;
+    --amber-bg: #FFF3D6;
+    --orange: #EF6C00;
+    --orange-bg: #FFE8D1;
+    --slate: #78909C;
+    --slate-bg: #ECEFF1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    padding-bottom: 90px;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── header ── */
+  .hero {
+    background: linear-gradient(160deg, #0A3B2E 0%, #0E7C66 60%, #12A083 100%);
+    color: #fff;
+    border-radius: 0 0 40px 40px;
+    padding: 48px 0 56px;
+    margin-bottom: -24px;
+  }
+  .hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #E6F6F1;
+    margin-bottom: 14px;
+  }
+  .hero h1 { font-size: clamp(30px, 5vw, 52px); font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+  .hero p.sub { font-size: clamp(16px, 2vw, 20px); opacity: .92; max-width: 820px; font-weight: 400; }
+  .hero .meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero .meta span {
+    background: rgba(255,255,255,.12);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ── problem card ── */
+  .problem {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 6px 24px rgba(20,33,61,.05);
+  }
+  .problem h2 { font-size: 24px; font-weight: 800; margin-bottom: 12px; color: var(--teal); }
+  .problem p { font-size: 17px; color: #33415F; max-width: 900px; }
+  .problem ul { margin-top: 14px; padding-right: 20px; display: grid; gap: 6px; }
+  .problem li { font-size: 16px; color: #33415F; }
+  .problem li b { color: var(--ember); }
+
+  /* ── choice banner ── */
+  #choiceBanner {
+    position: sticky;
+    top: 12px;
+    z-index: 50;
+    display: none;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 999px;
+    padding: 12px 22px;
+    box-shadow: 0 10px 30px rgba(20,33,61,.35);
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  #choiceBanner.show { display: flex; }
+  #choiceBanner button {
+    background: var(--ember);
+    color: #fff;
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── option cards grid ── */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 26px; }
+  .option {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow .25s, transform .25s, border-color .25s;
+  }
+  .option:hover { box-shadow: 0 12px 32px rgba(20,33,61,.08); transform: translateY(-3px); }
+  .option.selected { border: 2px solid var(--teal); box-shadow: 0 0 0 4px rgba(14,124,102,.15), 0 12px 32px rgba(20,33,61,.08); }
+  .option-head { padding: 20px 22px 12px; display: flex; align-items: flex-start; gap: 12px; }
+  .option-head .num {
+    width: 40px; height: 40px;
+    border-radius: 14px;
+    background: var(--teal-container);
+    color: var(--on-teal-container);
+    font-weight: 800;
+    font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .option-head h3 { font-size: 21px; font-weight: 800; line-height: 1.3; }
+  .option-head .dim { color: var(--muted); font-size: 14px; font-weight: 400; }
+  .ttl { margin: 0 22px 4px; font-size: 14px; color: var(--muted); font-weight: 700; }
+  .pros { margin: 0 22px 6px; font-size: 14px; color: #33415F; }
+  .pros b { color: var(--teal); }
+  .cons { margin: 0 22px 14px; font-size: 14px; color: #33415F; }
+  .cons b { color: var(--ember); }
+
+  /* ── phone mockup ── */
+  .demo { background: var(--paper); padding: 20px 22px 8px; display: flex; justify-content: center; }
+  .phone {
+    width: 272px;
+    background: var(--white);
+    border-radius: 38px;
+    border: 8px solid var(--ink);
+    box-shadow: 0 16px 40px rgba(20,33,61,.22);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone .statusbar {
+    background: var(--paper);
+    height: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 14px;
+    font-size: 8px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .phone .notch { height: 3px; background: var(--ink); width: 60%; margin: 0 auto; border-radius: 0 0 10px 10px; }
+
+  /* phone inner screen */
+  .screen { background: var(--paper); min-height: 420px; display: flex; flex-direction: column; position: relative; }
+  .screen .appbar { height: 52px; padding: 0 10px; display: flex; align-items: center; gap: 6px; background: var(--paper); position: relative; }
+  .screen .content { padding: 4px 12px 12px; flex: 1; }
+  .screen .footbar {
+    background: var(--white);
+    border-top: 1px solid var(--outline);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 6px 2px 8px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .screen .footbar .fb { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .screen .footbar .fb.on { color: var(--teal); font-weight: 700; }
+  .screen .footbar .fb .ic { font-size: 12px; }
+
+  /* shared action buttons */
+  .abtn {
+    position: relative;
+    width: 38px; height: 38px;
+    border-radius: 13px;
+    background: var(--white);
+    border: 1px solid var(--outline);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .abtn svg { width: 19px; height: 19px; }
+  .abtn:hover { border-color: var(--teal); color: var(--teal); }
+  .abtn .badge {
+    position: absolute;
+    top: -4px; inset-inline-start: -4px;
+    min-width: 16px; height: 16px;
+    border-radius: 999px;
+    background: var(--ember);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px;
+    border: 2px solid var(--paper);
+  }
+  .abtn .badge.zero, .abtn .badge.hide { display: none; }
+
+  .avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(140deg, var(--teal), #12A083);
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    border: 2px solid var(--white);
+    box-shadow: 0 2px 6px rgba(10,59,46,.25);
+  }
+  .avatar.sm { width: 30px; height: 30px; font-size: 13px; }
+  .avatar.lg { width: 56px; height: 56px; font-size: 24px; }
+
+  .btn-edit {
+    width: 100%;
+    background: var(--teal);
+    color: #fff;
+    border: 0;
+    border-radius: 14px;
+    padding: 10px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-edit:hover { background: var(--on-teal-container); }
+
+  /* title */
+  .appbar .ttl { font-weight: 800; font-size: 16px; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: center; }
+  .appbar .ttl small { display: block; font-size: 10px; font-weight: 400; color: var(--muted); }
+
+  /* ── design 2: identity-first ── */
+  .idbox { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; cursor: pointer; }
+  .idbox .nm { font-weight: 800; font-size: 14px; line-height: 1.15; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .idbox .role {
+    display: inline-block;
+    background: var(--teal-container);
+    color: var(--on-teal-container);
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 1px 7px;
+    margin-top: 2px;
+  }
+
+  /* ── design 3: search bar ── */
+  .searchbox {
+    flex: 1;
+    height: 36px;
+    border-radius: 13px;
+    background: var(--white);
+    border: 1px solid var(--outline);
+    display: flex; align-items: center;
+    gap: 6px;
+    padding: 0 9px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    min-width: 0;
+  }
+  .searchbox svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .searchbox input {
+    border: 0; outline: 0; background: transparent;
+    font-family: var(--font);
+    font-size: 12px;
+    color: var(--ink);
+    width: 100%; min-width: 0;
+  }
+  .searchbox input::placeholder { color: var(--muted); }
+  .searchbox.focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(14,124,102,.12); }
+  .search-drop {
+    position: absolute;
+    top: 108px; inset-inline: 14px;
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(20,33,61,.16);
+    overflow: hidden;
+    z-index: 30;
+    display: none;
+  }
+  .search-drop.show { display: block; }
+  .search-drop .si { padding: 9px 12px; font-size: 13px; font-weight: 700; cursor: pointer; border-bottom: 1px solid var(--border); }
+  .search-drop .si:last-child { border-bottom: 0; }
+  .search-drop .si:hover { background: var(--teal-container); color: var(--on-teal-container); }
+
+  /* ── design 4: floating pill ── */
+  .floating-row { padding: 10px 14px 0; display: flex; justify-content: center; }
+  .pill {
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(20,33,61,.14);
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 8px;
+    width: 100%;
+  }
+  .pill .grow { flex: 1; }
+  .pill .abtn { border: 0; box-shadow: none; background: transparent; }
+  .pill .avatar { box-shadow: none; }
+
+  /* ── design 5: minimal + overflow ── */
+  .abtn.ghost { border: 0; background: transparent; box-shadow: none; }
+
+  /* panel styles */
+  .npanel {
+    position: absolute;
+    top: 44px; inset-inline-end: 10px;
+    width: 214px;
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(20,33,61,.18);
+    z-index: 40;
+    overflow: hidden;
+    display: none;
+  }
+  .npanel.show { display: block; }
+  .npanel .np-head { padding: 10px 12px 6px; font-size: 12px; font-weight: 800; color: var(--ink); display: flex; justify-content: space-between; align-items: center; }
+  .npanel .np-all { font-size: 10px; font-weight: 700; color: var(--teal); cursor: pointer; }
+  .npanel .ni {
+    padding: 8px 12px;
+    display: flex; gap: 8px; align-items: flex-start;
+    cursor: pointer;
+    border-top: 1px solid var(--border);
+  }
+  .npanel .ni:hover { background: var(--teal-container); }
+  .npanel .ni .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); margin-top: 5px; flex-shrink: 0; }
+  .npanel .ni.read .dot { background: transparent; }
+  .npanel .ni .tx { font-size: 11px; line-height: 1.35; color: #33415F; }
+  .npanel .ni .tx b { display: block; font-size: 11px; color: var(--ink); }
+  .npanel .ni .tm { font-size: 9px; color: var(--muted); }
+  .npanel .np-empty { padding: 10px 12px; font-size: 11px; color: var(--muted); text-align: center; display: none; }
+
+  /* popup menu (design 5) */
+  .popmenu {
+    position: absolute;
+    top: 44px; inset-inline-end: 10px;
+    width: 170px;
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(20,33,61,.18);
+    z-index: 40;
+    overflow: hidden;
+    display: none;
+  }
+  .popmenu.show { display: block; }
+  .popmenu .mi { padding: 9px 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .popmenu .mi:hover { background: var(--teal-container); color: var(--on-teal-container); }
+  .popmenu .mi svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .popmenu .mi.danger { color: var(--red); }
+
+  /* quick action menu (design 4) */
+  .qmenu {
+    position: absolute;
+    inset-inline-end: 10px;
+    width: 176px;
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(20,33,61,.18);
+    z-index: 40;
+    overflow: hidden;
+    display: none;
+  }
+  .qmenu.show { display: block; }
+  .qmenu .mi { padding: 9px 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .qmenu .mi:hover { background: var(--teal-container); color: var(--on-teal-container); }
+  .qmenu .mi svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  /* profile sheet */
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(20,33,61,.45);
+    z-index: 50;
+    display: none;
+  }
+  .backdrop.show { display: block; }
+  .sheet {
+    position: absolute;
+    bottom: 0; inset-inline: 0;
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    padding: 16px 16px 14px;
+    z-index: 60;
+    transform: translateY(105%);
+    transition: transform .28s cubic-bezier(.2,.8,.2,1);
+  }
+  .sheet.show { transform: translateY(0); }
+  .sheet .grab { width: 40px; height: 4px; border-radius: 999px; background: var(--outline); margin: 0 auto 12px; }
+  .sheet .row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .sheet .meta { line-height: 1.3; min-width: 0; }
+  .sheet .meta .nm { font-weight: 800; font-size: 16px; }
+  .sheet .meta .em { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sheet .field { margin-bottom: 10px; }
+  .sheet .field label { font-size: 11px; color: var(--muted); font-weight: 700; display: block; margin-bottom: 3px; }
+  .sheet .field input {
+    width: 100%;
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--white);
+  }
+  .sheet .field input:focus { outline: 0; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(14,124,102,.12); }
+  .sheet .save {
+    width: 100%;
+    background: var(--teal);
+    color: #fff;
+    border: 0;
+    border-radius: 14px;
+    padding: 10px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 2px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .sheet .save:hover { background: var(--on-teal-container); }
+  .sheet .cancel { margin-top: 6px; width: 100%; background: transparent; border: 0; color: var(--muted); font-family: var(--font); font-size: 12px; cursor: pointer; font-weight: 700; }
+
+  /* toast */
+  .toast {
+    position: absolute;
+    bottom: 84px;
+    inset-inline: 18px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    z-index: 80;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .2s, transform .2s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* session demo rows */
+  .slist { display: grid; gap: 7px; }
+  .srow {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 8px 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .srow .time { font-size: 11px; font-weight: 800; color: var(--teal); min-width: 34px; }
+  .srow .who { flex: 1; min-width: 0; line-height: 1.2; }
+  .srow .who .n { font-size: 12px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .srow .who .s { font-size: 10px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .srow .chip { font-size: 9px; font-weight: 700; border-radius: 999px; padding: 2px 8px; flex-shrink: 0; }
+  .srow .chip.rec { background: var(--teal-container); color: var(--teal); }
+  .srow .chip.late { background: var(--orange-bg); color: var(--orange); }
+  .srow .chip.abs { background: var(--red-bg); color: var(--red); }
+  .srow .chip.pst { background: var(--green-bg); color: var(--green); }
+
+  .daylbl { font-size: 11px; color: var(--muted); font-weight: 700; margin: 4px 0 7px; display: flex; justify-content: space-between; }
+
+  .impl { margin: 0 22px 12px; font-size: 12px; color: #33415F; background: var(--paper); border: 1px dashed var(--border); border-radius: 12px; padding: 8px 12px; }
+  .impl code { color: var(--teal); font-family: Consolas, monospace; font-size: 11px; }
+
+  .choose {
+    margin: 0 22px 20px;
+    background: var(--ember);
+    color: #fff;
+    border: 0;
+    border-radius: 999px;
+    padding: 10px;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .choose:hover { background: var(--on-ember-container); }
+  .option.selected .choose { background: var(--teal); }
+
+  .footnote { text-align: center; color: var(--muted); font-size: 13px; margin-top: 30px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">قرار تصميم — الشريط العلوي</span>
+    <h1>5 تصاميم لشريط علوي واحد: الملف الشخصي + الإشعارات + أزرار مستقبلية</h1>
+    <p class="sub">الهدف: إتاحة تعديل الملف الشخصي من أي مكان، وإبقاء الإشعارات قريبة، وترك مجال لإضافة أزرار جديدة لاحقاً دون كسر الشكل.</p>
+    <div class="meta">
+      <span>RTL + عربي</span>
+      <span>نوع خط Zain</span>
+      <span>ثيم فسيفساء</span>
+      <span>شريط علوي موحّد</span>
+      <span>ملف + إشعارات</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="choiceBanner">
+    <span>اختيارك الحالي: <b id="bannerName"></b></span>
+    <button onclick="clearChoice()">إلغاء الاختيار</button>
+  </div>
+
+  <section class="problem">
+    <h2>لماذا نحتاج هذا الشريط؟</h2>
+    <p>اليوم لا يوجد أي طريقة لتعديل الملف الشخصي في التطبيق — صفحة الإعدادات تعرض الاسم والبريد والنمط (مدرّس/مدير) بدون زر تعديل، والشريط العلوي في الشاشات يحمل العنوان وزر الإشعارات فقط. المطلوب شريط علوي موحّد يعرض الملف الشخصي ويفتحه للتعديل، ويبقي الإشعارات بجانبه، ويسمح بإضافة أزرار جديدة مستقبلاً بسهولة.</p>
+    <ul>
+      <li><b>لا تعديل للملف</b> — الإعدادات تعرض البيانات ولا تتيح تغييرها (الاسم، رقم الهاتف، النمط…).</li>
+      <li><b>لا دخول للملف الشخصي</b> — لا يوجد رمز شخصية في الشريط العلوي؛ الهوية مخفية في الإعدادات.</li>
+      <li><b>الإشعارات موجودة لكن معزولة</b> — متاحة فقط في الشاشة الرئيسية، لا في بقية التبويبات.</li>
+      <li><b>لا مكان لأزرار قادمة</b> — أي إجراء جديد (بحث، إضافة سريعة، مزامنة…) لا يجد موضعاً طبيعياً.</li>
+    </ul>
+  </section>
+
+  <h2 class="sec">5 اتجاهات مختلفة</h2>
+  <p class="secsub">جرّب كل تصميم: اضغط رمز الشخصية لفتح ملفك وتعديله، واضغط الجرس لعرض الإشعارات، وجرّب الزر الإضافي في كل تصميم.</p>
+
+  <div class="grid">
+
+  <!-- ═══════ 1 — الموزون (الكلاسيكي) ═══════ -->
+  <article class="option" id="opt1" data-name="1 — الشريط الموزون (الكلاسيكي)">
+    <div class="option-head">
+      <div class="num">1</div>
+      <div>
+        <h3>الشريط الموزون (الكلاسيكي)</h3>
+        <div class="dim">العنوان في المنتصف، الشخصية يميناً، الإشعارات يساراً</div>
+      </div>
+    </div>
+    <div class="demo">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+        <div class="notch"></div>
+        <div class="screen" id="1">
+          <div class="appbar">
+            <div class="avatar" data-name="أ. أحمد محمود" onclick="openSheet('1', this)">أ</div>
+            <div class="ttl">جدول الأسبوع</div>
+            <div class="abtn" onclick="togglePanel('1','np1')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span class="badge" id="badge1" data-start="3">3</span>
+            </div>
+            <div class="npanel" id="np1"></div>
+          </div>
+          <div class="content">
+            <div class="daylbl"><span>اليوم — الأربعاء</span><span>3 جلسات</span></div>
+            <div class="slist">
+              <div class="srow"><span class="time">09:00</span><div class="who"><div class="n">أحمد خالد</div><div class="s">رياضيات • عند الطالب</div></div><span class="chip rec">مكرر</span></div>
+              <div class="srow"><span class="time">10:30</span><div class="who"><div class="n">سارة محمد</div><div class="s">لغة عربية • عند المدرّس</div></div><span class="chip late">متأخر</span></div>
+              <div class="srow"><span class="time">12:00</span><div class="who"><div class="n">يوسف علي</div><div class="s">علوم • عند الطالب</div></div><span class="chip rec">مكرر</span></div>
+            </div>
+          </div>
+          <div class="footbar"><div class="fb on"><span class="ic">▦</span>الرئيسية</div><div class="fb"><span class="ic">◫</span>الجدول</div><div class="fb"><span class="ic">◉</span>الطلاب</div><div class="fb"><span class="ic">◈</span>الرسوم</div></div>
+          <div class="backdrop" id="bk1"></div>
+          <div class="sheet" id="sh1"></div>
+          <div class="toast" id="toast1"></div>
+        </div>
+      </div>
+    </div>
+    <p class="ttl">الفكرة</p>
+    <p class="pros">النمط الأكثر شيوعاً ومألوفاً: <b>الشخصية إلى اليمين</b> تفتح الملف الشخصي الكامل مع زر التعديل، <b>الجرس إلى اليسار</b> بعدّاد غير المقروء، والعنوان في المنتصف. متوازن، سهل الفهم، وأي زر جديد يُضاف بجانب الجرس دون التفاف.</p>
+    <p class="cons"><b>محدودية الاتساع</b> — مع 4 أزرار أو أكثر يصبح الشريط مزدحماً والعنوان يضيق.</p>
+    <div class="impl">Flutter: <code>AppBar(title: Center(...))</code> مع <code>leading</code> للشخصية (أو <code>Row</code> يدوي) و<code>actions: [bell, ...]</code> — الشخصية تفتح <code>showModalBottomSheet</code> للملف.</div>
+    <button class="choose" onclick="choose('opt1')">أعجبني — اختر هذا</button>
+  </article>
+
+  <!-- ═══════ 2 — الهوية أولاً ═══════ -->
+  <article class="option" id="opt2" data-name="2 — الهوية أولاً (الاسم + الدور)">
+    <div class="option-head">
+      <div class="num">2</div>
+      <div>
+        <h3>الهوية أولاً (الاسم + الدور)</h3>
+        <div class="dim">صورة واسم المدرّس واضحان في الشريط — مثالي لوضع متعدد المدرّسين</div>
+      </div>
+    </div>
+    <div class="demo">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+        <div class="notch"></div>
+        <div class="screen" id="2">
+          <div class="appbar">
+            <div class="idbox" onclick="openSheet('2', this)">
+              <div class="avatar sm" data-name="أ. أحمد محمود">أ</div>
+              <div><div class="nm" id="idbox-name2">أ. أحمد محمود</div><span class="role">مدرّس</span></div>
+            </div>
+            <div class="ttl">جدول الأسبوع</div>
+            <div class="abtn" onclick="togglePanel('2','np2')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span class="badge" id="badge2" data-start="2">2</span>
+            </div>
+            <div class="npanel" id="np2"></div>
+          </div>
+          <div class="content">
+            <div class="daylbl"><span>اليوم — الأربعاء</span><span>3 جلسات</span></div>
+            <div class="slist">
+              <div class="srow"><span class="time">09:00</span><div class="who"><div class="n">أحمد خالد</div><div class="s">رياضيات • عند الطالب</div></div><span class="chip rec">مكرر</span></div>
+              <div class="srow"><span class="time">10:30</span><div class="who"><div class="n">سارة محمد</div><div class="s">لغة عربية • عند المدرّس</div></div><span class="chip late">متأخر</span></div>
+              <div class="srow"><span class="time">12:00</span><div class="who"><div class="n">يوسف علي</div><div class="s">علوم • عند الطالب</div></div><span class="chip rec">مكرر</span></div>
+            </div>
+          </div>
+          <div class="footbar"><div class="fb on"><span class="ic">▦</span>الرئيسية</div><div class="fb"><span class="ic">◫</span>الجدول</div><div class="fb"><span class="ic">◉</span>الطلاب</div><div class="fb"><span class="ic">◈</span>الرسوم</div></div>
+          <div class="backdrop" id="bk2"></div>
+          <div class="sheet" id="sh2"></div>
+          <div class="toast" id="toast2"></div>
+        </div>
+      </div>
+    </div>
+    <p class="ttl">الفكرة</p>
+    <p class="pros">يضع <b>المدرّس في الواجهة</b>: صورته واسمه (مع شريحة الدور «مدرّس» أو «مدير») ظاهرتان دائماً — يفيد في الوضع متعدد المدرّسين ليعرف المستخدم بأي حساب يعمل. الضغط على صندوق الهوية يفتح الملف للتعديل.</p>
+    <p class="cons"><b>يستهلك مساحة</b> — الاسم الطويل يُقتطع، وعلى الشاشات الضيقة قد يزاحم العنوان.</p>
+    <div class="impl">Flutter: <code>Row</code> كـ <code>leading</code> (avatar + <code>Column</code> اسم/دور) بدل <code>CircleAvatar</code> فقط — الدور من <code>profile.isManager</code>.</div>
+    <button class="choose" onclick="choose('opt2')">أعجبني — اختر هذا</button>
+  </article>
+
+  <!-- ═══════ 3 — البحث السريع ═══════ -->
+  <article class="option" id="opt3" data-name="3 — البحث السريع (حقل بحث مدمج)">
+    <div class="option-head">
+      <div class="num">3</div>
+      <div>
+        <h3>البحث السريع (حقل بحث مدمج)</h3>
+        <div class="dim">ابحث عن طالب أو مادة من أي شاشة — مع الملف والإشعارات</div>
+      </div>
+    </div>
+    <div class="demo">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+        <div class="notch"></div>
+        <div class="screen" id="3">
+          <div class="appbar">
+            <div class="avatar" data-name="أ. أحمد محمود" onclick="openSheet('3', this)">أ</div>
+            <div class="searchbox" onclick="this.querySelector('input').focus()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="ابحث عن طالب أو مادة…" data-phone="3" />
+            </div>
+            <div class="abtn" onclick="togglePanel('3','np3')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span class="badge" id="badge3" data-start="1">1</span>
+            </div>
+            <div class="npanel" id="np3"></div>
+            <div class="search-drop" id="sd3"></div>
+          </div>
+          <div class="content">
+            <div class="daylbl"><span>اليوم — الأربعاء</span><span>3 جلسات</span></div>
+            <div class="slist">
+              <div class="srow"><span class="time">09:00</span><div class="who"><div class="n">أحمد خالد</div><div class="s">رياضيات • عند الطالب</div></div><span class="chip rec">مكرر</span></div>
+              <div class="srow"><span class="time">10:30</span><div class="who"><div class="n">سارة محمد</div><div class="s">لغة عربية • عند المدرّس</div></div><span class="chip late">متأخر</span></div>
+              <div class="srow"><span class="time">12:00</span><div class="who"><div class="n">يوسف علي</div><div class="s">علوم • عند الطالب</div></div><span class="chip rec">مكرر</span></div>
+            </div>
+          </div>
+          <div class="footbar"><div class="fb on"><span class="ic">▦</span>الرئيسية</div><div class="fb"><span class="ic">◫</span>الجدول</div><div class="fb"><span class="ic">◉</span>الطلاب</div><div class="fb"><span class="ic">◈</span>الرسوم</div></div>
+          <div class="backdrop" id="bk3"></div>
+          <div class="sheet" id="sh3"></div>
+          <div class="toast" id="toast3"></div>
+        </div>
+      </div>
+    </div>
+    <p class="ttl">الفكرة</p>
+    <p class="pros">حقل بحث <b>مدمج وفعلي</b> (جرّب: اكتب «سارة» أو «علوم») يقترح الطلاب والمواد فوراً — يختصر نقرتين للوصول لأي ملف طالب. الشخصية والجرس في الطرفين، والبحث قابل للطي مستقبلاً.</p>
+    <p class="cons"><b>يشغل مساحة دائمة</b> — قد يشتت في شاشات القراءة؛ والأزرار الأخرى تضيق إذا زادت عن اثنين.</p>
+    <div class="impl">Flutter: <code>TextField</code> مدمج في <code>AppBar</code> ضمن <code>Row</code>، اقتراحات عبر <code>Autocomplete</code> من <code>studentsProvider</code> + <code>subjectsProvider</code>.</div>
+    <button class="choose" onclick="choose('opt3')">أعجبني — اختر هذا</button>
+  </article>
+
+  <!-- ═══════ 4 — اللوحة العائمة ═══════ -->
+  <article class="option" id="opt4" data-name="4 — اللوحة العائمة (Pill عائم)">
+    <div class="option-head">
+      <div class="num">4</div>
+      <div>
+        <h3>اللوحة العائمة (Pill عائم)</h3>
+        <div class="dim">كل الإجراءات في حبة عائمة أنيقة — مساحة أكبر للمحتوى</div>
+      </div>
+    </div>
+    <div class="demo">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+        <div class="notch"></div>
+        <div class="screen" id="4">
+          <div class="floating-row">
+            <div class="pill">
+              <div class="avatar sm" data-name="أ. أحمد محمود" onclick="openSheet('4', this)">أ</div>
+              <div class="grow"></div>
+              <div class="abtn" onclick="togglePanel('4','np4')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+                <span class="badge" id="badge4" data-start="2">2</span>
+              </div>
+              <div class="abtn" onclick="toggleMenu('4','qm4')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              </div>
+              <div class="qmenu" id="qm4"></div>
+            </div>
+            <div class="npanel" id="np4" style="top:82px"></div>
+          </div>
+          <div class="content" style="padding-top:8px">
+            <div class="daylbl"><span>اليوم — الأربعاء</span><span>3 جلسات</span></div>
+            <div class="slist">
+              <div class="srow"><span class="time">09:00</span><div class="who"><div class="n">أحمد خالد</div><div class="s">رياضيات • عند الطالب</div></div><span class="chip rec">مكرر</span></div>
+              <div class="srow"><span class="time">10:30</span><div class="who"><div class="n">سارة محمد</div><div class="s">لغة عربية • عند المدرّس</div></div><span class="chip late">متأخر</span></div>
+              <div class="srow"><span class="time">12:00</span><div class="who"><div class="n">يوسف علي</div><div class="s">علوم • عند الطالب</div></div><span class="chip rec">مكرر</span></div>
+            </div>
+          </div>
+          <div class="footbar"><div class="fb on"><span class="ic">▦</span>الرئيسية</div><div class="fb"><span class="ic">◫</span>الجدول</div><div class="fb"><span class="ic">◉</span>الطلاب</div><div class="fb"><span class="ic">◈</span>الرسوم</div></div>
+          <div class="backdrop" id="bk4"></div>
+          <div class="sheet" id="sh4"></div>
+          <div class="toast" id="toast4"></div>
+        </div>
+      </div>
+    </div>
+    <p class="ttl">الفكرة</p>
+    <p class="pros"><b>حبة عائمة</b> تضم الشخصية والجرس وزر «+» للإجراءات السريعة (جلسة سريعة، طالب جديد…) — الشريط لا يأخذ صفاً كاملاً، فيبقى المحتوى أعلى، والشكل يقرأ كـ«مركز تحكم صغير». قابلة للتوسع بزرّين إضافيين بسهولة.</p>
+    <p class="cons"><b>أقل معيارية</b> — خارج نمط Material المألوف؛ وقد تضيق مع 5+ أزرار أو نصوص طويلة.</p>
+    <div class="impl">Flutter: حاوية <code>Material</code> دائرية داخل <code>Padding</code> علوي، أو <code>FloatingActionButton</code> ممتد بتصميم مخصص — بعيداً عن <code>AppBar</code> الافتراضي.</div>
+    <button class="choose" onclick="choose('opt4')">أعجبني — اختر هذا</button>
+  </article>
+
+  <!-- ═══════ 5 — الحد الأدنى + القائمة ═══════ -->
+  <article class="option" id="opt5" data-name="5 — الحد الأدنى + القائمة (أكثر أزرار)">
+    <div class="option-head">
+      <div class="num">5</div>
+      <div>
+        <h3>الحد الأدنى + القائمة (أكثر أزرار)</h3>
+        <div class="dim">شعيرة واحدة وقائمة تتحمل كل الأزرار المستقبلية</div>
+      </div>
+    </div>
+    <div class="demo">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+        <div class="notch"></div>
+        <div class="screen" id="5">
+          <div class="appbar">
+            <div class="avatar" data-name="أ. أحمد محمود" onclick="openSheet('5', this)">أ</div>
+            <div class="ttl">جدول الأسبوع</div>
+            <div class="abtn" onclick="togglePanel('5','np5')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              <span class="badge" id="badge5" data-start="3">3</span>
+            </div>
+            <div class="abtn ghost" onclick="toggleMenu('5','pm5')">
+              <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+            </div>
+            <div class="npanel" id="np5"></div>
+            <div class="popmenu" id="pm5"></div>
+          </div>
+          <div class="content">
+            <div class="daylbl"><span>اليوم — الأربعاء</span><span>3 جلسات</span></div>
+            <div class="slist">
+              <div class="srow"><span class="time">09:00</span><div class="who"><div class="n">أحمد خالد</div><div class="s">رياضيات • عند الطالب</div></div><span class="chip rec">مكرر</span></div>
+              <div class="srow"><span class="time">10:30</span><div class="who"><div class="n">سارة محمد</div><div class="s">لغة عربية • عند المدرّس</div></div><span class="chip late">متأخر</span></div>
+              <div class="srow"><span class="time">12:00</span><div class="who"><div class="n">يوسف علي</div><div class="s">علوم • عند الطالب</div></div><span class="chip rec">مكرر</span></div>
+            </div>
+          </div>
+          <div class="footbar"><div class="fb on"><span class="ic">▦</span>الرئيسية</div><div class="fb"><span class="ic">◫</span>الجدول</div><div class="fb"><span class="ic">◉</span>الطلاب</div><div class="fb"><span class="ic">◈</span>الرسوم</div></div>
+          <div class="backdrop" id="bk5"></div>
+          <div class="sheet" id="sh5"></div>
+          <div class="toast" id="toast5"></div>
+        </div>
+      </div>
+    </div>
+    <p class="ttl">الفكرة</p>
+    <p class="pros">أبسط شكل: <b>شخصية + عنوان + جرس + زر قائمة (⋮)</b>. القائمة تتحمل كل الإجراءات الحالية والمستقبلية (المظهر، المزامنة، التقرير، بحث الموسع…) دون أن يكبر الشريط — البنية تبقى نظيفة مهما زادت الأزرار لاحقاً.</p>
+    <p class="cons"><b>وصول بنقرتين</b> — بعض الإجراءات تتطلب فتح القائمة أولاً؛ أقل وضوحاً للمستخدم الجديد.</p>
+    <div class="impl">Flutter: <code>actions: [bell(), PopupMenuButton(...)]</code> — القائمة تُبنى من قائمة إجراءات ديناميكية تُحقن لاحقاً.</div>
+    <button class="choose" onclick="choose('opt5')">أعجبني — اختر هذا</button>
+  </article>
+
+  </div>
+
+  <p class="footnote">اختيارك محفوظ محلياً في متصفحك فقط — بعد الاختيار أعطني الكلمة لأطبّق الاتفاق كاملاً في كود دروس.</p>
+</div>
+
+<script>
+  const ICONS = {
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
+    moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>',
+    sync: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>',
+    more: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+    retry: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/></svg>',
+  };
+
+  const STUDENTS = ['أحمد خالد', 'سارة محمد', 'يوسف علي', 'ليان حسن', 'مريم سامي', 'عمر فارس'];
+  const SUBJECTS = ['رياضيات', 'لغة عربية', 'علوم', 'قرآن', 'إنجليزي'];
+
+  const NOTIFS = {
+    1: [
+      { t: 'حصّة سارة محمد سُجّلت', b: 'غائب — لغة عربية 10:30', read: false },
+      { t: 'رسالة جديدة من ولي أمر', b: 'ليان حسن: سؤال عن الواجب', read: false },
+      { t: 'تحديث متاح v1.1.8', b: 'يمكنك الآن التحديث', read: true },
+    ],
+    2: [
+      { t: 'حصّة سارة محمد سُجّلت', b: 'غائب — لغة عربية 10:30', read: false },
+      { t: 'تحديث متاح v1.1.8', b: 'يمكنك الآن التحديث', read: true },
+    ],
+    3: [
+      { t: 'رسالة جديدة من ولي أمر', b: 'ليان حسن: سؤال عن الواجب', read: false },
+      { t: 'تحديث متاح v1.1.8', b: 'يمكنك الآن التحديث', read: true },
+    ],
+    4: [
+      { t: 'حصّة سارة محمد سُجّلت', b: 'غائب — لغة عربية 10:30', read: false },
+      { t: 'تحديث متاح v1.1.8', b: 'يمكنك الآن التحديث', read: true },
+    ],
+    5: [
+      { t: 'حصّة سارة محمد سُجّلت', b: 'غائب — لغة عربية 10:30', read: false },
+      { t: 'رسالة جديدة من ولي أمر', b: 'ليان حسن: سؤال عن الواجب', read: false },
+      { t: 'تحديث متاح v1.1.8', b: 'يمكنك الآن التحديث', read: true },
+    ],
+  };
+
+  const sce = id => document.getElementById(id);
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  function toast(id, msg) {
+    const el = sce('toast' + id);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 1600);
+  }
+
+  function closeAllPanels(exceptId) {
+    document.querySelectorAll('.npanel.show, .popmenu.show, .qmenu.show, .search-drop.show, .backdrop.show, .sheet.show')
+      .forEach(el => {
+        if (exceptId && (el.id === 'bk' + exceptId || el.closest('.screen')?.id === exceptId)) return;
+        el.classList.remove('show');
+      });
+  }
+
+  // ─── notifications panel ───
+  function togglePanel(phoneId, panelId) {
+    const panel = sce(panelId);
+    if (panel.classList.contains('show')) { panel.classList.remove('show'); return; }
+    closeAllPanels(phoneId);
+    renderPanel(phoneId, panel);
+    panel.classList.add('show');
+  }
+  function renderPanel(phoneId, panel) {
+    const items = NOTIFS[phoneId];
+    let html = '<div class="np-head"><span>الإشعارات</span><span class="np-all">عرض الكل</span></div>';
+    if (items.length === 0) {
+      html += '<div class="np-empty">لا إشعارات جديدة</div>';
+    } else {
+      for (const it of items) {
+        html += `<div class="ni ${it.read ? 'read' : ''}" data-idx="${items.indexOf(it)}"><span class="dot"></span><div class="tx"><b>${esc(it.t)}</b>${esc(it.b)}<span class="tm">الآن</span></div></div>`;
+      }
+    }
+    panel.innerHTML = html;
+    panel.querySelectorAll('.ni').forEach(ni => {
+      ni.addEventListener('click', () => {
+        const idx = +ni.dataset.idx;
+        NOTIFS[phoneId][idx].read = true;
+        renderPanel(phoneId, panel);
+        updateBadge(phoneId);
+      });
+    });
+    panel.querySelector('.np-all')?.addEventListener('click', () => {
+      NOTIFS[phoneId].forEach(i => i.read = true);
+      renderPanel(phoneId, panel);
+      updateBadge(phoneId);
+    });
+  }
+  function updateBadge(phoneId) {
+    const badge = sce('badge' + phoneId);
+    if (!badge) return;
+    const unread = NOTIFS[phoneId].filter(i => !i.read).length;
+    badge.textContent = unread;
+    badge.classList.toggle('zero', unread === 0);
+  }
+
+  // ─── profile sheet (with edit demo) ───
+  function openSheet(phoneId, triggerEl) {
+    closeAllPanels(phoneId);
+    const sheet = sce('sh' + phoneId);
+    const backdrop = sce('bk' + phoneId);
+    const name = triggerEl?.dataset?.name || 'أ. أحمد محمود';
+    sheet.innerHTML = `
+      <div class="grab"></div>
+      <div class="row">
+        <div class="avatar lg" data-name="${esc(name)}">${esc(name.charAt(0))}</div>
+        <div class="meta"><div class="nm" id="sheet-name-${phoneId}">${esc(name)}</div><div class="em">ahmed@example.com</div></div>
+      </div>
+      <div class="field"><label>الاسم الكامل</label><input id="fname-${phoneId}" value="${esc(name)}" /></div>
+      <div class="field"><label>رقم الهاتف</label><input id="fphone-${phoneId}" value="+963 99 123 4567" /></div>
+      <button class="save" onclick="saveProfile('${phoneId}')">${ICONS.edit} حفظ التعديلات</button>
+      <button class="cancel" onclick="closeSheet('${phoneId}')">إلغاء</button>
+    `;
+    backdrop.classList.add('show');
+    sheet.classList.add('show');
+    setTimeout(() => sce('fname-' + phoneId)?.focus(), 320);
+  }
+  function saveProfile(phoneId) {
+    const val = sce('fname-' + phoneId)?.value?.trim() || 'أ. أحمد محمود';
+    const phone = sce(phoneId);
+    phone.querySelectorAll('.avatar[data-name]').forEach(a => { a.textContent = val.charAt(0) || 'أ'; });
+    const idboxName = sce('idbox-name' + phoneId);
+    if (idboxName) idboxName.textContent = val;
+    const sheetName = sce('sheet-name-' + phoneId);
+    if (sheetName) sheetName.textContent = val;
+    closeSheet(phoneId);
+    toast(phoneId, 'تم حفظ الملف الشخصي (تجريبي)');
+  }
+  function closeSheet(phoneId) {
+    const phone = sce(phoneId);
+    phone.querySelector('.sheet')?.classList.remove('show');
+    phone.querySelector('.backdrop')?.classList.remove('show');
+  }
+
+  // ─── design 3 search ───
+  document.querySelectorAll('.searchbox input').forEach(input => {
+    input.addEventListener('focus', () => input.closest('.searchbox').classList.add('focus'));
+    input.addEventListener('blur', () => setTimeout(() => {
+      input.closest('.searchbox').classList.remove('focus');
+      const phoneId = input.dataset.phone;
+      if (phoneId) sce('sd' + phoneId)?.classList.remove('show');
+    }, 180));
+    input.addEventListener('input', () => {
+      const phoneId = input.dataset.phone;
+      const drop = sce('sd' + phoneId);
+      if (!drop) return;
+      const q = input.value.trim();
+      if (!q) { drop.classList.remove('show'); return; }
+      const matches = [...STUDENTS, ...SUBJECTS].filter(s => s.includes(q));
+      drop.innerHTML = matches.length === 0
+        ? '<div class="si" style="color:var(--muted);font-weight:400">لا نتائج</div>'
+        : matches.map(m => `<div class="si" data-v="${esc(m)}">${esc(m)}</div>`).join('');
+      drop.querySelectorAll('.si').forEach(si => {
+        si.addEventListener('click', () => {
+          input.value = '';
+          drop.classList.remove('show');
+          toast(phoneId, 'فتح: ' + si.dataset.v);
+        });
+      });
+      drop.classList.add('show');
+    });
+  });
+
+  // ─── design 4 quick add + design 5 overflow menu ───
+  function toggleMenu(phoneId, menuId) {
+    const menu = sce(menuId);
+    if (menu.classList.contains('show')) { menu.classList.remove('show'); return; }
+    closeAllPanels(phoneId);
+    if (menuId.startsWith('qm')) {
+      menu.innerHTML = `
+        <div class="mi" data-a="جلسة سريعة">${ICONS.more} جلسة سريعة (حضور)</div>
+        <div class="mi" data-a="طالب جديد">${ICONS.user} طالب جديد</div>
+        <div class="mi" data-a="مزامنة">${ICONS.sync} مزامنة</div>
+      `;
+    } else {
+      menu.innerHTML = `
+        <div class="mi" data-a="الإشعارات">${ICONS.user} الإشعارات</div>
+        <div class="mi" data-a="المظهر">${ICONS.moon} المظهر (داكن/فاتح)</div>
+        <div class="mi" data-a="المزامنة">${ICONS.sync} مزامنة</div>
+        <div class="mi" data-a="الإعدادات">${ICONS.retry} الإعدادات</div>
+        <div class="mi danger" data-a="تسجيل الخروج">${ICONS.more} تسجيل الخروج</div>
+      `;
+    }
+    menu.querySelectorAll('.mi').forEach(mi => {
+      mi.addEventListener('click', () => {
+        menu.classList.remove('show');
+        toast(phoneId, 'فتح: ' + mi.dataset.a);
+      });
+    });
+    menu.classList.add('show');
+  }
+
+  // ─── choice persistence ───
+  function choose(id) {
+    document.querySelectorAll('.option').forEach(c => c.classList.remove('selected'));
+    const card = document.getElementById(id);
+    card.classList.add('selected');
+    document.getElementById('bannerName').textContent = card.dataset.name;
+    document.getElementById('choiceBanner').classList.add('show');
+    try { localStorage.setItem('durus-topbar-design-choice', id); } catch (e) {}
+    document.getElementById('choiceBanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function clearChoice() {
+    document.querySelectorAll('.option').forEach(c => c.classList.remove('selected'));
+    document.getElementById('choiceBanner').classList.remove('show');
+    try { localStorage.removeItem('durus-topbar-design-choice'); } catch (e) {}
+  }
+
+  // ─── restore saved choice + init badges + global click-to-close ───
+  (function init() {
+    [1,2,3,4,5].forEach(updateBadge);
+    try {
+      const saved = localStorage.getItem('durus-topbar-design-choice');
+      if (saved && document.getElementById(saved)) choose(saved);
+    } catch (e) {}
+    document.querySelectorAll('.screen').forEach(scr => {
+      scr.addEventListener('click', e => {
+        if (!e.target.closest('.abtn, .avatar, .idbox, .searchbox, .npanel, .popmenu, .qmenu, .sheet, .backdrop, .save, .cancel')) {
+          closeAllPanels(scr.id);
+        }
+      });
+    });
+    document.querySelectorAll('.backdrop').forEach(bk => {
+      bk.addEventListener('click', () => closeSheet(bk.id.replace('bk', '')));
+    });
+  })();
+</script>
+</body>
+</html>

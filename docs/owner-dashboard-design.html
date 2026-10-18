@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:," />
+<title>دروس — لوحة المالك: نموذج بشريط تنقل سفلي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #FAF8F4;
+    --ink: #14213D;
+    --muted: #6F7A8C;
+    --teal: #0E7C66;
+    --teal-container: #DFF3EC;
+    --on-teal-container: #0A3B2E;
+    --ember: #E8622B;
+    --border: #ECEAE3;
+    --white: #fff;
+    --radius: 26px;
+    --font: 'Zain', 'Noto Sans Arabic', sans-serif;
+    --green: #2E7D32;
+    --green-bg: #E4F2E4;
+    --red: #B3382C;
+    --red-bg: #FBE3E3;
+    --amber: #B7791F;
+    --amber-bg: #FFF3D6;
+    --slate-bg: #ECEFF1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--paper); color: var(--ink); line-height: 1.6; padding-bottom: 90px; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── header ── */
+  .hero { background: linear-gradient(160deg, #0A3B2E 0%, #0E7C66 60%, #12A083 100%); color: #fff; border-radius: 0 0 40px 40px; padding: 48px 0 56px; margin-bottom: -24px; }
+  .hero .tag { display: inline-block; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 700; color: #E6F6F1; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(30px, 5vw, 52px); font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+  .hero p.sub { font-size: clamp(16px, 2vw, 20px); opacity: .92; max-width: 860px; font-weight: 400; }
+  .hero .meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero .meta span { background: rgba(255,255,255,.12); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 700; }
+
+  /* ── layout ── */
+  .cols { display: grid; grid-template-columns: 380px 1fr; gap: 36px; margin-top: 48px; align-items: start; }
+  @media (max-width: 960px) { .cols { grid-template-columns: 1fr; } }
+
+  /* ── phone frame ── */
+  .phone { max-width: 360px; margin: 0 auto; background: #fff; border: 10px solid #101828; border-radius: 44px; overflow: hidden; box-shadow: 0 18px 50px rgba(20,33,61,.18); }
+  .notch { height: 24px; background: #101828; display: flex; justify-content: center; align-items: flex-start; }
+  .notch span { width: 110px; height: 18px; background: #101828; border-radius: 0 0 14px 14px; position: relative; }
+  .notch span::after { content: ''; position: absolute; top: 4px; inset-inline-start: 12px; width: 8px; height: 8px; border-radius: 50%; background: #2A3B5C; }
+  .screen { height: 640px; overflow: hidden; background: var(--paper); position: relative; display: flex; flex-direction: column; }
+  .spad { padding: 14px 12px 10px; overflow-y: auto; flex: 1; scrollbar-width: thin; }
+  .spad::-webkit-scrollbar { width: 5px; }
+  .spad::-webkit-scrollbar-thumb { background: #C9C4B4; border-radius: 4px; }
+  .tabpane { display: none; }
+  .tabpane.active { display: block; }
+
+  /* ── app top bar ── */
+  .topbar { background: var(--teal); color: #fff; border-radius: 18px; padding: 12px 16px; font-weight: 800; font-size: 19px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  /* ── bottom navbar (adapted from the suggested floating-bar pattern) ── */
+  .navbar { display: flex; gap: 2px; background: #fff; border-top: 1px solid var(--border); padding: 8px 10px 14px; box-shadow: 0 -6px 20px rgba(20,33,61,.08); }
+  .navbtn { flex: 1; border: 0; background: transparent; font-family: var(--font); cursor: pointer; border-radius: 16px; padding: 7px 2px 5px; display: flex; flex-direction: column; align-items: center; gap: 1px; color: var(--muted); }
+  .navbtn svg { width: 23px; height: 23px; }
+  .navbtn small { font-size: 10.5px; font-weight: 700; }
+  .navbtn.active { background: var(--teal-container); color: var(--on-teal-container); }
+
+  /* ── stat grid ── */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+  .stat { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 8px 4px; text-align: center; }
+  .stat b { display: block; font-size: 17px; font-weight: 800; }
+  .stat small { display: block; font-size: 10.5px; color: var(--muted); line-height: 1.3; }
+
+  /* ── section cards ── */
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 12px 14px; margin-bottom: 12px; }
+  .card h4 { font-size: 16px; font-weight: 800; margin-bottom: 8px; color: var(--teal); }
+  .rowline { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  .rowline:last-child { border-bottom: 0; }
+  .rowline .t { font-weight: 700; }
+  .rowline .s { font-size: 12px; color: var(--muted); }
+
+  /* ── bars ── */
+  .bar-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 12px; }
+  .bar-row .wk { width: 74px; color: var(--muted); flex-shrink: 0; }
+  .bar-track { flex: 1; }
+  .bar-fill { height: 11px; background: var(--teal); border-radius: 6px; }
+  .bar-row .n { width: 16px; text-align: end; font-weight: 700; }
+
+  /* ── chips ── */
+  .chip { display: inline-block; border-radius: 999px; padding: 1px 10px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+  .chip.teal { background: var(--teal-container); color: var(--on-teal-container); }
+  .chip.red { background: var(--red-bg); color: var(--red); }
+  .chip.amber { background: var(--amber-bg); color: var(--amber); }
+  .chip.green { background: var(--green-bg); color: var(--green); }
+  .chip.slate { background: var(--slate-bg); color: #455A64; }
+
+  /* ── request cards ── */
+  .req { border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; }
+  .req .head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .req .head b { font-size: 14px; }
+  .req .body { font-size: 13px; color: #33415F; margin-bottom: 2px; }
+  .req .who { font-size: 11.5px; color: var(--muted); margin-bottom: 8px; }
+  .req select { width: 100%; font-family: var(--font); font-size: 14px; font-weight: 700; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 12px; background: #fff; color: var(--ink); }
+
+  /* ── error rows ── */
+  .err-msg { font-size: 12px; font-family: monospace; direction: ltr; text-align: end; background: var(--slate-bg); border-radius: 8px; padding: 4px 8px; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ── notes ── */
+  .notes h2 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .notes p.lead { font-size: 17px; color: #33415F; margin-bottom: 20px; max-width: 720px; }
+  .note { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px; }
+  .note h3 { font-size: 18px; font-weight: 800; color: var(--teal); margin-bottom: 6px; }
+  .note p, .note li { font-size: 15.5px; color: #33415F; }
+  .note ul { padding-right: 20px; display: grid; gap: 4px; margin-top: 6px; }
+  .note code { background: var(--slate-bg); border-radius: 6px; padding: 1px 8px; font-size: 14px; }
+  .caption { text-align: center; font-size: 14px; color: var(--muted); margin-top: 14px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="tag">نموذج تفاعلي — v2 بشريط تنقل</span>
+    <h1>لوحة المالك</h1>
+    <p class="sub">نفس الشاشة مقسّمة على 4 تبويبات بشريط سفلي عائم (نظرة عامة، المدارس، الطلبات، الأخطاء). جرّب التنقل في الهاتف — كل تبويب يعمل.</p>
+    <div class="meta">
+      <span>ظاهرة للمالك فقط</span>
+      <span>التبويبات تعمل في هذا النموذج</span>
+      <span>بطاقة المعلمون صريحة الآن</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap cols">
+  <div>
+    <div class="phone">
+      <div class="notch"><span></span></div>
+      <div class="screen">
+        <div class="spad">
+          <div class="topbar">📊 لوحة المالك</div>
+
+          <!-- TAB 1: overview -->
+          <div class="tabpane active" id="tab-overview">
+            <div class="stats">
+              <div class="stat"><b>7</b><small>المستخدمون</small></div>
+              <div class="stat"><b>5</b><small>المعلمون</small></div>
+              <div class="stat"><b>5</b><small>المدارس</small></div>
+              <div class="stat"><b>14</b><small>الطلاب</small></div>
+              <div class="stat"><b>10</b><small>المواد</small></div>
+              <div class="stat"><b>2</b><small>نشط اليوم</small></div>
+              <div class="stat"><b>285K</b><small>المحصّل هذا الشهر</small></div>
+              <div class="stat"><b>785K</b><small>المستحق</small></div>
+              <div class="stat"><b>2</b><small>نشط هذا الأسبوع</small></div>
+            </div>
+            <div class="card">
+              <h4>النسخ المستخدمة</h4>
+              <div class="rowline"><span class="t">1.1.17 • android</span><span>2</span></div>
+              <div class="rowline"><span class="t">1.1.16 • android</span><span>1</span></div>
+            </div>
+            <div class="card">
+              <h4>التسجيلات الأسبوعية</h4>
+              <div class="bar-row"><span class="wk">2026-09-07</span><span class="bar-track"><span class="bar-fill" style="display:block;width:100%"></span></span><span class="n">4</span></div>
+              <div class="bar-row"><span class="wk">2026-09-14</span><span class="bar-track"><span class="bar-fill" style="display:block;width:50%"></span></span><span class="n">2</span></div>
+            </div>
+          </div>
+
+          <!-- TAB 2: schools -->
+          <div class="tabpane" id="tab-schools">
+            <div class="card">
+              <h4>المدارس (5)</h4>
+              <div class="rowline">
+                <span><span class="t">أ. محمد الخالد</span><br /><span class="s">المعلمون: 2 • الطلاب: 6</span></span>
+              </div>
+              <div class="rowline">
+                <span><span class="t">أ. سارة العلي</span><br /><span class="s">المعلمون: 1 • الطلاب: 5</span></span>
+              </div>
+              <div class="rowline">
+                <span><span class="t">مدرسة النور</span><br /><span class="s">المعلمون: 2 • الطلاب: 3</span></span>
+              </div>
+              <div class="rowline">
+                <span><span class="t">أ. خالد الحسن</span><br /><span class="s">المعلمون: 0 • الطلاب: 0</span></span>
+                <span class="chip red">خاملة</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: requests -->
+          <div class="tabpane" id="tab-requests">
+            <div class="card">
+              <h4>طلبات الميزات</h4>
+              <div class="req">
+                <div class="head"><span class="chip teal">ميزة جديدة</span><b>تنبيه قبل الحصة بساعة</b></div>
+                <div class="body">أريد إشعارًا يذكرني قبل كل حصة حتى لا أنسى مواعيد الطلاب.</div>
+                <div class="who">أ. سارة العلي</div>
+                <select>
+                  <option selected>جديد</option>
+                  <option>قيد المراجعة</option>
+                  <option>مخطط له</option>
+                  <option>تم تنفيذه</option>
+                  <option>مرفوض</option>
+                </select>
+              </div>
+              <div class="req">
+                <div class="head"><span class="chip amber">تعديل على موجود</span><b>تقرير شهري PDF</b></div>
+                <div class="body">إمكانية إرسال التقرير الشهري لولي الأمر كملف بدل النص.</div>
+                <div class="who">أ. محمد الخالد</div>
+                <select>
+                  <option>جديد</option>
+                  <option selected>قيد المراجعة</option>
+                  <option>مخطط له</option>
+                  <option>تم تنفيذه</option>
+                  <option>مرفوض</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: errors -->
+          <div class="tabpane" id="tab-errors">
+            <div class="card">
+              <h4>تقارير الأخطاء</h4>
+              <div class="rowline">
+                <span><span class="err-msg">subquery uses ungrouped column "p.school_id"</span><br /><span class="s">v1.1.17 • owner</span></span>
+              </div>
+              <div class="rowline">
+                <span><span class="err-msg">SocketException: Failed host lookup</span><br /><span class="s">v1.1.16 • auth</span></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <nav class="navbar">
+          <button class="navbtn active" data-tab="tab-overview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+            <small>نظرة عامة</small>
+          </button>
+          <button class="navbtn" data-tab="tab-schools">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <small>المدارس</small>
+          </button>
+          <button class="navbtn" data-tab="tab-requests">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <small>الطلبات</small>
+          </button>
+          <button class="navbtn" data-tab="tab-errors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+            <small>الأخطاء</small>
+          </button>
+        </nav>
+      </div>
+    </div>
+    <p class="caption">اضغط تبويبات الشريط السفلي — كل قسم في شاشته الآن</p>
+  </div>
+
+  <div class="notes">
+    <h2>ما الذي تغيّر؟</h2>
+    <p class="lead">نفس البيانات، مقسّمة على 4 تبويبات بشريط سفلي عائم (مستوحى من التصميم الذي اقترحته — أيقونات بأسلوب stroke البسيط، والتبويب النشط بخلفية مميزة بلون التطبيق).</p>
+
+    <div class="note">
+      <h3>1. تصحيح التسميات</h3>
+      <p>راجعت كل النصوص: <b>المعلمون</b> = teachers و<b>المدارس</b> = schools في كل مكان (التطبيق والنموذج). اللبس كان من غياب بطاقة صريحة للمعلمين بجانب بطاقة المدارس — الآن توجد بطاقة <b>المعلمون: 5</b> واضحة في شبكة النظرة العامة. إن كنت تقصد موضعًا آخر، أشر إليه وسأصححه فورًا.</p>
+    </div>
+
+    <div class="note">
+      <h3>2. التبويبات الأربعة</h3>
+      <ul>
+        <li><b>نظرة عامة</b>: البطاقات التسع + النسخ + التسجيلات — نظرة الصباح اليومية.</li>
+        <li><b>المدارس</b>: القائمة الكاملة مع شارات الخمول — للمتابعة والتنظيف.</li>
+        <li><b>الطلبات</b>: الفرز (جديد ← تم تنفيذه) دون تشتيت من بقية الأقسام.</li>
+        <li><b>الأخطاء</b>: التقارير الأخيرة أولًا — تفتحه فقط عند وجود مشكلة.</li>
+      </ul>
+    </div>
+
+    <div class="note">
+      <h3>3. ملاحظة تنفيذية</h3>
+      <p>هذا النموذج للشكل فقط. التطبيق الحالي ما زال صفحة واحدة — إن أعجبك التقسيم، أعيد بناء <code>OwnerDashboardScreen</code> بنفس التبويبات الأربعة (شريط <code>NavigationBar</code> الأصلي، نفس البيانات، نفس الصلاحيات). قل <b>نفّذ</b> وسأبنيه.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.navbtn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.navbtn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tabpane').forEach(function (p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
