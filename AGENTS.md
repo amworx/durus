@@ -76,6 +76,25 @@ flutter build apk --debug --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_
 flutter build web   # parents portal + admin dashboard (responsive web)
 ```
 
+## Releases — one APK, always
+
+Run `.\release.ps1 -Version <x.y.z> -Notes "<Arabic notes>"` from `durus/`
+(add `-Upload` to publish). It bumps `pubspec.yaml` + `AppConfig.appVersion`,
+runs the tests, builds, verifies the arm64 APK with aapt2 and stages
+`dist/durus-<version>-arm64.apk`. Playbook: `memory/playbooks.md` →
+`release_one_apk`.
+
+- Publish **exactly ONE** asset per release: the arm64 APK. Never upload the
+  armeabi-v7a / x86_64 splits — users pick the wrong file, and neither is ever
+  needed (32-bit pre-2017 phones; x86_64 cannot install on a phone at all).
+- **versionCode is load-bearing**: split-build arm64 = `2000 + build number`
+  (`1.1.18+3` → `2003`). Always bump `+N`; never ship a code ≤ the last release,
+  and never replace the split build with a plain
+  `--target-platform android-arm64` build (that emits versionCode `N`, below
+  2003, and Android refuses the update).
+- Verify after publishing: asset count is 1, arm64 URL returns 200,
+  `app_meta.latest_release.apk_url` still resolves.
+
 ## Machine notes (this machine)
 
 - Network-constrained: prefer exact version pins that avoid fetching missing

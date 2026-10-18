@@ -1,0 +1,2 @@
+# Release artifacts staged by release.ps1 (build output, never committed).
+/dist/
