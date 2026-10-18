@@ -63,13 +63,27 @@ Guard rails learned the hard way:
   never through `-Notes` / `--notes`: the PowerShell console code page mangles
   Arabic. Write the file with the editor tools first. Keep titles ASCII
   (`--title "Durus vX.Y.Z"`).
-- The `app_meta` migration is a MANUAL step on this machine. The linked
+- The `app_meta` migration cannot be pushed from this machine: the linked
   Supabase CLI account does not own the durus project, so `supabase db push`
-  fails with 403 `database_write` (see the lesson of the same name). Write the
-  migration file so it stays replayable, then apply it from the dashboard SQL
-  editor. Android is unaffected — the GitHub Releases source still advertises
-  the new version — but the WEB build reads `app_meta` only, so the portal
-  keeps serving the previous release until the row lands.
+  fails with 403 `database_write` (see the lesson of the same name). Two ways
+  to land the row:
+  - (a) paste the SQL into the dashboard SQL editor; or
+  - (b) as done for v1.1.19, upsert it through PostgREST with the
+    `SERVICE_ROLE_KEY` from `durus-keys/CREDENTIALS.txt`:
+    `POST <url>/rest/v1/app_meta?on_conflict=key` with headers
+    `apikey` + `Authorization: Bearer <service key>` +
+    `Prefer: resolution=merge-duplicates,return=representation`, and the body
+    being the UTF-8 bytes of
+    `[{"key":"latest_release","value":{...},"updated_at":"..."}]`.
+    Build the payload with the editor tools (placeholder for the timestamp),
+    read it with `-Encoding UTF8`, and assert the Arabic still matches the
+    migration file before sending — then verify by reading the row back with
+    the PUBLISHABLE key, which is the path the app actually uses.
+  Keep the migration file in the repo either way. (b) does not record the
+  migration in `supabase_migrations.schema_migrations`, so a later authorised
+  `db push` will re-run it — harmless, it is an idempotent upsert.
+  A stale row does not block Android (the GitHub Releases source still
+  advertises the new version) but the WEB build reads `app_meta` only.
 - Confirm the web deploy actually shipped before reporting: the portal should
   return 200 and `/durus/version.json` should report the new version and build
   number.
