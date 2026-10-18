@@ -9,6 +9,8 @@
 
 library;
 
+import '../core/utils.dart';
+
 DateTime? _parseTs(dynamic v) => v is String ? DateTime.tryParse(v) : null;
 
 List<T> _jsonList<T>(dynamic v, T Function(Map<String, dynamic>) fromJson) =>
@@ -521,6 +523,24 @@ class AppRelease {
       apkUrl: apkUrl,
     );
   }
+}
+
+/// Merges the two independent release sources into the one shown to users.
+///
+/// [meta] comes from the curated global `app_meta.latest_release` row (the
+/// backend) and [gitHub] from the GitHub Releases API. Either may be null —
+/// a paused/unreachable backend or a filtered network must never stop the
+/// other source from surfacing an update, because the update check is the
+/// only channel an installed app has for learning that a fix exists.
+///
+/// Rule: newest version wins; on a tie prefer the entry carrying a direct
+/// APK url so the in-app download still works.
+AppRelease? mergeReleases(AppRelease? meta, AppRelease? gitHub) {
+  if (meta == null) return gitHub;
+  if (gitHub == null) return meta;
+  if (isNewerVersion(gitHub.version, meta.version)) return gitHub;
+  if (isNewerVersion(meta.version, gitHub.version)) return meta;
+  return meta.apkUrl != null ? meta : gitHub;
 }
 
 /// A test result. Named `TestResult` to avoid clashing with `flutter_test`.

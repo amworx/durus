@@ -75,4 +75,54 @@ void main() {
       expect(r.apkUrl, isNull);
     });
   });
+
+  group('mergeReleases (app_meta + GitHub)', () {
+    AppRelease release(String version, {String? apk}) => AppRelease(
+          version: version,
+          url: 'https://github.com/amworx/durus/releases/tag/v$version',
+          notes: 'ملاحظات $version',
+          apkUrl: apk,
+        );
+
+    // Regression: a paused/unreachable backend (app_meta throws -> null) must
+    // not stop the update check — otherwise no installed app can ever learn
+    // that a fixed build exists.
+    test('surfaces the GitHub release when the backend yields nothing', () {
+      final gh = release('1.1.19');
+      final merged = mergeReleases(null, gh);
+      expect(merged, same(gh));
+      expect(merged!.version, '1.1.19');
+    });
+
+    test('uses the backend metadata when GitHub fails', () {
+      final meta = release('1.1.19');
+      expect(mergeReleases(meta, null), same(meta));
+    });
+
+    test('returns null when both sources are unavailable', () {
+      expect(mergeReleases(null, null), isNull);
+    });
+
+    test('the newer version wins regardless of source', () {
+      expect(mergeReleases(release('1.1.18'), release('1.1.19'))!.version,
+          '1.1.19');
+      expect(mergeReleases(release('1.1.19'), release('1.1.18'))!.version,
+          '1.1.19');
+    });
+
+    test('on a tie the entry with a direct APK url wins', () {
+      expect(
+        mergeReleases(release('1.1.19', apk: 'https://x/a.apk'),
+                release('1.1.19'))!
+            .apkUrl,
+        'https://x/a.apk',
+      );
+      expect(
+        mergeReleases(release('1.1.19'),
+                release('1.1.19', apk: 'https://x/b.apk'))!
+            .apkUrl,
+        'https://x/b.apk',
+      );
+    });
+  });
 }

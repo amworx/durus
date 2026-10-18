@@ -1052,15 +1052,24 @@ class DurusApi {
 
   // ---------- App releases (in-app update check) ----------
 
-  /// Latest published release. Primary source is the curated global
-  /// `app_meta.latest_release` row; on native platforms it is merged with
-  /// the GitHub Releases API so tagging a release on GitHub is enough to
-  /// surface an update (no manual metadata bump required).
+  /// Latest published release. Two independent sources are merged: the
+  /// curated global `app_meta.latest_release` row (backend) and the GitHub
+  /// Releases API — so tagging a release on GitHub is enough to surface an
+  /// update (no manual metadata bump required).
   ///
-  /// Merging rule: the newest version wins; ties prefer the entry that
-  /// carries a direct APK url (so the in-app download works).
+  /// Both fetches are individually guarded and time-boxed. The update check
+  /// is the ONLY channel an installed app has for learning that a fix
+  /// exists, so it must never depend on the backend it may need to rescue:
+  /// when the backend is paused/unreachable (or the network filters it) the
+  /// GitHub source alone must still produce a result instead of the whole
+  /// check throwing.
   Future<AppRelease?> latestRelease() async {
-    final meta = await _appMetaRelease();
+    AppRelease? meta;
+    try {
+      meta = await _appMetaRelease().timeout(_releaseSourceTimeout);
+    } catch (_) {
+      // Backend unreachable, paused, or slow — fall through to GitHub.
+    }
 
     AppRelease? gitHub;
     try {
@@ -1069,12 +1078,13 @@ class DurusApi {
       // Network/parse failure — the curated metadata is still authoritative.
     }
 
-    if (meta == null) return gitHub;
-    if (gitHub == null) return meta;
-    if (isNewerVersion(gitHub.version, meta.version)) return gitHub;
-    if (isNewerVersion(meta.version, gitHub.version)) return meta;
-    return meta.apkUrl != null ? meta : gitHub;
+    return mergeReleases(meta, gitHub);
   }
+
+  /// Per-source budget for the update check. Both sources are best-effort
+  /// and must fail fast: Android's updater is a foreground user action, so a
+  /// hanging backend must not block the check on the healthy source.
+  static const Duration _releaseSourceTimeout = Duration(seconds: 8);
 
   /// Curated release metadata from the global `app_meta` table. Public app
   /// metadata (not school-scoped); returns null when the row is absent.

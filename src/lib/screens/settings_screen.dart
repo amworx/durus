@@ -350,10 +350,18 @@ class _UpdatesSectionState extends ConsumerState<_UpdatesSection> {
     try {
       final latest = await ref.read(apiProvider).latestRelease();
       if (!mounted) return;
+      // `null` means BOTH sources failed (backend unreachable AND GitHub
+      // unreachable) — that is "unknown", not "up to date". Claiming the app
+      // is current while offline would hide real updates.
+      if (latest == null) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.settingsUpdatesError)),
+        );
+        return;
+      }
       setState(() {
         _latest = latest;
-        _upToDate = latest == null ||
-            !isNewerVersion(latest.version, AppConfig.appVersion);
+        _upToDate = !isNewerVersion(latest.version, AppConfig.appVersion);
       });
     } catch (_) {
       if (mounted) {
