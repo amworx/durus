@@ -231,3 +231,26 @@ Append-only.
 - fix: compileOptions { isCoreLibraryDesugaringEnabled = true } + dependencies { coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") } in app/build.gradle.kts.
 - lesson: any Android plugin using java.time backport (local notifications, crashlytics) will demand desugaring; desugar_jdk_libs 2.1.4 is available from the Aliyun mirror.
 - reusable pattern: android-core-library-desugaring
+
+## Lesson: a PAUSED Supabase project returns NXDOMAIN — "DNS does not exist" does NOT mean deleted
+- problem: The Durus app stopped working entirely (no sign-in, no data). `rdlapngvsxhdcoxdcjov.supabase.co` failed to resolve on the local resolver, Cloudflare 1.1.1.1 and Google 8.8.8.8; `/auth/v1/health`, `/rest/v1/` and storage all returned HTTP 000, while a control project host resolved fine. Concluded the project had been DELETED and told the user the data was unrecoverable.
+- root cause of the WRONG conclusion: an assumption that a paused Supabase project still resolves its `<ref>.supabase.co` hostname. It does not — pausing takes the DNS record away, making a paused project look exactly like a deleted one from the outside. The project was in fact merely paused, under a SECOND Supabase account the CLI/MCP were not logged into.
+- attempted fixes: none applied (diagnosis only); the user restored the project from the dashboard and the app immediately worked.
+- successful fix: restore the paused project in the Supabase dashboard (same ref, same data). Verified afterwards: DNS → 104.18.38.10, `auth/v1/health` → 200 GoTrue, `app_meta.latest_release` served correctly — zero data loss.
+- lesson: on "app is broken + one shared Supabase backend", NEVER conclude deletion from DNS/probe results alone. Check in this order: (1) ask the user to open the Supabase dashboard and look for the project, including on any OTHER account/email they own; (2) only then treat it as lost. CLI/MCP project lists are account-scoped and are not global truth.
+- reusable pattern: supabase-outage-triage
+
+## Lesson: PowerShell 5.1 parses non-ASCII in double-quoted strings as smart quotes — keep scripts pure ASCII
+- problem: a newly written `release.ps1` failed to parse with 10 confusing errors ("Unexpected token 'Android'", "Missing closing ')' in expression", "The Try statement is missing its Catch or Finally block") pointing at unrelated lines.
+- root cause: em dashes (—) inside double-quoted strings. The file is UTF-8 without a BOM; PowerShell 5.1 reads it as ANSI, so each em dash (E2 80 94) decodes to a character ending in 0x94 — the curly closing quote, which PowerShell accepts as a string delimiter. Every string containing an em dash therefore terminated early and the whole block cascaded into bogus errors.
+- attempted fixes: re-reading the reported lines (they looked correct — the errors were downstream of the real cause).
+- successful fix: made the script pure ASCII (em dash -> "-") and verified zero bytes above 0x7F; also run a syntax check before executing a script: `[System.Management.Automation.Language.Parser]::ParseFile($path,[ref]$null,[ref]$errs)`.
+- lesson: on this Windows + PowerShell 5.1 setup, generated .ps1 files must be pure ASCII (or saved UTF-8 **with BOM**). Arabic/typographic characters belong in data passed to the script or in files read with an explicit encoding, never inline in code. Also note `Write-Host` is needed for diagnostics inside a function whose return value is assigned (`$x = Fn`) — plain strings get captured and swallowed.
+- reusable pattern: powershell-ascii-scripts
+
+## Lesson: flutter test / flutter analyze mutate repo files — revert them to keep a diff scoped
+- problem: after running verification, `src/analysis_options.yaml` and `src/pubspec.lock` showed as modified, though neither was part of the task.
+- root cause: the Flutter tool auto-"upgrades" analysis_options.yaml (adds `analyzer: exclude: build/**, android/**, web/**`) and `pub get` re-resolves patch versions (intl 0.20.2->0.20.3, matcher, meta...), touching the lockfile.
+- successful fix: `git checkout -- src/analysis_options.yaml src/pubspec.lock` so only intended edits remain.
+- lesson: in this repo, treat these two files as tool-owned side effects of running tests/analysis — check `git status` after verification and revert what the task did not intend, especially on a network-constrained machine where dependency bumps are deliberately pinned.
+- reusable pattern: revert-tool-side-effects
