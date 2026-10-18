@@ -3364,6 +3364,24 @@ abstract class AppLocalizations {
   /// **'تقارير الأخطاء'**
   String get ownerErrors;
 
+  /// No description provided for @ownerTabOverview.
+  ///
+  /// In ar, this message translates to:
+  /// **'نظرة عامة'**
+  String get ownerTabOverview;
+
+  /// No description provided for @ownerTabRequests.
+  ///
+  /// In ar, this message translates to:
+  /// **'الطلبات'**
+  String get ownerTabRequests;
+
+  /// No description provided for @ownerTabErrors.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأخطاء'**
+  String get ownerTabErrors;
+
   /// No description provided for @ownerCollected.
   ///
   /// In ar, this message translates to:

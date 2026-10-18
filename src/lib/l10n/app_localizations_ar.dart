@@ -1711,6 +1711,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ownerErrors => 'تقارير الأخطاء';
 
   @override
+  String get ownerTabOverview => 'نظرة عامة';
+
+  @override
+  String get ownerTabRequests => 'الطلبات';
+
+  @override
+  String get ownerTabErrors => 'الأخطاء';
+
+  @override
   String get ownerCollected => 'المحصّل هذا الشهر';
 
   @override
