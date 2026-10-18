@@ -59,3 +59,17 @@ Guard rails learned the hard way:
   tagged a stale commit).
 - Verify the published asset count is 1 and that the arm64 URL returns 200.
 - Keep the arm64 artifact verifiable: `release.ps1 -Version <v> -VerifyApk <apk>`.
+- Pass Arabic release notes as a UTF-8 file with `--notes-file <file.md>`,
+  never through `-Notes` / `--notes`: the PowerShell console code page mangles
+  Arabic. Write the file with the editor tools first. Keep titles ASCII
+  (`--title "Durus vX.Y.Z"`).
+- The `app_meta` migration is a MANUAL step on this machine. The linked
+  Supabase CLI account does not own the durus project, so `supabase db push`
+  fails with 403 `database_write` (see the lesson of the same name). Write the
+  migration file so it stays replayable, then apply it from the dashboard SQL
+  editor. Android is unaffected — the GitHub Releases source still advertises
+  the new version — but the WEB build reads `app_meta` only, so the portal
+  keeps serving the previous release until the row lands.
+- Confirm the web deploy actually shipped before reporting: the portal should
+  return 200 and `/durus/version.json` should report the new version and build
+  number.

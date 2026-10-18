@@ -254,3 +254,17 @@ Append-only.
 - successful fix: `git checkout -- src/analysis_options.yaml src/pubspec.lock` so only intended edits remain.
 - lesson: in this repo, treat these two files as tool-owned side effects of running tests/analysis — check `git status` after verification and revert what the task did not intend, especially on a network-constrained machine where dependency bumps are deliberately pinned.
 - reusable pattern: revert-tool-side-effects
+
+## Lesson: the Supabase CLI here is linked to durus but the logged-in account cannot write to it
+- problem: `supabase migration list` failed with `403 {"message":"Missing required permission(s): database_write"}` even though `supabase/.temp/project-ref` correctly says `rdlapngvsxhdcoxdcjov`.
+- root cause: the CLI is *linked* to the durus project, but the authenticated account belongs to org `enasdoesrwxidhurgkwx`, which owns only `co-fund` and `xau-vote`. Link state and permission are independent: a stale link makes the project look reachable while every write is refused. The same account limitation applies to the Supabase MCP tools, so neither path can apply a migration to durus.
+- successful fix: none available locally — write the migration file into `supabase/migrations/` anyway (so it stays replayable and reviewable) and hand it to the user to run in the dashboard SQL editor.
+- lesson: before planning any release step that includes a migration, confirm the CLI/MCP identity actually *owns* the target project (`supabase projects list` / MCP list), not just that the repo is linked. Consequence for releases: GitHub Releases remains the update path installed apps can always see, but the web build reads `app_meta` only, so a release without the migration is complete for Android and stale for web.
+- reusable pattern: verify-project-ownership-before-migrating
+
+## Lesson: keep Arabic (and any non-ASCII) off the PowerShell command line
+- problem: `gh release create ... --notes "<Arabic>"` and the `-Notes` parameter both push Arabic through the PowerShell 5.1 command line, where the code page mangles it.
+- root cause: same ANSI/code-page handling that broke release.ps1's em dashes (see the PowerShell ASCII lesson) — arguments are encoded with the console code page, not UTF-8.
+- successful fix: write the notes to a UTF-8 `.md` file with the file tools and pass `--notes-file <path>`; keep `--title "Durus vX.Y.Z"` ASCII-only. The file is written by the editor, so the Arabic never touches the shell.
+- lesson: Arabic content belongs in files (arb, migration SQL, notes .md) — never in a command line, a commit message, or anything else the console re-encodes.
+- reusable pattern: non-ascii-via-files-not-cli
